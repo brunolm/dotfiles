@@ -1,0 +1,13 @@
+[user]
+	name = Bruno Leonardo Michels
+	email = brunolm7@gmail.com
+[core]
+	editor = 'code' -w
+	autocrlf = input
+[color]
+	ui = true
+[push]
+	default = simple
+[alias]
+	alias = config --get-regexp '^alias\\.'
+	lga = log --graph --oneline --all --decorate

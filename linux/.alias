@@ -1,0 +1,5 @@
+zshsrc() {
+  source ~/.zshrc
+}
+
+for f in ~/aliases/*; do source $f; done
