@@ -1,0 +1,24 @@
+[global_config]
+  enabled_plugins = CustomCommandsMenu, TerminalShot, LaunchpadCodeURLHandler, APTURLHandler, Logger, LaunchpadBugURLHandler
+  title_font = Sans 8
+  title_use_system_font = False
+  window_state = maximise
+[keybindings]
+  split_horiz = <Shift>Down
+  split_vert = <Shift>Right
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      profile = default
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+[plugins]
+[profiles]
+  [[default]]
+    background_image = None
+    font = Monospace 8
+    scrollback_lines = 15000
+    use_system_font = False
