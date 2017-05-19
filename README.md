@@ -3,5 +3,5 @@
 Install on Windows
 
 ```
-. .\install.ps1
+.\install.ps1
 ```
