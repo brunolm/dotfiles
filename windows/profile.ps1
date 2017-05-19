@@ -37,13 +37,16 @@ Import-Module posh-git
 ##
 
 if (Test-Path "${env:HomeDrive}${env:HomePath}") {
-    Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Filter *.ps1  |
+    Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Include *.ps1, *.psm1 |
         Foreach-Object {
-            . $_.FullName
-        }
+            $ext = [IO.Path]::GetExtension($_.Name)
 
-    Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Filter *.psm1  |
-        Foreach-Object {
-            Import-Module $_.FullName
+            if ($ext -eq ".ps1") {
+              . $_.FullName
+            }
+
+            if ($ext -eq ".psm1") {
+              Import-Module $_.FullName
+            }
         }
 }
