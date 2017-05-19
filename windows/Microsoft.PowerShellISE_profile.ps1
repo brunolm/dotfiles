@@ -37,4 +37,3 @@ function Invoke-Git {
 }
 
 Set-Alias -Name git -Value Invoke-Git
-Set-Alias -Name git.exe -Value Invoke-Git # It is called by some applications this way
