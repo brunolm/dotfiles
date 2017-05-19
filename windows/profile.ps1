@@ -41,4 +41,9 @@ if (Test-Path "${env:HomeDrive}${env:HomePath}") {
         Foreach-Object {
             . $_.FullName
         }
+
+    Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Filter *.psm1  |
+        Foreach-Object {
+            Import-Module $_.FullName
+        }
 }
