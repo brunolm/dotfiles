@@ -31,8 +31,9 @@ function edit-hosts {
 ## Load modules
 ##
 # Import-Module PSReadline
-Import-Module posh-git
 # Import-Module PowerTab
+Import-Module posh-git
+$global:GitPromptSettings.WorkingForegroundColor = "Red"
 
 ##
 
