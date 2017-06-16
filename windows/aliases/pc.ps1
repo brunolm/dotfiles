@@ -18,4 +18,14 @@ function psl() {
     }
 }
 
+function Update-DNS() {
+    $ips = ("127.0.0.1", "200.195.148.34", "8.8.8.8", "8.8.4.4");
+
+    $wifiIndex = (Get-DnsClientServerAddress | Where-Object {$_.InterfaceAlias -eq 'Wi-Fi' -and $_.AddressFamily -eq 2} | Select-Object InterfaceIndex).InterfaceIndex
+    $netIndex = (Get-DnsClientServerAddress | Where-Object {$_.InterfaceAlias -eq 'Ethernet' -and $_.AddressFamily -eq 2} | Select-Object InterfaceIndex).InterfaceIndex
+
+    Set-DnsClientServerAddress -InterfaceIndex $wifiIndex -ServerAddresses $ips
+    Set-DnsClientServerAddress -InterfaceIndex $netIndex -ServerAddresses $ips
+}
+
 Disable-Beep
