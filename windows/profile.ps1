@@ -1,6 +1,7 @@
 try {
     Set-ExecutionPolicy RemoteSigned
-} catch { }
+}
+catch {}
 #cd D:\
 #cls
 #echo $Profile
@@ -47,6 +48,7 @@ if (Test-Path "${env:HomeDrive}${env:HomePath}") {
             }
 
             if ($ext -eq ".psm1") {
+              Remove-Module -ErrorAction SilentlyContinue $_.FullName
               Import-Module $_.FullName
             }
         }
