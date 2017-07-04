@@ -3,7 +3,8 @@ function Clear-GitBranches() {
     (git branch --merged) -split '[\n]' `
         | Where-Object {$_} `
         | Select-Object -Property @{N='Name';E={$_.Trim().Replace('* ', '')}} `
-        | Where-Object {$_.Name -notin ('develop','master','qa')}
+        | Where-Object {$_.Name -notin ('develop','master','qa')} `
+        | ForEach-Object { git branch -d $_.Name }
 }
 
 Export-ModuleMember -Function "*"
