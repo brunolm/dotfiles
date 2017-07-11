@@ -28,4 +28,6 @@ function Update-DNS() {
     Set-DnsClientServerAddress -InterfaceIndex $netIndex -ServerAddresses $ips
 }
 
+function p() { Set-Location "D:\BrunoLM\Projects" }
+
 Disable-Beep
