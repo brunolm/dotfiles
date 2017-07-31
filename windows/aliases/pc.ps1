@@ -19,13 +19,11 @@ function psl() {
 }
 
 function Update-DNS() {
+    # Foticlient
+    # 172.23.1.1, 172.23.1.10
+
     $ips = ("127.0.0.1", "200.195.148.34", "8.8.8.8", "8.8.4.4");
-
-    $wifiIndex = (Get-DnsClientServerAddress | Where-Object {$_.InterfaceAlias -eq 'Wi-Fi' -and $_.AddressFamily -eq 2} | Select-Object InterfaceIndex).InterfaceIndex
-    $netIndex = (Get-DnsClientServerAddress | Where-Object {$_.InterfaceAlias -eq 'Ethernet' -and $_.AddressFamily -eq 2} | Select-Object InterfaceIndex).InterfaceIndex
-
-    Set-DnsClientServerAddress -InterfaceIndex $wifiIndex -ServerAddresses $ips
-    Set-DnsClientServerAddress -InterfaceIndex $netIndex -ServerAddresses $ips
+    Get-DnsClientServerAddress | Where-Object {$_.AddressFamily -eq 2} | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses $ips }
 }
 
 function p() { Set-Location "D:\BrunoLM\Projects" }
