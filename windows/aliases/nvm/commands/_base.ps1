@@ -1,9 +1,7 @@
-$env:NODE_DIR="C:\Program Files\nodejs";
-$env:NODE_VERSIONS_DIR=(Join-Path $env:NODE_DIR "versions");
-
 # private
 function Node-Install-Extract($zip, $version) {
     7z x $zip -o"$env:NODE_VERSIONS_DIR" -r -aoa
+    # Expand-Archive $zip -DestinationPath "$env:NODE_VERSIONS_DIR" -Force
     $folder = Get-ChildItem $env:NODE_VERSIONS_DIR | Where-Object { $_.Name -match "node-v$version" }
 
     $targetDir = (Join-Path $folder[0].Parent.FullName $version);
