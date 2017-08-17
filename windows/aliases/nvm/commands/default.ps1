@@ -9,8 +9,9 @@ if ($isHelp) {
     Write-Host ""
     Write-Host "Example usage:"
     Write-Host -ForegroundColor Green "  nvm default 8"
+    Write-Host -ForegroundColor Green "  nvm default 8.3.0"
     Write-Host ""
 }
 else {
-    Node-Set-Default $1
+    Node-Set-Default @args
 }

@@ -12,5 +12,5 @@ if ($isHelp) {
     Write-Host ""
 }
 else {
-    Node-Use $1
+    Node-Use @args
 }
