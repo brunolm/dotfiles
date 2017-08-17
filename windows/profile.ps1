@@ -41,13 +41,14 @@ $global:GitPromptSettings.WorkingForegroundColor = "Red"
 if (Test-Path "${env:HomeDrive}${env:HomePath}") {
     Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Include *.ps1, *.psm1 |
         Foreach-Object {
+            $folder = $_.Directory.Name;
             $ext = [IO.Path]::GetExtension($_.Name)
 
-            if ($ext -eq ".ps1") {
+            if ($ext -eq ".ps1" -and $folder -ne "commands") {
               . $_.FullName
             }
 
-            if ($ext -eq ".psm1") {
+            if ($ext -eq ".psm1" -and $folder -ne "commands") {
               Remove-Module -ErrorAction SilentlyContinue $_.FullName
               Import-Module $_.FullName
             }
