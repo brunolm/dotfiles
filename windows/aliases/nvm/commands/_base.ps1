@@ -48,9 +48,6 @@ function Node-Set-Default($version) {
     $sourceDir = (Join-Path $env:NODE_VERSIONS_DIR $target[0].Name);
 
     Get-ChildItem $sourceDir | ForEach-Object { Copy-Item $_.FullName $env:NODE_DIR -Recurse -Force }
-
-    node -v
-    npm -v
 }
 
 function Node-Use($version) {
