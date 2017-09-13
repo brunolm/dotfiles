@@ -18,11 +18,14 @@ function psl() {
     }
 }
 
-function Update-DNS() {
+function Update-DNS($ips) {
     # Foticlient
     # 172.23.1.1, 172.23.1.10
 
-    $ips = ("127.0.0.1", "200.195.148.34", "8.8.8.8", "8.8.4.4");
+    if (!$ips) {
+        $ips = ("127.0.0.1", "8.8.8.8", "8.8.4.4", "200.195.148.34");
+    }
+
     Get-DnsClientServerAddress | Where-Object {$_.AddressFamily -eq 2} | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses $ips }
 }
 
