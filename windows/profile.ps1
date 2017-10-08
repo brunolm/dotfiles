@@ -2,9 +2,14 @@ try {
     Set-ExecutionPolicy RemoteSigned
 }
 catch {}
-#cd D:\
-#cls
-#echo $Profile
+
+try {
+    $host.UI.RawUI.ForegroundColor = "White";
+    $host.UI.RawUI.BackgroundColor = "Black";
+    Set-Location D:\
+    Clear-Host
+}
+catch {}
 
 function edit-profile {
   Write-Output $Profile
