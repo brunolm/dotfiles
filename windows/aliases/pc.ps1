@@ -18,7 +18,7 @@ function psl() {
     }
 }
 
-function Update-DNS($ips) {
+function Update-DNS($ips, $id) {
     # Foticlient
     # 172.23.1.1, 172.23.1.10
 
@@ -26,7 +26,12 @@ function Update-DNS($ips) {
         $ips = ("127.0.0.1", "8.8.8.8", "8.8.4.4", "200.195.148.34");
     }
 
-    Get-DnsClientServerAddress | Where-Object {$_.AddressFamily -eq 2} | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses $ips }
+    if (!$id) {
+        Get-DnsClientServerAddress | Where-Object {$_.AddressFamily -eq 2} | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses $ips }
+    }
+    else {
+        Get-DnsClientServerAddress | Where-Object {$_.AddressFamily -eq 2 -and $_.InterfaceIndex -eq $id} | ForEach-Object { Set-DnsClientServerAddress -InterfaceIndex $_.InterfaceIndex -ServerAddresses $ips }
+    }
 }
 
 function p() { Set-Location "D:\BrunoLM\Projects" }
