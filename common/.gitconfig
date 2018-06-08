@@ -1,8 +1,9 @@
 [user]
 	name = Bruno Leonardo Michels
 	email = brunolm7@gmail.com
+	signingkey = F48F70DB8392AE7A
 [core]
-	editor = 'code' -w
+	editor = code
 	autocrlf = input
 [color]
 	ui = true
@@ -11,3 +12,7 @@
 [alias]
 	alias = config --get-regexp '^alias\\.'
 	lga = log --graph --oneline --all --decorate
+[commit]
+	gpgsign = true
+[gpg]
+	program = C:/Program Files (x86)/GnuPG/bin/gpg.exe
