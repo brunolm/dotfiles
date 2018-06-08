@@ -1,10 +1,15 @@
 function Clear-GitBranches() {
-    git remote prune origin
-    (git branch --merged) -split '[\n]' `
-        | Where-Object {$_} `
-        | Select-Object -Property @{N='Name';E={$_.Trim().Replace('* ', '')}} `
-        | Where-Object {$_.Name -notin ('develop','master','qa')} `
+    git fetch --all --prune
+    git branch -vv `
+        | Where-Object { $_ -like '*origin/*: gone*' } `
+        | Select-Object -Property @{N='Name';E={($_ -split ' ')[2]}} `
         | ForEach-Object { git branch -d $_.Name }
+}
+
+function Update-Development() {
+    git fetch --all --prune
+    git checkout development
+    git pull
 }
 
 Export-ModuleMember -Function "*"

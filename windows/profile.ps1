@@ -6,7 +6,7 @@ catch {}
 try {
     $host.UI.RawUI.ForegroundColor = "White";
     $host.UI.RawUI.BackgroundColor = "Black";
-    Set-Location D:\
+    # Set-Location D:\
     Clear-Host
 }
 catch {}
