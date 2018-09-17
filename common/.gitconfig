@@ -12,6 +12,14 @@
 [alias]
 	alias = config --get-regexp '^alias\\.'
 	lga = log --graph --oneline --all --decorate
+	fa = fetch --all --prune
+  p = pull
+  ps = push
+  fp = !git fetch --all --prune && git pull
+  c = checkout
+  cb = checkout -b
+  m = merge
+  r = !git checkout -- . && git clean -fd
 [commit]
 	gpgsign = true
 [gpg]
