@@ -35,7 +35,7 @@ function Update-DNS($ips, $id) {
 }
 
 function Kill-Port($port) {
-    $processesOnPort = Get-NetTCPConnection -LocalPort $port | Where-Object { $_.OwiningProcess -notmatch 0 }
+    $processesOnPort = Get-NetTCPConnection -LocalPort $port -State Listen
     Write-Output $processesOnPort
 
     $connection = $processesOnPort | Select-Object -Property OwningProcess
