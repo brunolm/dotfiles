@@ -34,6 +34,17 @@ function Update-DNS($ips, $id) {
     }
 }
 
+function Kill-Port($port) {
+    $processesOnPort = Get-NetTCPConnection -LocalPort $port | Where-Object { $_.OwiningProcess -notmatch 0 }
+    Write-Output $processesOnPort
+
+    $connection = $processesOnPort | Select-Object -Property OwningProcess
+
+    if ($connection.OwningProcess) {
+        Stop-Process -Id $connection.OwningProcess
+    }
+}
+
 function p() { Set-Location "D:\BrunoLM\Projects" }
 
 Disable-Beep
