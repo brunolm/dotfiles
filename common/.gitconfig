@@ -1,18 +1,18 @@
 [user]
-	name = Bruno Leonardo Michels
-	email = brunolm7@gmail.com
-	signingkey = F48F70DB8392AE7A
+  name = Bruno Leonardo Michels
+  email = brunolm7@gmail.com
+  signingkey = F48F70DB8392AE7A
 [core]
-	editor = code
-	autocrlf = input
+  editor = code
+  autocrlf = input
 [color]
-	ui = true
+  ui = true
 [push]
-	default = current
+  default = current
 [alias]
-	alias = config --get-regexp '^alias\\.'
-	lga = log --graph --oneline --all --decorate
-	fa = fetch --all --prune
+  alias = config --get-regexp '^alias\\.'
+  lga = log --graph --oneline --all --decorate
+  fa = fetch --all --prune
   p = pull
   ps = push
   fp = !git fetch --all --prune && git pull
@@ -21,6 +21,6 @@
   m = merge
   r = !git checkout -- . && git clean -fd
 [commit]
-	gpgsign = true
+  gpgsign = true
 [gpg]
-	program = C:/Program Files (x86)/GnuPG/bin/gpg.exe
+  program = C:/Program Files (x86)/GnuPG/bin/gpg.exe
