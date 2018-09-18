@@ -19,7 +19,7 @@
   c = checkout
   cb = checkout -b
   m = merge
-  r = !git checkout -- . && git clean -fd
+  r = !git reset HEAD -- . && git checkout -- . && git clean -fd
 [commit]
   gpgsign = true
 [gpg]
