@@ -18,6 +18,7 @@
   fp = !git fetch --all --prune && git pull
   c = checkout
   cb = checkout -b
+  cd = checkout development
   m = merge
   r = !git reset HEAD -- . && git checkout -- . && git clean -fd
 [commit]
