@@ -3,7 +3,7 @@
   email = brunolm7@gmail.com
   signingkey = F48F70DB8392AE7A
 [core]
-  editor = code
+  # editor = "C:/Programs/Microsoft VS Code Insiders/Code - Insiders.exe"
   autocrlf = input
 [color]
   ui = true

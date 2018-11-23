@@ -1,13 +1,13 @@
 try {
-    Set-ExecutionPolicy RemoteSigned
+  Set-ExecutionPolicy RemoteSigned
 }
 catch {}
 
 try {
-    $host.UI.RawUI.ForegroundColor = "White";
-    $host.UI.RawUI.BackgroundColor = "Black";
-    # Set-Location D:\
-    Clear-Host
+  $host.UI.RawUI.ForegroundColor = "White";
+  $host.UI.RawUI.BackgroundColor = "Black";
+  # Set-Location D:\
+  Clear-Host
 }
 catch {}
 
