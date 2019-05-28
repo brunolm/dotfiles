@@ -14,6 +14,11 @@ function Get-ImageBase64FromFile(
     $type = Get-MimeType $file;
     $base64 = [convert]::ToBase64String((Get-Content $file -Encoding byte));
 
+    if (!$type) {
+        $type = [System.IO.Path]::GetExtension($file).Replace('.', '')
+        $type = "image/${type}"
+    }
+
     return "data:$type;base64,$base64";
 }
 
