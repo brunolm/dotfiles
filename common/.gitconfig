@@ -3,8 +3,8 @@
   email = brunolm7@gmail.com
   signingkey = F48F70DB8392AE7A
 [core]
-  # editor = "C:/Programs/Microsoft VS Code Insiders/Code - Insiders.exe"
   autocrlf = input
+	editor = \"C:\\Programs\\Microsoft VS Code Insiders\\Code - Insiders.exe\" --wait
 [color]
   ui = true
 [push]
@@ -25,3 +25,5 @@
   gpgsign = true
 [gpg]
   program = C:/Program Files (x86)/GnuPG/bin/gpg.exe
+[winUpdater]
+	recentlySeenVersion = 2.23.0.windows.1
