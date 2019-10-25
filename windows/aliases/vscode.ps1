@@ -1,3 +1,3 @@
 function code() {
-    Start-Process -WindowStyle Hidden code-insiders.cmd $args
+    code-insiders.cmd -n $args
 }
