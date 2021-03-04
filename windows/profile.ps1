@@ -4,10 +4,10 @@ try {
 catch {}
 
 try {
-  $host.UI.RawUI.ForegroundColor = "White";
-  $host.UI.RawUI.BackgroundColor = "Black";
+  # $host.UI.RawUI.ForegroundColor = "White";
+  # $host.UI.RawUI.BackgroundColor = "Black";
   # Set-Location D:\
-  Clear-Host
+  # Clear-Host
 }
 catch {}
 
@@ -23,6 +23,10 @@ function edit-aliases() {
 function edit-hosts {
   Write-Output "C:\Windows\System32\drivers\etc\hosts"
   Start-Process -verb runas code "C:\Windows\System32\drivers\etc\hosts"
+}
+
+function edit-history {
+  code (Get-PSReadlineOption).HistorySavePath
 }
 
 ##
