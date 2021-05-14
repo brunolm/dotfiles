@@ -11,8 +11,14 @@ try {
 }
 catch {}
 
+function zsh() {
+  C:\Windows\system32\bash.exe -c /usr/bin/zsh $args
+}
+
 function edit-profile {
+  Write-Output "${env:HomeDrive}${env:HomePath}\profile.ps1"
   Write-Output $Profile
+  code "${env:HomeDrive}${env:HomePath}\profile.ps1"
   code $Profile
 }
 
