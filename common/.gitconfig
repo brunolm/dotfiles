@@ -27,6 +27,6 @@
 [commit]
   gpgsign = true
 [gpg]
-  program = C:/Program Files (x86)/GnuPG/bin/gpg.exe
+	program = C:\\Program Files (x86)\\gnupg\\bin\\gpg.exe
 [winUpdater]
 	recentlySeenVersion = 2.23.0.windows.1
