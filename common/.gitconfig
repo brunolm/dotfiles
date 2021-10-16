@@ -1,7 +1,7 @@
 [user]
   name = Bruno Leonardo Michels
   email = brunolm7@gmail.com
-  signingkey = F48F70DB8392AE7A
+  signingkey = D4C3CF2A0B009559
 [core]
   autocrlf = input
 	editor = \"C:\\Programs\\Microsoft VS Code Insiders\\Code - Insiders.exe\" --wait
