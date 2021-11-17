@@ -8,6 +8,7 @@ try {
   # $host.UI.RawUI.BackgroundColor = "Black";
   # Set-Location D:\
   # Clear-Host
+  oh-my-posh --init --shell pwsh --config C:\BrunoLM\Projects\dotfiles\windows\_brunolm.omp.json | Invoke-Expression
 }
 catch {}
 
@@ -51,6 +52,7 @@ function edit-history {
 Import-Module posh-git
 $global:GitPromptSettings.WorkingForegroundColor = "Red"
 
+Import-Module -Name Terminal-Icons
 ##
 
 New-Alias grep findstr
