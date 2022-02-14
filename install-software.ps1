@@ -21,6 +21,8 @@ function InstallSoftware() {
 
   choco install slack -y
   choco install obs-studio -y
+
+  # Install-Module -Name Pscx
 }
 
 InstallSoftware
