@@ -12,6 +12,17 @@ try {
 }
 catch {}
 
+## PSReadLine
+if ($host.Name -eq 'ConsoleHost') {
+  Import-Module PSReadLine
+}
+Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+Set-PSReadLineOption -PredictionSource History
+Set-PSReadLineOption -PredictionViewStyle ListView
+Set-PSReadLineOption -EditMode Windows
+##
+
 function zsh() {
   C:\Windows\system32\bash.exe -c /usr/bin/zsh $args
 }
@@ -43,6 +54,7 @@ function edit-history {
 ## Update modules
 # powershell -noprofile -command "Install-Module PSReadline -Force -SkipPublisherCheck"
 # Update-Module posh-git
+# Install-Module -Name Pscx
 
 ##
 ## Load modules
