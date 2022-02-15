@@ -68,6 +68,7 @@ Import-Module -Name Terminal-Icons
 ##
 
 New-Alias grep findstr
+Set-Alias -Name wf -Value "C:\Users\bruno\AppData\Local\nvs\default\wf.ps1"
 
 if (Test-Path "${env:HomeDrive}${env:HomePath}") {
   Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Include *.ps1, *.psm1 |

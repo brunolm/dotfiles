@@ -23,6 +23,8 @@ function InstallSoftware() {
   choco install obs-studio -y
 
   # yarn global add tree-cli
+
+  # npm install --global opusfluxus
 }
 
 InstallSoftware
