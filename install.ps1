@@ -2,6 +2,7 @@ function Install() {
   $baseProfile = "${env:HOMEDRIVE}${env:HOMEPATH}\profile.ps1";
   Remove-Item $baseProfile;
   New-Item -Path $baseProfile -ItemType SymbolicLink -Value ".\windows\profile.ps1";
+  New-Item -Path "${env:HOMEDRIVE}${env:HOMEPATH}\env.ps1" -ItemType SymbolicLink -Value ".\windows\env.ps1";
 
   $docs = [Environment]::GetFolderPath("MyDocuments");
   $docs = (Join-Path $docs "WindowsPowerShell");
