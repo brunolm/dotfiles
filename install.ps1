@@ -27,6 +27,10 @@ function Install() {
     New-Item -Path "${env:HOMEDRIVE}${env:HOMEPATH}\.gitconfig" -ItemType SymbolicLink -Value ".\common\.gitconfig";
   }
 
+  # New-Item -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup" -ItemType SymbolicLink -Value ".\windows\startup";
+  Copy-Item -Path ".\windows\startup\startup.cmd" -Destination "C:\System"
+  Copy-Item -Path ".\windows\startup\startup.ps1" -Destination "C:\System"
+
   Write-Host ""
   Write-Host "Base profile linked to $baseProfile";
   Write-Host "Powershell profile linked to $powershellProfile";
