@@ -30,3 +30,7 @@
 	program = C:\\Program Files (x86)\\gnupg\\bin\\gpg.exe
 [winUpdater]
 	recentlySeenVersion = 2.23.0.windows.1
+[credential "https://git.heroku.com"]
+	provider = generic
+[safe]
+	directory = *
