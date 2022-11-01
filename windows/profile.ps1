@@ -89,4 +89,4 @@ if (Test-Path "${env:HomeDrive}${env:HomePath}") {
 
 
 ## ENV
-. ./env.ps1
+. ~/env.ps1
