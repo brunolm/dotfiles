@@ -48,4 +48,8 @@ function Kill-Port($port) {
 function p() { Set-Location "D:\BrunoLM\Projects" }
 function pc() { Set-Location "C:\BrunoLM\Projects" }
 
+function which($p) {
+  (Get-Command $p).Definition
+}
+
 Disable-Beep
