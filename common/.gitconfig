@@ -4,7 +4,8 @@
   signingkey = E431F460E263C126
 [core]
   autocrlf = input
-	editor = \"C:\\Programs\\Microsoft VS Code Insiders\\Code - Insiders.exe\" --wait
+  editor = \"C:\\Programs\\Microsoft VS Code Insiders\\Code - Insiders.exe\" --wait
+  longpaths = true
 [color]
   ui = true
 [push]

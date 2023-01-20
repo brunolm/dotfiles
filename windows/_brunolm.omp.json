@@ -100,13 +100,6 @@
           }
         },
         {
-          "type": "text",
-          "style": "powerline",
-          "foreground": "#111111",
-          "background": "#c4da04",
-          "template": "{{ if eq (regexFind \"\\\\w+$\" .Env.CONDA_PREFIX) \"Anaconda3\" }} {{ else }} \ue235 {{ regexFind \"\\\\w+$\" .Env.CONDA_PREFIX }} {{ end }}"
-        },
-        {
           "type": "ruby",
           "style": "powerline",
           "powerline_symbol": "\ue0b0",
