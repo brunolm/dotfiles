@@ -31,12 +31,15 @@ function Install() {
   Copy-Item -Path ".\windows\startup\startup.cmd" -Destination "C:\System"
   Copy-Item -Path ".\windows\startup\startup.ps1" -Destination "C:\System"
 
+  New-Item -Path "C:\System\Startup" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup-files\");
+
   Write-Host ""
   Write-Host "Base profile linked to $baseProfile";
   Write-Host "Powershell profile linked to $powershellProfile";
   Write-Host "Powershell ISE profile linked to $powershellISEProfile";
   Write-Host "Aliases linked to ~/aliases/dotfiles";
   Write-Host "Git config linked to ~/aliases/dotfiles";
+  Write-Host " xxxxxxxxxxx Install oh-my-posh and fonts";
   Write-Host ""
   Write-Host -ForegroundColor Green "Successfully installed!"
 }
