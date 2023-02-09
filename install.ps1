@@ -27,9 +27,9 @@ function Install() {
     New-Item -Path "${env:HOMEDRIVE}${env:HOMEPATH}\.gitconfig" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.gitconfig");
   }
 
-  # New-Item -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup" -ItemType SymbolicLink -Value ".\windows\startup";
-  Copy-Item -Path (Resolve-Path ".\windows\startup\startup.cmd") -Destination "C:\System"
-  Copy-Item -Path (Resolve-Path ".\windows\startup\startup.ps1") -Destination "C:\System"
+  # Need to create a task to run startup.cmd in TaskScheduler as admin
+  New-Item -Path "${env:HOMEDRIVE}\System\startup.cmd" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup\startup.cmd");
+  New-Item -Path "${env:HOMEDRIVE}\System\startup.ps1" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup\startup.ps1");
 
   New-Item -Path "C:\System\Startup" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup-files\");
 
