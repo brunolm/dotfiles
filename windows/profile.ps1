@@ -62,7 +62,7 @@ function edit-history {
 # Import-Module PSReadline
 # Import-Module PowerTab
 Import-Module posh-git
-$global:GitPromptSettings.WorkingForegroundColor = "Red"
+# $global:GitPromptSettings.WorkingForegroundColor = "Red"
 
 Import-Module -Name Terminal-Icons
 ##
