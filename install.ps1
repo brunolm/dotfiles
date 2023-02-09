@@ -39,7 +39,13 @@ function Install() {
   Write-Host "Powershell ISE profile linked to $powershellISEProfile";
   Write-Host "Aliases linked to ~/aliases/dotfiles";
   Write-Host "Git config linked to ~/aliases/dotfiles";
-  Write-Host " xxxxxxxxxxx Install oh-my-posh and fonts";
+
+  Write-Host " ======= NEXT ======= "
+  Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin";
+  Write-Host " - Install oh-my-posh and fonts";
+  Write-Host " ======= /NEXT ======= "
+  Write-Host ""
+
   Write-Host ""
   Write-Host -ForegroundColor Green "Successfully installed!"
 }
