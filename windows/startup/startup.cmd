@@ -1,1 +1,1 @@
-powerShell -windowstyle hidden c:\system\startup.ps1
+powershell -ExecutionPolicy Bypass -windowstyle hidden -File c:\system\startup.ps1
