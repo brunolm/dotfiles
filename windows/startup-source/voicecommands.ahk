@@ -2,6 +2,7 @@
 #SingleInstance, Force
 
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
+SetMouseDelay, -1
 
 global pspeaker := ComObjCreate("SAPI.SpVoice")
 plistener:= ComObjCreate("SAPI.SpInprocRecognizer")
