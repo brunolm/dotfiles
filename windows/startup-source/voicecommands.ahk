@@ -4,6 +4,10 @@
 DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr")
 SetMouseDelay, -1
 
+; Voice Command state
+toggle := false
+Menu, Tray, Icon, %A_ScriptDir%\IconFalse.ico
+
 global pspeaker := ComObjCreate("SAPI.SpVoice")
 plistener:= ComObjCreate("SAPI.SpInprocRecognizer")
 paudioinputs := plistener.GetAudioInputs()
@@ -17,7 +21,7 @@ prulec := prules.Add("wordsRule", 0x1|0x20)
 prulec.Clear()
 pstate := prulec.InitialState()
 
-global responses :={"run notepad": "runNotepad"
+global responses :={"Shutdown Cortana": "shutdownCortana"
   , "Cortana": "cortana"
   , "Stop Cortana": "stopCortana"
   , "Listen Cortana": "listenCortana"}
@@ -34,11 +38,16 @@ global responses :={"run notepad": "runNotepad"
   } else {
     MsgBox, Sorry, voice recognition FAILED
   }
-  sleep, 2000
+  sleep, 500
   SplashTextOff
   return
 
-  OnRecognition(StreamNum,StreamPos,RecogType,Result){
+  OnRecognition(StreamNum,StreamPos,RecogType,Result) {
+    global toggle
+
+    if (!toggle)
+      return
+
     sText:= Result.PhraseInfo().GetText()
 
     if (Responses[sText])
@@ -47,6 +56,15 @@ global responses :={"run notepad": "runNotepad"
   }
 
   ; ----------------------------------
+
+  shutdownCortana:
+    global toggle
+    toggle := false
+    Menu, Tray, Icon, %A_ScriptDir%\IconFalse.ico
+    SplashTextOn,300,50,,Cortana is OFF
+    sleep, 500
+    SplashTextOff
+  return
 
   stopCortana:
     Coordmode, Mouse, Screen
@@ -92,9 +110,26 @@ global responses :={"run notepad": "runNotepad"
     MouseMove, X, Y
   return
 
-  runNotepad:
-    Run Notepad
-  return
+  ; runNotepad:
+  ;   Run Notepad
+  ; return
 
+  ; ----------------------------------
   ; ^Escape::ExitApp
 
+  #F1::
+    toggle := !toggle
+    if (toggle) {
+      SplashTextOff
+      Menu, Tray, Icon, %A_ScriptDir%\IconTrue.ico
+      SplashTextOn,300,50,,Cortana is ON
+      sleep, 400
+      SplashTextOff
+    } else {
+      SplashTextOff
+      Menu, Tray, Icon, %A_ScriptDir%\IconFalse.ico
+      SplashTextOn,300,50,,Cortana is OFF
+      sleep, 400
+      SplashTextOff
+    }
+  return
