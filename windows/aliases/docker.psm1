@@ -9,6 +9,7 @@ function crs { docker-compose run --service-ports --rm setup $args }
 
 function crt { docker-compose run --rm test $args }
 function crci { docker-compose run --rm ci $args }
+function fixDockerWsl { wsl -d docker-desktop echo }
 
 #region List
 
@@ -27,7 +28,7 @@ function Get-DockerContainers() {
     docker ps -a --filter "name=$NAME" --format 'table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}'
   }
   elseif ($PARAMS -contains "-e") {
-   docker ps --filter "status=exited" --filter "name=$NAME" --format 'table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}'
+    docker ps --filter "status=exited" --filter "name=$NAME" --format 'table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}'
   }
   else {
     docker ps --filter "status=running" --filter "name=$NAME" --format 'table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}'
@@ -45,12 +46,12 @@ Set-Alias -Name "dpsi" -Value Get-DockerContainersAndImages
 #region Restart / Stop / Remove / Bash / Logs
 
 function Invoke-DockerRestart() {
-    $NAME = $args[0]
+  $NAME = $args[0]
 
-    Write-Output ""
-    docker ps -a --filter "name=$NAME" --format "{{.Names}}\t{{.ID}}" | Sort-Object -Descending | Select-Object -first 1
-    docker restart $(docker ps -q --filter "name=$NAME" | Sort-Object -Descending | Select-Object -first 1)
-  }
+  Write-Output ""
+  docker ps -a --filter "name=$NAME" --format "{{.Names}}\t{{.ID}}" | Sort-Object -Descending | Select-Object -first 1
+  docker restart $(docker ps -q --filter "name=$NAME" | Sort-Object -Descending | Select-Object -first 1)
+}
 function Invoke-DockerStop() {
   $NAME = $args[0]
 
