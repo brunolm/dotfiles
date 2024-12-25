@@ -1,0 +1,56 @@
+; Check if the active window is "Path of Exile 2"
+#HotIf WinActive("Path of Exile 2")
+
+; Button 4: Left clicks
+XButton1:: {
+  SetTimer(SendLeftClicks, 0)
+  SetTimer(SendLeftClicks, 50)
+}
+^XButton1:: {
+  SetTimer(SendLeftClicks, 0)
+  SetTimer(SendLeftClicks, 50)
+}
++XButton1:: {
+  SetTimer(SendLeftClicks, 0)
+  SetTimer(SendLeftClicks, 50)
+}
+^+XButton1:: {
+  SetTimer(SendLeftClicks, 0)
+  SetTimer(SendLeftClicks, 50)
+}
+
+XButton1 Up:: {
+  SetTimer(SendLeftClicks, 0)
+}
+^XButton1 Up:: {
+  SetTimer(SendLeftClicks, 0)
+}
++XButton1 Up:: {
+  SetTimer(SendLeftClicks, 0)
+}
+^+XButton1 Up:: {
+  SetTimer(SendLeftClicks, 0)
+}
+
+
+; #########
+
+SendLeftClicks() {
+  ; Check if the active window is still "Path of Exile 2"
+  if !WinActive("Path of Exile 2") {
+    SetTimer(SendLeftClicks, 0)
+    return
+  }
+  Click
+}
+
+SendRightClicks() {
+  ; Check if the active window is still "Path of Exile 2"
+  if !WinActive("Path of Exile 2") {
+    SetTimer(SendRightClicks, 0)
+    return
+  }
+  Click "R"
+}
+
+#HotIf

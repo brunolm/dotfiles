@@ -8,4 +8,5 @@ try {
 }
 catch {}
 
-Get-ChildItem c:\system\startup | ForEach-Object { Start-Process $_.FullName -verb runas }
+Get-ChildItem c:\system\startup | ForEach-Object { start $_.FullName }
+# Get-ChildItem c:\system\startup | ForEach-Object { Start-Process $_.FullName -verb runas }

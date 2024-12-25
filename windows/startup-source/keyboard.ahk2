@@ -1,0 +1,12 @@
+; Ditto Win + ' maps to Win + v
+#v::#'
+
+; =====================================================
+
+; Raider GE76 keybord fixes
+Home::PgUp
+PgUp::Home
+End::PgDn
+PgDn::End
+
+; =====================================================
