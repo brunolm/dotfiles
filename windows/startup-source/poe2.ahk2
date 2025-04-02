@@ -1,5 +1,8 @@
 ; Check if the active window is "Path of Exile 2"
-#HotIf WinActive("Path of Exile 2")
+; #HotIf WinActive("Path of Exile 2")
+#HotIf WinActive("Path of Exile 2") && !WinActive("ahk_class Chrome_WidgetWin_1") && !WinActive("ahk_class Chrome_WidgetWin_1", "Visual Studio Code") && !WinActive("ahk_class Chrome_WidgetWin_1", "Edge")
+
+#include OCR.ahk
 
 leftClickTogger := false
 
@@ -8,7 +11,7 @@ ToggleCustomClickTimer() {
   leftClickTogger := !leftClickTogger
 
   if (leftClickTogger) {
-    SetTimer(SendLeftClicks, 45)
+    SetTimer(SendLeftClicks, 75)
   } else {
     StopCustomClickTimer()
   }
@@ -49,6 +52,67 @@ F3:: {
   }
 }
 
+F4:: {
+  ; /invite {latestWhisper}
+  if WinActive("Path of Exile 2") {
+    SendInput("{Enter}/invite {{latestWhisper}}{Enter}")
+  }
+}
+
+
+~3:: {
+  ; if capslock is active press ESC or else keep the key
+  if GetKeyState("CapsLock", "T") {
+    ; SendInput("{Esc}")
+    Critical
+    BlockInput("On")
+    ; execute program cports.exe in current folder
+    Run("cports.exe /close * * * * PathOfExileSteam.exe")
+    Send("{Enter}/exit{Enter}")
+
+    Sleep 65
+    BlockInput("Off")
+  }
+}
+
+F5:: {
+  ; use OCR to read the text on the top right corner of my screen
+  ; and then send the text to a msgbox
+
+  ToolTip "."
+  Sleep 1000
+  ToolTip
+
+  result := OCR.FromRect(2600, 450, 3838, 1100)
+
+  quantity := ""
+  rarity := ""
+  maxRes := ""
+
+  match := {}
+  RegExMatch(result.Text, "(\d+)% INCREASED QUANTITY", &match)
+  if (match is RegExMatchInfo) {
+    quantity := match[1]
+  }
+
+  match := {}
+  RegExMatch(result.Text, "(\d+)% INCREASED RARITY", &match)
+  if (match is RegExMatchInfo) {
+    rarity := match[1]
+  }
+
+  match := {}
+  RegExMatch(result.Text, "-(\d+)% MAXIMUM PLAYER RESISTANCES", &match)
+  if (match is RegExMatchInfo) {
+    maxRes := match[1]
+  }
+
+  calc := ((1 + 144 / 100) * (1 + rarity / 100) - 1) * 100
+  MsgBox("q: " quantity "`nr: " rarity "`ncalc: " calc "`n`nDangers:`n" maxRes "`n")
+
+  ; write result.Text to a file
+  ; FileAppend(result.Text, "test.txt")
+}
 
 ; #########
 
