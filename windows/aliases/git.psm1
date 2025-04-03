@@ -12,6 +12,14 @@ function Git-UpdateDevelop() {
   git pull
 }
 
+function Git-UpdateMainAndDevelop() {
+  git fetch --all --prune
+  git checkout main
+  git pull
+  git checkout develop
+  git pull
+}
+
 function Git-ClearLocalMergedBranches() {
   git branch --merged | Where-Object { $_ -notmatch "main|develop" } | ForEach-Object { git branch -d $_.Trim() }
 }

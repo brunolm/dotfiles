@@ -82,7 +82,7 @@ if (Test-Path "${env:HomeDrive}${env:HomePath}") {
 
     if ($ext -eq ".psm1" -and $folder -ne "commands") {
       Remove-Module -ErrorAction SilentlyContinue $_.FullName
-      Import-Module $_.FullName
+      Import-Module $_.FullName -DisableNameChecking
     }
   }
 }
