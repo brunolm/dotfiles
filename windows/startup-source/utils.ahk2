@@ -1,0 +1,12 @@
+BlackRect(x, y, w, h) {
+  static n := 0
+  n++
+  g := Gui("-Caption +AlwaysOnTop +ToolWindow")
+  g.BackColor := "Black"
+  g.Show("x" x " y" y " w" w " h" h)
+  return g
+}
+
+DestroyBR(g) {
+  g.Destroy()
+}
