@@ -5,15 +5,34 @@
 
 Thread("Priority", 1)
 
+cooldowns := Map()
+timers := []
+toggle := false ; Initialize the toggle variable
+coords := []
+
+; ###############################################
+; # Config
+; ###############################################
+; milliseconds to wait before being able to press the same key again
+cooldownTime := 230
+; distance in pixels from left wheel to right wheel
+rightOffset := 800
+; delay multiplier for distance calc
+delayMultiplier := 3
+; delay offset in ms after distance calc
+delayOffset := 0
+; debug mode
+isDebug := false
+
+; ###############################################
+; # Functions
+; ###############################################
+
 SendKey(key) {
   Send("{" key " down}")
   Sleep(48)
   Send("{" key " up}")
 }
-
-timers := []
-toggle := false ; Initialize the toggle variable
-coords := []
 
 ; press Ctrl+Shift+R to reload the script
 ^+r:: Reload
@@ -32,12 +51,17 @@ coords := []
 p:: {
   global toggle
   global coords
+  global rightOffset
+  global isDebug
 
   toggle := true
   ToolTip("Start")
   Sleep(300)
   ToolTip
 
+  ; ################################################
+  ; # Config: Coordinates
+  ; ################################################
   ns := { x: 710, y: 0, width: 12, height: 50 }
   ew := { x: 0, y: 1000, width: 50, height: 12 }
   nenw := { x: 0, y: 810, width: 50, height: 12 }
@@ -51,9 +75,11 @@ p:: {
     { d: 'E', fromX: 980 - ew.width, fromY: ew.y, toX: 980, toY: ew.y + ew.height, key: "D" }, ; E
     { d: 'W', fromX: 430, fromY: ew.y, toX: 430 + ew.width, toY: ew.y + ew.height, key: "A" }, ; W
     { d: 'SE', fromX: 911 - sesw.width, fromY: sesw.y, toX: 911, toY: sesw.y + sesw.height, key: "C" }, ; SE
-    { d: 'SW', fromX: 500, fromY: sesw.y, toX: 500 + sesw.width, toY: sesw.y + sesw.height, key: "Z" }, ; SW
+    { d: 'SW', fromX: 510, fromY: sesw.y, toX: 510 + sesw.width, toY: sesw.y + sesw.height, key: "Z" }, ; SW
+    ; { d: 'SW', fromX: 500, fromY: sesw.y, toX: 500 + sesw.width, toY: sesw.y + sesw.height, key: "Z" }, ; SW
   ]
 
+  ; ################################################
 
   c1 := coords.Get(1)
   c2 := coords.Get(2)
@@ -63,19 +89,18 @@ p:: {
   c6 := coords.Get(6)
   c7 := coords.Get(7)
   c8 := coords.Get(8)
-  coords.Push({ d: c1.d, fromX: 800 + c1.fromX, fromY: c1.fromY, toX: 800 + c1.toX, toY: c1.toY, key: "I" })
-  coords.Push({ d: c2.d, fromX: 800 + c2.fromX, fromY: c2.fromY, toX: 800 + c2.toX, toY: c2.toY, key: "," })
-  coords.Push({ d: c3.d, fromX: 800 + c3.fromX, fromY: c3.fromY, toX: 800 + c3.toX, toY: c3.toY, key: "O" })
-  coords.Push({ d: c4.d, fromX: 800 + c4.fromX, fromY: c4.fromY, toX: 800 + c4.toX, toY: c4.toY, key: "U" })
-  coords.Push({ d: c5.d, fromX: 800 + c5.fromX, fromY: c5.fromY, toX: 800 + c5.toX, toY: c5.toY, key: "L" })
-  coords.Push({ d: c6.d, fromX: 800 + c6.fromX, fromY: c6.fromY, toX: 800 + c6.toX, toY: c6.toY, key: "J" })
-  coords.Push({ d: c7.d, fromX: 800 + c7.fromX, fromY: c7.fromY, toX: 800 + c7.toX, toY: c7.toY, key: "." })
-  coords.Push({ d: c8.d, fromX: 800 + c8.fromX, fromY: c8.fromY, toX: 800 + c8.toX, toY: c8.toY, key: "M" })
+  coords.Push({ d: c1.d, fromX: rightOffset + c1.fromX, fromY: c1.fromY, toX: rightOffset + c1.toX, toY: c1.toY, key: "I" })
+  coords.Push({ d: c2.d, fromX: rightOffset + c2.fromX, fromY: c2.fromY, toX: rightOffset + c2.toX, toY: c2.toY, key: "," })
+  coords.Push({ d: c3.d, fromX: rightOffset + c3.fromX, fromY: c3.fromY, toX: rightOffset + c3.toX, toY: c3.toY, key: "O" })
+  coords.Push({ d: c4.d, fromX: rightOffset + c4.fromX, fromY: c4.fromY, toX: rightOffset + c4.toX, toY: c4.toY, key: "U" })
+  coords.Push({ d: c5.d, fromX: rightOffset + c5.fromX, fromY: c5.fromY, toX: rightOffset + c5.toX, toY: c5.toY, key: "L" })
+  coords.Push({ d: c6.d, fromX: rightOffset + c6.fromX, fromY: c6.fromY, toX: rightOffset + c6.toX, toY: c6.toY, key: "J" })
+  coords.Push({ d: c7.d, fromX: rightOffset + c7.fromX, fromY: c7.fromY, toX: rightOffset + c7.toX, toY: c7.toY, key: "." })
+  coords.Push({ d: c8.d, fromX: rightOffset + c8.fromX, fromY: c8.fromY, toX: rightOffset + c8.toX, toY: c8.toY, key: "M" })
 
   ;--------
 
   ; Debug coordinates
-  isDebug := false
   if (isDebug) {
     ; debug
     ns := [9, 10, 11, 12, 13, 14, 15, 16]
@@ -95,10 +120,6 @@ p:: {
   }
 }
 
-global cooldowns := Map()
-cooldownTime := 200 ; Cooldown time in milliseconds
-; cooldownTime := 180 ; Cooldown time in milliseconds
-
 CheckPixelInRange(fromX, fromY, toX, toY) {
   PixelSearch(&px, &py, fromX, fromY, toX, toY, 0xFFFF00, 6)
   if (px && py) {
@@ -112,6 +133,9 @@ CheckPixelInRange(fromX, fromY, toX, toY) {
 }
 
 Check(coord) {
+  global delayMultiplier
+  global delayOffset
+
   now := A_TickCount
   pxFound := CheckPixelInRange(coord.fromX, coord.fromY, coord.toX, coord.toY)
   if (pxFound) {
@@ -127,7 +151,7 @@ Check(coord) {
 
       cooldowns.Set(coord.key, now) ; Update the last pressed time for the key
       if (distance > 2) {
-        SetTimer(() => SendKey(coord.key), -distance * 3)
+        SetTimer(() => SendKey(coord.key), -distance * delayMultiplier + delayOffset)
       } else {
         SendKey(coord.key)
       }
