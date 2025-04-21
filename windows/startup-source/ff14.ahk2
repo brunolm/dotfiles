@@ -1,0 +1,27 @@
+; #Persistent
+; CoordMode("Pixel", "Screen")
+; CoordMode("Mouse", "Screen")
+; SetTimer(WatchCursor, 300)
+; return
+
+; ; 0x44d62c razer green test
+; ; 0xdefef7
+; ; 0xcafffc
+; ; 0xfffffd
+
+; WatchCursor() {
+;   OutputVar := []
+;   if PixelSearch(&OutputVar.X, &OutputVar.Y, 1800, 700, 2200, 970, 0xDAF9FC, 20, "Fast") {
+;     ToolTip("Result1 " OutputVar.X " " OutputVar.Y)
+;     ; MsgBox(OutputVar.X " " OutputVar.Y)
+
+;     ; apparently it's easy to detect AHK so don't use it
+
+;     Sleep(200)
+;     ; Send("{e}")
+;     SendRaw("{e}")
+;     Sleep(10000)
+;     SendRaw("{q}")
+;     ; Send("{q}")
+;   }
+; }

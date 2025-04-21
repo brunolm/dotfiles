@@ -1,0 +1,154 @@
+; Check if the active window is "FINAL FANTASY VII REBIRTH"
+#HotIf WinActive("FINAL FANTASY VII REBIRTH")
+
+#include "utils.ahk2"
+
+Thread("Priority", 1)
+
+SendKey(key) {
+  Send("{" key " down}")
+  Sleep(48)
+  Send("{" key " up}")
+}
+
+timers := []
+toggle := false ; Initialize the toggle variable
+coords := []
+
+; press Ctrl+Shift+R to reload the script
+^+r:: Reload
+
+~Esc:: {
+  global toggle := false ; Set toggle to false
+  global timers
+
+  SetTimer(CheckRight, 0)
+
+  ToolTip("Stopped")
+  Sleep(1000)
+  ToolTip
+}
+
+p:: {
+  global toggle
+  global coords
+
+  toggle := true
+  ToolTip("Start")
+  Sleep(300)
+  ToolTip
+
+  ns := { x: 710, y: 0, width: 12, height: 50 }
+  ew := { x: 0, y: 1000, width: 50, height: 12 }
+  nenw := { x: 0, y: 810, width: 50, height: 12 }
+  sesw := { x: 0, y: 1180, width: 50, height: 12 }
+
+  coords := [ ;
+    { d: 'N', fromX: ns.x, fromY: 720, toX: ns.x + ns.width, toY: 720 + ns.height, key: "W" }, ; N
+    { d: 'S', fromX: ns.x, fromY: 1290 - ns.height, toX: ns.x + ns.width, toY: 1290, key: "X" }, ; S
+    { d: 'NE', fromX: 910 - nenw.width, fromY: nenw.y, toX: 910, toY: nenw.y + nenw.height, key: "E" }, ; NE
+    { d: 'NW', fromX: 505, fromY: nenw.y, toX: 505 + nenw.width, toY: nenw.y + nenw.height, key: "Q" }, ; NW
+    { d: 'E', fromX: 980 - ew.width, fromY: ew.y, toX: 980, toY: ew.y + ew.height, key: "D" }, ; E
+    { d: 'W', fromX: 430, fromY: ew.y, toX: 430 + ew.width, toY: ew.y + ew.height, key: "A" }, ; W
+    { d: 'SE', fromX: 911 - sesw.width, fromY: sesw.y, toX: 911, toY: sesw.y + sesw.height, key: "C" }, ; SE
+    { d: 'SW', fromX: 500, fromY: sesw.y, toX: 500 + sesw.width, toY: sesw.y + sesw.height, key: "Z" }, ; SW
+  ]
+
+
+  c1 := coords.Get(1)
+  c2 := coords.Get(2)
+  c3 := coords.Get(3)
+  c4 := coords.Get(4)
+  c5 := coords.Get(5)
+  c6 := coords.Get(6)
+  c7 := coords.Get(7)
+  c8 := coords.Get(8)
+  coords.Push({ d: c1.d, fromX: 800 + c1.fromX, fromY: c1.fromY, toX: 800 + c1.toX, toY: c1.toY, key: "I" })
+  coords.Push({ d: c2.d, fromX: 800 + c2.fromX, fromY: c2.fromY, toX: 800 + c2.toX, toY: c2.toY, key: "," })
+  coords.Push({ d: c3.d, fromX: 800 + c3.fromX, fromY: c3.fromY, toX: 800 + c3.toX, toY: c3.toY, key: "O" })
+  coords.Push({ d: c4.d, fromX: 800 + c4.fromX, fromY: c4.fromY, toX: 800 + c4.toX, toY: c4.toY, key: "U" })
+  coords.Push({ d: c5.d, fromX: 800 + c5.fromX, fromY: c5.fromY, toX: 800 + c5.toX, toY: c5.toY, key: "L" })
+  coords.Push({ d: c6.d, fromX: 800 + c6.fromX, fromY: c6.fromY, toX: 800 + c6.toX, toY: c6.toY, key: "J" })
+  coords.Push({ d: c7.d, fromX: 800 + c7.fromX, fromY: c7.fromY, toX: 800 + c7.toX, toY: c7.toY, key: "." })
+  coords.Push({ d: c8.d, fromX: 800 + c8.fromX, fromY: c8.fromY, toX: 800 + c8.toX, toY: c8.toY, key: "M" })
+
+  ;--------
+
+  ; Debug coordinates
+  isDebug := false
+  if (isDebug) {
+    ; debug
+    ns := [9, 10, 11, 12, 13, 14, 15, 16]
+    gs := []
+    for i, n in ns {
+      coord := coords.Get(n)
+      gs.Push(BlackRect(coord.fromX, coord.fromY, coord.toX - coord.fromX, coord.toY - coord.fromY))
+    }
+    Sleep(5000)
+    for i, g in gs {
+      DestroyBR(g)
+    }
+  }
+
+  if (!isDebug) {
+    SetTimer(CheckRight, 10)
+  }
+}
+
+global cooldowns := Map()
+cooldownTime := 200 ; Cooldown time in milliseconds
+; cooldownTime := 180 ; Cooldown time in milliseconds
+
+CheckPixelInRange(fromX, fromY, toX, toY) {
+  PixelSearch(&px, &py, fromX, fromY, toX, toY, 0xFFFF00, 6)
+  if (px && py) {
+    ; ToolTip("Found pixel at: " px ", " py)
+    return {
+      x: px,
+      y: py
+    }
+  }
+  return false
+}
+
+Check(coord) {
+  now := A_TickCount
+  pxFound := CheckPixelInRange(coord.fromX, coord.fromY, coord.toX, coord.toY)
+  if (pxFound) {
+    if (!cooldowns.Has(coord.key) || (now - cooldowns.Get(coord.key) > cooldownTime)) {
+      ; Determine the origin based on the direction
+      originX := (coord.d == "S" || coord.d == "E" || coord.d == "SE" || coord.d == "NE") ? coord.toX : coord.fromX
+      originY := (coord.d == "S" || coord.d == "E" || coord.d == "SE" || coord.d == "NE") ? coord.toY : coord.fromY
+
+      originX := (coord.d == "N" || coord.d == "S") ? pxFound.x : originX
+      originY := (coord.d == "E" || coord.d == "W") ? pxFound.y : originY
+
+      distance := Abs(Sqrt(((pxFound.x - originX) ** 2) + ((pxFound.y - originY) ** 2)))
+
+      cooldowns.Set(coord.key, now) ; Update the last pressed time for the key
+      if (distance > 2) {
+        SetTimer(() => SendKey(coord.key), -distance * 3)
+      } else {
+        SendKey(coord.key)
+      }
+      ; FileAppend("Dist: " distance ", " coord.key "`n", "out.txt")
+    }
+  }
+}
+
+CheckRight() {
+  global cooldowns, cooldownTime
+  global coords
+  global toggle
+
+  now := A_TickCount
+  for coord in coords {
+    Check(coord)
+    if (!toggle) {
+      cooldowns := Map() ; Clear cooldowns if toggle is false
+      break
+    }
+  }
+}
+
+#HotIf
