@@ -1,0 +1,7 @@
+; ; Spam right click when holding down right mouse button
+; RButton:: {
+;     while GetKeyState("RButton", "P") {
+;         Click "right"
+;         Sleep 30 ; Adjust for desired spam speed
+;     }
+; }
