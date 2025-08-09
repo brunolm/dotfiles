@@ -12,16 +12,15 @@
 ; =====================================================
 
 ; switch audio device Ctrl + vol up/down
-^Volume_Up:: {
-    deviceName := "Speakers (Razer BlackShark V2 Pro)"
+
+SwitchAudioDevice(deviceName) {
     psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Playback\" }; if ($dev) { Set-AudioDevice -Index $dev.Index }; pause'
-    RunWait(A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"', , "Hide")
-    return
+    cmd := A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"'
+    proc := Run(cmd, , "Hide")
+    if !ProcessWaitClose(proc, 5) { ; 5 seconds timeout
+        ProcessClose(proc)
+    }
 }
 
-^Volume_Down:: {
-    deviceName := "Speakers (Realtek(R) Audio)"
-    psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Playback\" }; if ($dev) { Set-AudioDevice -Index $dev.Index }; pause'
-    RunWait(A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"', , "Hide")
-    return
-}
+^Volume_Up:: SwitchAudioDevice("Speakers (Razer BlackShark V2 Pro)")
+^Volume_Down:: SwitchAudioDevice("Speakers (Realtek(R) Audio)")
