@@ -4,9 +4,24 @@
 ; =====================================================
 
 ; Raider GE76 keybord fixes
-Home::PgUp
-PgUp::Home
-End::PgDn
-PgDn::End
+; Home::PgUp
+; PgUp::Home
+; End::PgDn
+; PgDn::End
 
 ; =====================================================
+
+; switch audio device Ctrl + vol up/down
+^Volume_Up:: {
+    deviceName := "Speakers (Razer BlackShark V2 Pro)"
+    psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Playback\" }; if ($dev) { Set-AudioDevice -Index $dev.Index }; pause'
+    RunWait(A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"', , "Hide")
+    return
+}
+
+^Volume_Down:: {
+    deviceName := "Speakers (Realtek(R) Audio)"
+    psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Playback\" }; if ($dev) { Set-AudioDevice -Index $dev.Index }; pause'
+    RunWait(A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"', , "Hide")
+    return
+}
