@@ -1,0 +1,53 @@
+; All hotkeys and script logic below only run if the active window title is exactly "Path of Exile"
+#HotIf WinGetTitle("A") = "Path of Exile"
+
+*XButton2:: {
+    while GetKeyState("XButton2", "P") {
+        mods := ""
+        if GetKeyState("Ctrl", "P")
+            mods .= "^"
+        if GetKeyState("Shift", "P")
+            mods .= "+"
+        if GetKeyState("Alt", "P")
+            mods .= "!"
+        if GetKeyState("LWin", "P") || GetKeyState("RWin", "P")
+            mods .= "#"
+        if (mods != "") {
+            Send mods . "{LButton}"
+        } else {
+            Click
+        }
+        Sleep(20)
+    }
+    return
+}
+
+F1:: {
+    ; Hideout
+    if WinActive("Path of Exile") {
+        SendInput("{Enter}/hideout{Enter}")
+    }
+}
+
+F2:: {
+    ; Leave group
+    if WinActive("Path of Exile") {
+        SendInput("{Enter}/leave{Enter}")
+    }
+}
+
+F3:: {
+    ; Leave group
+    if WinActive("Path of Exile") {
+        SendInput("{Ctrl}{Enter}ty")
+    }
+}
+
+F4:: {
+    ; /invite {latestWhisper}
+    if WinActive("Path of Exile") {
+        SendInput("{Enter}/invite {{latestWhisper}}{Enter}")
+    }
+}
+
+#HotIf
