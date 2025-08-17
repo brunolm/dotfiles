@@ -11,10 +11,11 @@
 
 ; =====================================================
 
-; switch audio device Ctrl + vol up/down
+#Space:: SendEvent('!{Space}')
 
+; switch audio device Ctrl + vol up/down
 SwitchAudioDevice(deviceName) {
-    psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Playback\" }; if ($dev) { Set-AudioDevice -Index $dev.Index }; pause'
+    psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Playback\" }; if ($dev) { Set-AudioDevice -Index $dev.Index };'
     cmd := A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"'
     proc := Run(cmd, , "Hide")
     if !ProcessWaitClose(proc, 5) { ; 5 seconds timeout
@@ -22,5 +23,20 @@ SwitchAudioDevice(deviceName) {
     }
 }
 
-^Volume_Up:: SwitchAudioDevice("Speakers (Razer BlackShark V2 Pro)")
-^Volume_Down:: SwitchAudioDevice("Speakers (Realtek(R) Audio)")
+SwitchAudioInputDevice(deviceName) {
+    psCmd := 'Import-Module AudioDeviceCmdlets; $dev = Get-AudioDevice -List | Where-Object { $_.Name -eq \"' deviceName '\" -and $_.Type -eq \"Recording\" }; if ($dev) { Set-AudioDevice -Index $dev.Index };'
+    cmd := A_ComSpec ' /c powershell -NoProfile -Command "' psCmd '"'
+    proc := Run(cmd, , "Hide")
+    if !ProcessWaitClose(proc, 5) {
+        ProcessClose(proc)
+    }
+}
+
+^Volume_Up:: {
+    SwitchAudioDevice("Speakers (Razer BlackShark V2 Pro)")
+    SwitchAudioInputDevice("Microphone (Razer BlackShark V2 Pro)")
+}
+^Volume_Down:: {
+    SwitchAudioDevice("Speakers (Realtek(R) Audio)")
+    SwitchAudioInputDevice("Microphone Array (Intel® Smart Sound Technology for Digital Microphones)")
+}
