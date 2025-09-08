@@ -1,5 +1,5 @@
 ; All hotkeys and script logic below only run if the active window title is exactly "Path of Exile"
-#HotIf WinGetTitle("A") = "Path of Exile"
+#HotIf WinGetTitle("A") = "Path of Exile" or WinGetTitle("A") = "Path of Exile 2"
 
 *XButton2:: {
     while GetKeyState("XButton2", "P") {
