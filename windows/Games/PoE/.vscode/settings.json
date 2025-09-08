@@ -1,0 +1,10 @@
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "base\\.filter$", // runs only when a .filter file is saved
+        "cmd": "powershell.exe -File \"${workspaceFolder}/update.ps1\""
+      }
+    ]
+  }
+}

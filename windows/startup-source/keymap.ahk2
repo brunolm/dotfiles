@@ -1,6 +1,5 @@
 #Include ./keyboard.ahk2
 #Include ./poe.ahk2
-#Include ./poe2.ahk2
 #Include ./ff7rebirth.ahk2
 
 ; Ctrl + Shift + Alt + R to reload the script
