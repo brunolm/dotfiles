@@ -24,5 +24,9 @@ function Git-ClearLocalMergedBranches() {
   git branch --merged | Where-Object { $_ -notmatch "main|develop" } | ForEach-Object { git branch -d $_.Trim() }
 }
 
+function Git-GPGReload() {
+  gpg-connect-agent reloadagent /bye
+}
+
 Export-ModuleMember -Function "*"
 Export-ModuleMember -Alias "*"
