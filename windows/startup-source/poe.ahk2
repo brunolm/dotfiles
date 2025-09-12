@@ -17,7 +17,7 @@
         } else {
             Click
         }
-        Sleep(20)
+        Sleep(100)
     }
     return
 }
