@@ -25,6 +25,8 @@
   r = !git reset HEAD -- . && git checkout -- . && git clean -fd
   rs = reset HEAD~1 --soft
   rh = reset HEAD~1 --hard
+  branch-count = rev-list --count origin/main..HEAD
+  branch-log = log origin/main..HEAD --oneline
 [commit]
   gpgsign = true
 [gpg]
