@@ -14,3 +14,5 @@ Custom Startup folder
 ```
 C:\System\Startup
 ```
+
+## Manually check ps modules and run reg files
