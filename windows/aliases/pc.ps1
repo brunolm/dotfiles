@@ -24,7 +24,7 @@ function PC-Update-DNS($ips, $id) {
   }
 }
 
-function PC-Restart-NetworkCable() {
+function PC-Network-RestartEthernet() {
   Disable-NetAdapter -Name "Ethernet" -Confirm:$false
   Start-Sleep -Seconds 2
   Enable-NetAdapter -Name "Ethernet" -Confirm:$false
