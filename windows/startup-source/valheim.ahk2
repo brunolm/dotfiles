@@ -1,0 +1,167 @@
+#Requires AutoHotkey v2.0
+
+CoordMode "Mouse", "Screen"
+CoordMode "ToolTip", "Screen"
+
+global bindingsEnabled := true
+
+; Toggle bindings on/off (works even outside Valheim)
+NumpadSub::
+{
+    global bindingsEnabled := false
+    ToolTip("Valheim bindings DISABLED")
+    SetTimer(() => ToolTip(), -2000)
+}
+
+NumpadAdd::
+{
+    global bindingsEnabled := true
+    ToolTip("Valheim bindings ENABLED")
+    SetTimer(() => ToolTip(), -2000)
+}
+
+; Only active when Valheim is running AND bindings are enabled
+#HotIf WinActive("ahk_exe valheim.exe") && bindingsEnabled
+
+; ~LButton::
+; {
+;     ; Get mouse position in screen coords
+;     MouseGetPos &x, &y
+
+;     ; Get window position and dimensions
+;     WinGetPos &winX, &winY, &winW, &winH, "A"
+
+;     ; Calculate percentage coordinates relative to the window
+;     percentX := Round(((x - winX) / winW) * 100, 2)
+;     percentY := Round(((y - winY) / winH) * 100, 2)
+
+;     ; Log the coordinates to debug output
+;     OutputDebug("Click at: " percentX "%, " percentY "%")
+
+;     ; Also show a tooltip for visual feedback
+;     ToolTip("Clickx: " percentX "%, " percentY "% (win: " winW "x" winH ")")
+;     SetTimer(() => ToolTip(), -2000) ; Remove tooltip after 2 seconds
+; }
+
+r::
+{
+    ; press 5 twice
+    loop 2 {
+        Send("{5 down}")
+        Sleep(50)
+        Send("{5 up}")
+    }
+}
+
++r::
+{
+    ; Press E (hold down briefly then release)
+    Send("{e down}")
+    Sleep(100)
+    Send("{e up}")
+    Sleep(600)
+
+    ; Calculate screen coords: window position + percentage of window size
+    WinGetPos &winX, &winY, &winW, &winH, "A"
+    targetX := Round(winX + winW * 0.69)
+    targetY := Round(winY + winH * 0.30)
+
+    ; Click 10 times at the repair button
+    loop 10 {
+        DllCall("SetCursorPos", "int", targetX, "int", targetY)
+        Send("{LButton down}")
+        Sleep(40)
+        Send("{LButton up}")
+        Sleep(10)
+    }
+
+    Send("{e down}")
+    Sleep(100)
+    Send("{e up}")
+}
+
+; remap middle click
+XButton2::MButton
+
+; toolbar quick slots
++1::5
++2::6
++3::7
++4::8
+
+; split stack
+SplitStack(amount) {
+    Send("{Shift down}{LButton down}")
+    Sleep(50)
+    Send("{LButton up}{Shift up}")
+    Sleep(50)
+    loop StrLen(amount) {
+        Send(SubStr(amount, A_Index, 1))
+        Sleep(50)
+    }
+    Send("{Enter}")
+}
+
+^1:: SplitStack("10")
+^2:: SplitStack("20")
+^3:: SplitStack("30")
+
+; map marker
+Numpad0::
+{
+    Send("{LButton down}")
+    Sleep(50)
+    Send("{LButton up}")
+    Sleep(50)
+    Send("{LButton down}")
+    Sleep(50)
+    Send("{LButton up}")
+    Sleep(50)
+    Send("X")
+    Sleep(50)
+    Send("{Enter}")
+}
+
+; plant
+^p::
+{
+    Send("{w down}")
+    loop 4 {
+        Send("{LButton down}")
+        Sleep(600)
+        Send("{LButton up}")
+    }
+    Send("{w up}")
+}
+
+; shift + c, press E twice (down up), move mouse offset + 5%, repeat 2 times
++c::
+{
+    WinGetPos , , &winW, &winH, "A"
+    offsetX := Round(winW * 0.075)
+
+    loop 2 {
+        ; Press E twice
+        Send("{e down}")
+        Sleep(50)
+        Send("{e up}")
+        Sleep(50)
+        Send("{e down}")
+        Sleep(50)
+        Send("{e up}")
+        Sleep(50)
+
+        ; Move camera by sending raw mouse movement events
+        ; mouse_event with MOUSEEVENTF_MOVE (0x0001) sends relative movement
+        ; that games detect via raw input
+        steps := 10
+        dx := Round(offsetX / steps)
+        loop steps {
+            DllCall("mouse_event", "uint", 0x0001, "int", dx, "int", 0, "uint", 0, "uptr", 0)
+            Sleep(10)
+        }
+        Sleep(700)
+    }
+}
+
+#HotIf ; End the conditional
