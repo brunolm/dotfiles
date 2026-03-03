@@ -30,6 +30,10 @@ function PC-Network-RestartEthernet() {
   Enable-NetAdapter -Name "Ethernet" -Confirm:$false
 }
 
+function PC-Disable-RealtimeProtection() {
+  Set-MpPreference -DisableRealtimeMonitoring $true
+}
+
 # TODO: move to another file
 
 function Kill-Port($port) {
