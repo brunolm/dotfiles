@@ -2,3 +2,6 @@ DO-NOT*
 
 env.ps1
 .env
+
+poe*-filters/
+poe*-filters.zip
