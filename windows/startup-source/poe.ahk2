@@ -50,4 +50,30 @@ F4:: {
     }
 }
 
+^!+f:: {
+    arg := WinGetTitle("A") = "Path of Exile" ? "poe1" : "poe2"
+    script := A_ScriptDir '\poe-get-filters.ps1'
+    if !FileExist(script) {
+        MsgBox("Script not found:`n" script, "Error", 16)
+        return
+    }
+    exitCode := RunWait('powershell.exe -ExecutionPolicy Bypass -File "' script '" ' arg, , "Hide")
+    if (exitCode != 0)
+        MsgBox("Failed to download filters (exit code: " exitCode ")", "Error", 16)
+}
+
+^!+/:: {
+    help := ""
+    help .= "XButton2 — Auto-click (holds modifiers)`n"
+    help .= "F1 — /hideout`n"
+    help .= "F2 — /leave`n"
+    help .= "F3 — Reply ty`n"
+    help .= "F4 — /invite {latestWhisper}`n"
+    help .= "Ctrl+Shift+Alt+F — Download filters`n"
+    help .= "Ctrl+Shift+Alt+/ — Show this help"
+    MsgBox(help, "PoE Hotkeys")
+}
+
+; add more:
+
 #HotIf
