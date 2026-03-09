@@ -114,5 +114,109 @@ function Get-PoeFilters {
   return 0
 }
 
-exit (Get-PoeFilters -Target $target)
+function Get-AwekenedPoeTrade {
+  $repo = "SnosMe/awakened-poe-trade"
+  $destinationDir = "C:\BrunoLM\Games\PoE"
+
+  if (-not (Test-Path -Path $destinationDir)) {
+    Write-Error "Destination directory does not exist: $destinationDir"
+    return 1
+  }
+
+  Write-Host "Fetching latest release from $repo..." -ForegroundColor Cyan
+  $latestRelease = gh api "repos/$repo/releases/latest" | ConvertFrom-Json
+
+  if ($null -eq $latestRelease -or [string]::IsNullOrWhiteSpace($latestRelease.tag_name)) {
+    Write-Error "Could not determine latest release"
+    return 1
+  }
+
+  $tagName = $latestRelease.tag_name
+  $version = $tagName.TrimStart('v', 'V')
+  $assetName = "Awakened-PoE-Trade-$version.exe"
+
+  Write-Host "Downloading $assetName..." -ForegroundColor Cyan
+  gh release download $tagName --repo $repo --pattern $assetName --clobber
+
+  if (-not (Test-Path -Path $assetName)) {
+    Write-Error "Expected asset not found after download: $assetName"
+    return 1
+  }
+
+  $destinationFile = Join-Path $destinationDir "awakened-poe-trade.exe"
+  Copy-Item -Path $assetName -Destination $destinationFile -Force
+
+  $versionFile = Join-Path $destinationDir "$version.txt"
+  Set-Content -Path $versionFile -Value $version -Encoding ascii
+
+  $message = "Downloaded $assetName to $destinationFile (version marker: $version.txt)"
+  Write-Host $message -ForegroundColor Green
+  Show-Notification -Text $message -Title "Awakened PoE Trade"
+  return 0
+}
+
+function Invoke-PoeTools {
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("poe1", "poe2")]
+    [string]$Target
+  )
+
+  $jobs = @()
+  $showNotificationDef = ${function:Show-Notification}.ToString()
+  $getPoeFiltersDef = ${function:Get-PoeFilters}.ToString()
+  $getAwekenedPoeTradeDef = ${function:Get-AwekenedPoeTrade}.ToString()
+
+  $jobs += Start-Job -Name "Get-PoeFilters" -ScriptBlock {
+    param($InnerTarget, $ShowNotificationDef, $GetPoeFiltersDef)
+    Set-Item -Path Function:\Show-Notification -Value $ShowNotificationDef
+    Set-Item -Path Function:\Get-PoeFilters -Value $GetPoeFiltersDef
+    Get-PoeFilters -Target $InnerTarget
+  } -ArgumentList $Target, $showNotificationDef, $getPoeFiltersDef
+
+  if ($Target -eq "poe1") {
+    $jobs += Start-Job -Name "Get-AwekenedPoeTrade" -ScriptBlock {
+      param($ShowNotificationDef, $GetAwekenedPoeTradeDef)
+      Set-Item -Path Function:\Show-Notification -Value $ShowNotificationDef
+      Set-Item -Path Function:\Get-AwekenedPoeTrade -Value $GetAwekenedPoeTradeDef
+      Get-AwekenedPoeTrade
+    } -ArgumentList $showNotificationDef, $getAwekenedPoeTradeDef
+  }
+
+  Wait-Job -Job $jobs | Out-Null
+
+  $failed = $false
+  foreach ($job in $jobs) {
+    $output = Receive-Job -Job $job
+
+    if ($job.State -ne "Completed") {
+      Write-Error "Job failed: $($job.Name)"
+      $failed = $true
+      continue
+    }
+
+    $exitCode = 1
+    if ($output -is [System.Array] -and $output.Count -gt 0 -and $output[-1] -is [int]) {
+      $exitCode = [int]$output[-1]
+    }
+    elseif ($output -is [int]) {
+      $exitCode = [int]$output
+    }
+
+    if ($exitCode -ne 0) {
+      Write-Error "Function failed in job $($job.Name) with code $exitCode"
+      $failed = $true
+    }
+  }
+
+  Remove-Job -Job $jobs -Force
+
+  if ($failed) {
+    return 1
+  }
+
+  return 0
+}
+
+exit (Invoke-PoeTools -Target $target)
 

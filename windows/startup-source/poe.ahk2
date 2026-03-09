@@ -50,7 +50,7 @@ F4:: {
     }
 }
 
-^!+f:: {
+^!+d:: {
     arg := WinGetTitle("A") = "Path of Exile" ? "poe1" : "poe2"
     script := A_ScriptDir '\poe-get-tools.ps1'
     if !FileExist(script) {
@@ -59,21 +59,55 @@ F4:: {
     }
     exitCode := RunWait('powershell.exe -ExecutionPolicy Bypass -File "' script '" ' arg, , "Hide")
     if (exitCode != 0)
-        MsgBox("Failed to download filters (exit code: " exitCode ")", "Error", 16)
+        MsgBox("Failed to download tools (exit code: " exitCode ")", "Error", 16)
+}
+
+^!+t:: {
+    exe := 'C:\BrunoLM\Games\PoE\awakened-poe-trade.exe'
+    if !FileExist(exe) {
+        MsgBox("File not found:`n" exe, "Error", 16)
+        return
+    }
+    Run('"' exe '"')
+}
+
+^!+e:: {
+    folder := WinGetTitle("A") = "Path of Exile"
+        ? A_MyDocuments "\My Games\Path of Exile"
+        : A_MyDocuments "\My Games\Path of Exile 2"
+
+    if !DirExist(folder) {
+        MsgBox("Folder not found:`n" folder, "Error", 16)
+        return
+    }
+
+    EnvSet("POE_FILTER_FOLDER", folder)
+    Run('powershell.exe -Command "code -- $env:POE_FILTER_FOLDER"', , "Hide")
 }
 
 ^!+/:: {
     help := ""
     help .= "XButton2 — Auto-click (holds modifiers)`n"
+    help .= "XButton1 — Press 2, 3, 4, 5 in sequence`n"
     help .= "F1 — /hideout`n"
     help .= "F2 — /leave`n"
     help .= "F3 — Reply ty`n"
     help .= "F4 — /invite {latestWhisper}`n"
-    help .= "Ctrl+Shift+Alt+F — Download filters`n"
+    help .= "Ctrl+Shift+Alt+D — Download tools`n"
+    help .= "Ctrl+Shift+Alt+T — Launch Awakened PoE Trade`n"
+    help .= "Ctrl+Shift+Alt+E — Open filter folder in VS Code`n"
     help .= "Ctrl+Shift+Alt+/ — Show this help"
     MsgBox(help, "PoE Hotkeys")
 }
 
-; add more:
+XButton1:: {
+    keys := [2, 3, 4, 5]
+    for key in keys {
+        SendInput("{" key " down}")
+        Sleep(Random(50, 100))
+        SendInput("{" key " up}")
+        Sleep(Random(50, 100))
+    }
+}
 
 #HotIf
