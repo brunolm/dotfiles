@@ -21,13 +21,12 @@
   c = checkout
   cb = checkout -b
   cd = checkout development
+  cm = checkout main
   m = merge
-  r = !git reset HEAD -- . && git checkout -- . && git clean -fd
+  r = rebase
+  re = !git reset HEAD -- . && git checkout -- . && git clean -fd
   rs = reset HEAD~1 --soft
   rh = reset HEAD~1 --hard
-  branch-count = rev-list --count origin/main..HEAD
-  branch-log = log origin/main..HEAD --oneline
-	sq = !msg=$(git log --format=%B --reverse \"$(git merge-base HEAD main)..HEAD\" | head -1) && git reset --soft $(git merge-base HEAD main) && git commit -m \"$msg\"
 [commit]
   gpgsign = true
 [gpg]
