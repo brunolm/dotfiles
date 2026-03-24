@@ -1,0 +1,5 @@
+#HotIf WinActive("ahk_exe NoRestForTheWicked.exe")
+
+`::i
+
+#HotIf
