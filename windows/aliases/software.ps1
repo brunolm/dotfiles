@@ -1,31 +1,19 @@
+function Update-SW-GitHubCli() {
+  # TODO: get GitHub CLI
+}
+
 function Update-SW-7Zip() {
-  Invoke-WebRequest "http://www.7-zip.org/a/7z1700-x64.exe" -OutFile (join-path $env:TEMP 7zip.exe);
-  Start-Process (join-path $env:TEMP 7zip.exe);
+  # TODO: get from github releases
 }
 
 function Update-SW-Chrome() {
   Invoke-WebRequest "http://dl.google.com/chrome/install/stable/chrome_installer.exe" -OutFile (join-path $env:TEMP chrome.exe);
   Start-Process (join-path $env:TEMP chrome.exe);
 }
-
-function Update-SW-GOMPlayer() {
-  Invoke-WebRequest "https://cdn.gomlab.com/gretech/player/new_chrome/GOMPLAYERGLOBALSETUP.EXE" -OutFile (join-path $env:TEMP gom.exe);
-  Start-Process (join-path $env:TEMP gom.exe);
-}
+# TODO: add Brave, Firefox
 
 function Update-SW-Node() {
-  $nodeLatest=((Invoke-WebRequest https://nodejs.org/download/release/latest/).Content | findstr x64.msi) -replace "<(.*?)>", "" -replace "\s+.+", "";
-  Invoke-WebRequest "https://nodejs.org/download/release/latest/$nodeLatest" -OutFile (join-path $env:TEMP node.msi);
-  Start-Process (join-path $env:TEMP node.msi);
-}
-
-function Update-SW-Sqlectron() {
-  $versionLink = [regex]::Match((Invoke-WebRequest "https://github.com/sqlectron/sqlectron-gui/releases").Content, "/sqlectron/sqlectron-gui/releases/download/[^""]+(exe(?=""))").Groups[0].Value;
-  $version = [regex]::Match($versionLink, "/v(.*?)/").Groups[1].Value;
-  $file = "${env:TEMP}\sqlectron-$version.exe";
-  Write-Output "Installing $version..."
-  Invoke-WebRequest "https://github.com${versionLink}" -OutFile $file;
-  Start-Process $file;
+  # get NVS from GitHub releases
 }
 
 function Update-SW-Steam() {
@@ -34,12 +22,18 @@ function Update-SW-Steam() {
 }
 
 function Update-SW-VSCode() {
-  $file = "${env:TEMP}\vscode.exe";
-  Invoke-WebRequest "https://go.microsoft.com/fwlink/?LinkID=623230" -OutFile $file;
-  Start-Process $file;
+  # TODO: get from Insiders and github releases
 }
 
-function Update-SW-uTorrent() {
-  Invoke-WebRequest "http://download.ap.bittorrent.com/track/stable/endpoint/utorrent/os/windows" -OutFile (join-path $env:TEMP utorrent.exe);
-  Start-Process (join-path $env:TEMP utorrent.exe);
+function Update-SW-Powershell() {
+  $asset = gh release view --repo PowerShell/PowerShell --json assets --jq '.assets[] | select(.name | test("win-x64.msi$")) | .url' | Select-Object -First 1
+  $file = Join-Path $env:TEMP "PowerShell-latest-win-x64.msi"
+  $log = Join-Path $env:TEMP "PowerShell-install.log"
+  Invoke-WebRequest $asset -OutFile $file
+  Start-Process msiexec.exe -ArgumentList "/i", $file, "/qn", "/norestart", "/l*v", $log -Wait
+  Write-Output "Install log: $log"
+}
+
+function Update-SW-qTorrent() {
+  # TODO: dl
 }
