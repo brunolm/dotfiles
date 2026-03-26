@@ -1,31 +1,22 @@
-function Git-ClearLocalGoneBranches() {
-  git fetch --all --prune
-  git branch -vv `
-  | Where-Object { $_ -like '*origin/*: gone*' } `
-  | Select-Object -Property @{N = 'Name'; E = { ($_ -split ' ')[2] } } `
-  | ForEach-Object { git branch -d $_.Name }
-}
-
-function Git-UpdateDevelop() {
-  git fetch --all --prune
-  git checkout develop
-  git pull
-}
-
-function Git-UpdateMainAndDevelop() {
-  git fetch --all --prune
-  git checkout main
-  git pull
-  git checkout develop
-  git pull
-}
-
-function Git-ClearLocalMergedBranches() {
-  git branch --merged | Where-Object { $_ -notmatch "main|develop" } | ForEach-Object { git branch -d $_.Trim() }
-}
-
 function Git-GPGReload() {
   gpg-connect-agent reloadagent /bye
+}
+
+function Git-CommitAI() {
+  $prompt = "Generate a single conventional commit message for this diff. Format: type(scope): description. If relevant, add two newlines after the title to add further context. Output ONLY the message nothing else, do not use any wrappers"
+  $model = "claude-sonnet-4.6"
+  $reasoning = "low"
+  $lines = git diff --cached | copilot -p $prompt -s --model $model --reasoning-effort $reasoning --allow-all-tools
+  $msg = ($lines -join "`n").Trim()
+  if (-not $msg) {
+    Write-Host "No message generated."
+    return
+  }
+  Write-Host $msg
+  $confirm = Read-Host "Use this message? (Y/n)"
+  if ($confirm -eq '' -or $confirm -eq 'Y' -or $confirm -eq 'y') {
+    git commit -m $msg
+  }
 }
 
 function Git-DeleteBranches() {

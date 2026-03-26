@@ -12,21 +12,19 @@
   default = current
 [alias]
   alias = config --get-regexp '^alias\\.'
+  l = "!f() { git log --oneline -${1:-10}; }; f"
+  lob = "!git log --oneline $(git merge-base HEAD main)..HEAD"
   lga = log --graph --oneline --all --decorate
   fa = fetch --all --prune
   s = status
   p = pull
   ps = push
+  pfl = push --force-with-lease
   fp = !git fetch --all --prune && git pull
   c = checkout
   cb = checkout -b
-  cd = checkout development
   cm = checkout main
-  m = merge
-  r = rebase
   re = !git reset HEAD -- . && git checkout -- . && git clean -fd
-  rs = reset HEAD~1 --soft
-  rh = reset HEAD~1 --hard
 [commit]
   gpgsign = true
 [gpg]

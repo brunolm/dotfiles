@@ -2,6 +2,10 @@ function Update-SW-GitHubCli() {
   # TODO: get GitHub CLI
 }
 
+function Update-SW-GitHubCopilot() {
+  winget install GitHub.Copilot
+}
+
 function Update-SW-7Zip() {
   # TODO: get from github releases
 }
