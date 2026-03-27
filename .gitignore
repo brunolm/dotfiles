@@ -5,3 +5,7 @@ env.ps1
 
 poe*-filters/
 poe*-filters.zip
+
+*.local.*
+keys/obj
+keys/bin
