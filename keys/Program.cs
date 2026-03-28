@@ -6,6 +6,7 @@ var mappings = Assembly.GetExecutingAssembly()
     .GetTypes()
     .Where(t => t is { IsAbstract: false, IsClass: true } && t.IsSubclassOf(typeof(KeyMapping)))
     .Select(t => (KeyMapping)Activator.CreateInstance(t)!)
+    .Where(m => m.IsEnabled)
     .ToList();
 
 var hotkeyLookup = new Dictionary<int, KeyMapping>();

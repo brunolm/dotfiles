@@ -4,6 +4,8 @@ class ExitMapping : KeyMapping
 {
   const int HOTKEY_EXIT = 100;
 
+  public override bool IsEnabled => true;
+
   public override IReadOnlyList<HotkeyBinding> Bindings { get; } =
   [
       new(HOTKEY_EXIT, Modifiers.MOD_CONTROL | Modifiers.MOD_ALT | Modifiers.MOD_SHIFT, Keys.VK_VOLUME_MUTE),

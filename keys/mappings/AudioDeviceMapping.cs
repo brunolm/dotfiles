@@ -11,6 +11,8 @@ class AudioDeviceMapping : KeyMapping
     [HOTKEY_DOWN] = ("Speakers (Realtek(R) Audio)", "Microphone Array (Intel® Smart Sound Technology for Digital Microphones)"),
   };
 
+  public override bool IsEnabled => true;
+
   public override IReadOnlyList<HotkeyBinding> Bindings { get; } =
   [
       new(HOTKEY_UP, Modifiers.MOD_CONTROL, Keys.VK_VOLUME_UP),
