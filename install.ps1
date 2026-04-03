@@ -15,6 +15,10 @@ function Install() {
   New-Item -Path $powershellProfile -ItemType SymbolicLink -Value (Resolve-Path ".\windows\Microsoft.PowerShell_profile.ps1");
   New-Item -Path $powershellISEProfile -ItemType SymbolicLink -Value (Resolve-Path ".\windows\Microsoft.PowerShellISE_profile.ps1");
 
+  # Link .copilot instructions folder to ~/.copilot/instructions
+  $copilotDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.copilot\instructions";
+  New-Item -Path $copilotDir -ItemType SymbolicLink -Value (Resolve-Path ".\common\.copilot\instructions");
+
   if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
     mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
   }
