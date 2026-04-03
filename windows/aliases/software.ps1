@@ -26,7 +26,14 @@ function Update-SW-Steam() {
 }
 
 function Update-SW-VSCode() {
-  # TODO: get from Insiders and github releases
+  $url = "https://update.code.visualstudio.com/latest/win32-x64-user/insider"
+  $file = Join-Path $env:TEMP "VSCodeInsiders-latest-win-x64.exe"
+  Write-Host "Downloading VS Code Insiders..." -ForegroundColor Cyan
+  Invoke-WebRequest $url -OutFile $file
+  Write-Host "Installing..." -ForegroundColor Cyan
+  Start-Process $file -ArgumentList "/verysilent", "/mergetasks=!runcode" -Wait
+  Write-Host "Done." -ForegroundColor Green
+  code-insiders --version
 }
 
 function Update-SW-Powershell() {
