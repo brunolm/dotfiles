@@ -113,5 +113,19 @@ function Git-DeleteStash() {
   }
 }
 
+function Git-Worktree-Cd() {
+  $worktrees = git worktree list | ForEach-Object { $_.Trim() }
+  if (-not $worktrees) {
+    Write-Host "No worktrees found."
+    return
+  }
+  $selected = Single-Select -Items $worktrees
+  if ($selected) {
+    $path = ($selected -split '\s+')[0]
+    Set-Location $path
+  }
+}
+
+
 Export-ModuleMember -Function "*"
 Export-ModuleMember -Alias "*"
