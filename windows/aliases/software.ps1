@@ -26,7 +26,7 @@ function Update-SW-Steam() {
 }
 
 function Update-SW-VSCode() {
-  $url = "https://update.code.visualstudio.com/latest/win32-x64-user/insider"
+  $url = "https://code.visualstudio.com/sha/download?build=insider&os=win32-x64"
   $file = Join-Path $env:TEMP "VSCodeInsiders-latest-win-x64.exe"
   Write-Host "Downloading VS Code Insiders..." -ForegroundColor Cyan
   Invoke-WebRequest $url -OutFile $file
