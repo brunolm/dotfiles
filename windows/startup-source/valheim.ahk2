@@ -5,7 +5,9 @@ CoordMode "ToolTip", "Screen"
 
 global bindingsEnabled := true
 
-; Toggle bindings on/off (works even outside Valheim)
+#HotIf WinActive("ahk_exe valheim.exe")
+
+; Toggle bindings on/off
 NumpadSub::
 {
     global bindingsEnabled := false
@@ -19,6 +21,8 @@ NumpadAdd::
     ToolTip("Valheim bindings ENABLED")
     SetTimer(() => ToolTip(), -2000)
 }
+
+#HotIf ; End the conditional for Valheim active
 
 ; Only active when Valheim is running AND bindings are enabled
 #HotIf WinActive("ahk_exe valheim.exe") && bindingsEnabled

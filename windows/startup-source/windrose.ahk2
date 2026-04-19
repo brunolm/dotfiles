@@ -7,4 +7,7 @@
 +3::8
 +4::9
 
+; mouse5 -> maps to scroll click
+XButton2::MButton
+
 #HotIf
