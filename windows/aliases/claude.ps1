@@ -1,3 +1,14 @@
+## Start-Claude: launch Claude interactively with effort set to auto.
+function Start-Claude {
+  [CmdletBinding()]
+  param(
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Arguments
+  )
+
+  & claude --effort auto @Arguments
+}
+
 ## Claude-Ask: ask Claude a prompt non-interactively and return the result inline.
 function Claude-Ask {
   [CmdletBinding()]
