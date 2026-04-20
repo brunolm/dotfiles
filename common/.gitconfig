@@ -25,8 +25,8 @@
   cb = checkout -b
   cm = checkout main
   re = !git reset HEAD -- . && git checkout -- . && git clean -fd
-  wt = "!f() { project=$(basename \"$(git rev-parse --show-toplevel)\"); name=$1; shift; hash=$(printf '%s' \"$name\" | git hash-object --stdin | cut -c1-8); wtpath=\"$(git rev-parse --show-toplevel)/../${project}-worktrees/$hash\"; if [ $# -eq 0 ]; then if git rev-parse --verify \"$name\" >/dev/null 2>&1 || git rev-parse --verify \"origin/$name\" >/dev/null 2>&1; then git worktree add \"$wtpath\" \"$name\"; else git worktree add -b \"$name\" \"$wtpath\"; fi; else git worktree add \"$wtpath\" \"$@\"; fi; }; f"
-  wtrm = "!f() { project=$(basename \"$(git rev-parse --show-toplevel)\"); name=$1; hash=$(printf '%s' \"$name\" | git hash-object --stdin | cut -c1-8); wtpath=\"$(git rev-parse --show-toplevel)/../${project}-worktrees/$hash\"; git worktree remove \"$wtpath\"; }; f"
+  wt = "!f() { root=\"$(cd \"$(git rev-parse --path-format=absolute --git-common-dir)/..\" && pwd)\"; project=$(basename \"$root\"); name=$1; shift; hash=$(printf '%s' \"$name\" | git hash-object --stdin | cut -c1-8); wtpath=\"$root/../${project}-worktrees/$hash\"; if [ $# -eq 0 ]; then if git rev-parse --verify \"$name\" >/dev/null 2>&1 || git rev-parse --verify \"origin/$name\" >/dev/null 2>&1; then git worktree add \"$wtpath\" \"$name\"; else git worktree add -b \"$name\" \"$wtpath\"; fi; else git worktree add \"$wtpath\" \"$@\"; fi; }; f"
+  wtrm = "!f() { root=\"$(cd \"$(git rev-parse --path-format=absolute --git-common-dir)/..\" && pwd)\"; project=$(basename \"$root\"); name=$1; hash=$(printf '%s' \"$name\" | git hash-object --stdin | cut -c1-8); wtpath=\"$root/../${project}-worktrees/$hash\"; git worktree remove \"$wtpath\"; }; f"
 [commit]
   gpgsign = true
 [gpg]

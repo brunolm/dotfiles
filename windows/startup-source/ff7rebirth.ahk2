@@ -1,5 +1,5 @@
-; Check if the active window is "FINAL FANTASY VII REBIRTH"
-#HotIf WinActive("FINAL FANTASY VII REBIRTH")
+; Only active when the FF7 Rebirth client exe is focused
+#HotIf WinActive("ahk_exe ff7rebirth_.exe")
 
 #include "utils.ahk2"
 

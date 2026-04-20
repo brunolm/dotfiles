@@ -1,5 +1,5 @@
-; All hotkeys and script logic below only run if the active window title is exactly "Path of Exile"
-#HotIf WinGetTitle("A") = "Path of Exile" or WinGetTitle("A") = "Path of Exile 2"
+; All hotkeys and script logic below only run if the active window is a Path of Exile client exe
+#HotIf WinActive("ahk_exe PathOfExile.exe") or WinActive("ahk_exe PathOfExileSteam.exe") or WinActive("ahk_exe PathOfExile_x64.exe") or WinActive("ahk_exe PathOfExile_x64Steam.exe")
 
 *XButton2:: {
     while GetKeyState("XButton2", "P") {
