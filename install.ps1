@@ -19,6 +19,18 @@ function Install() {
   $copilotDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.copilot\instructions";
   New-Item -Path $copilotDir -ItemType SymbolicLink -Value (Resolve-Path ".\common\.copilot\instructions");
 
+  # Link ~/.claude config files/folders to dotfiles versions
+  $claudeDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.claude";
+  if (!(Test-Path $claudeDir)) {
+    mkdir $claudeDir | Out-Null;
+  }
+  if (Test-Path "$claudeDir\CLAUDE.md") { Remove-Item -Force "$claudeDir\CLAUDE.md"; }
+  if (Test-Path "$claudeDir\settings.json") { Remove-Item -Force "$claudeDir\settings.json"; }
+  if (Test-Path "$claudeDir\skills") { Remove-Item -Recurse -Force "$claudeDir\skills"; }
+  New-Item -Path "$claudeDir\CLAUDE.md" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\CLAUDE.md");
+  New-Item -Path "$claudeDir\settings.json" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\settings.json");
+  New-Item -Path "$claudeDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\skills");
+
   if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
     mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
   }
