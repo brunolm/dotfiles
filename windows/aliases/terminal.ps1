@@ -6,6 +6,10 @@ function rm-rf {
   Remove-Item -Path $Path -Recurse -Force
 }
 
+function cdcp {
+  (Get-Location).Path | clip
+}
+
 function Multi-Select {
   param(
     [Parameter(Mandatory = $true)]

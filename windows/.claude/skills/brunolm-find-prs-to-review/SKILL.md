@@ -1,5 +1,5 @@
 ---
-name: find-prs-to-review
+name: brunolm-find-prs-to-review
 description: Use this skill when the user asks to find PRs to review, list open PRs needing their attention, show pending code reviews, find review requests, or phrases like "what do I need to review", "pending reviews", "PRs waiting on me", "review queue". Uses the GitHub CLI to list open PRs from the current repository, excluding the user's own PRs, drafts, and PRs they have already commented on or reviewed, prioritizing those where their review was explicitly requested.
 version: 1.0.0
 allowed-tools:

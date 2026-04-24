@@ -168,7 +168,6 @@
       "Bash(bun run dev)"
     ]
   },
-  "model": "opus",
   "effortLevel": "high",
   "autoUpdatesChannel": "latest"
 }
