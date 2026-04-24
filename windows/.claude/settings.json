@@ -148,6 +148,7 @@
       "PowerShell(Get-Location:*)",
       "PowerShell(Get-Random:*)",
       "PowerShell(Join-Path:*)",
+      "PowerShell(Measure-Object:*)",
       "PowerShell(Out-String:*)",
       "PowerShell(Select-String:*)",
       "PowerShell(Set-Location:*)",
