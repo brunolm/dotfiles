@@ -12,6 +12,8 @@ allowed-tools:
   - Bash(gh pr view:*)
   - Bash(gh pr diff:*)
   - Bash(gh pr checks:*)
+  - Bash(echo:*)
+  - Bash(sed:*)
   - Read
   - Grep
   - Glob
@@ -63,11 +65,13 @@ Do not flag:
 
 ## Output format
 
+Output should be saved in `.branch-docs/brunolm-code-review.md`. Chat should output a clickable link to open this file.
+
 ```
 ## Code review — <scope one-liner>
 
 ### Blockers
-- [path/file.ts:42](path/file.ts#L42) — <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.>
+- [path/file.ts:42](../path/file.ts#L42) — <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.>
 
 ### Major
 - ...
@@ -84,7 +88,9 @@ Do not flag:
 <one-line summary: e.g., "2 blockers, 3 major — do not merge yet.">
 ```
 
-Use clickable markdown links (`[file.ts:42](file.ts#L42)`) for every location. If a section is empty, write `- (none)` rather than omitting the header — except **Looks good**, which may be omitted entirely.
+Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location. If a section is empty, write `- (none)` rather than omitting the header — except **Looks good**, which may be omitted entirely.
+
+Note the link path needs to consider that the output will be saved in `.branch-docs/` — adjust the relative path accordingly.
 
 End with the one-line summary. No closing paragraph, no restating what the diff does.
 
