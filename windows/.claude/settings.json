@@ -162,6 +162,7 @@
       "WebFetch(domain:orpc.dev)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:status.anthropic.com)",
       "WebSearch"
     ],
     "deny": [],
