@@ -9,7 +9,7 @@ function rm-nuke($path, [switch]$dryRun) {
     robocopy $empty $path /MIR /L
   }
   else {
-    robocopy $empty $path /MIR
+    robocopy $empty $path /MIR /NFL /NDL /NJH /NJS /NC /NS /NP | Out-Null
     Remove-Item $path -Recurse -Force
   }
   Remove-Item $empty -Force
