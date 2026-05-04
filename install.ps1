@@ -31,6 +31,18 @@ function Install() {
   New-Item -Path "$claudeDir\settings.json" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\settings.json");
   New-Item -Path "$claudeDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\skills");
 
+  # Link ~/.codex config files/folders to dotfiles versions
+  $codexDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.codex";
+  if (!(Test-Path $codexDir)) {
+    mkdir $codexDir | Out-Null;
+  }
+  if (Test-Path "$codexDir\AGENTS.md") { Remove-Item -Force "$codexDir\AGENTS.md"; }
+  if (Test-Path "$codexDir\config.toml") { Remove-Item -Force "$codexDir\config.toml"; }
+  if (Test-Path "$codexDir\skills") { Remove-Item -Recurse -Force "$codexDir\skills"; }
+  New-Item -Path "$codexDir\AGENTS.md" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.codex\AGENTS.md");
+  New-Item -Path "$codexDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.codex\config.toml");
+  New-Item -Path "$codexDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.codex\skills");
+
   if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
     mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
   }
