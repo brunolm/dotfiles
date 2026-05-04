@@ -1,3 +1,6 @@
-# C# / Windows Hooks
+# Before committing changes
 
-- Never call `SendInput` synchronously inside a low-level hook callback (`LowLevelMouseProc`, `LowLevelKeyboardProc`). Use `Task.Run` or post to another thread to avoid reentrancy issues where Windows loses track of input state on consecutive presses.
+- Make sure there are no secrets in any files being committed
+  - .env vars
+  - repository names (if they're private)
+  - any other potential secrets
