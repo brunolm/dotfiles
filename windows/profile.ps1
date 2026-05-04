@@ -3,24 +3,52 @@ try {
 }
 catch {}
 
-try {
-  # $host.UI.RawUI.ForegroundColor = "White";
-  # $host.UI.RawUI.BackgroundColor = "Black";
-  # Set-Location D:\
-  # Clear-Host
-  oh-my-posh --init --shell pwsh --config C:\BrunoLM\Projects\dotfiles\windows\_brunolm.omp.json | Invoke-Expression
+function Test-InteractiveShell {
+  if ($host.Name -ne 'ConsoleHost') {
+    return $false
+  }
+
+  if (-not [Environment]::UserInteractive) {
+    return $false
+  }
+
+  try {
+    if ([Console]::IsInputRedirected -or [Console]::IsOutputRedirected) {
+      return $false
+    }
+  }
+  catch {
+    return $false
+  }
+
+  return $true
 }
-catch {}
+
+$IsInteractiveShell = Test-InteractiveShell
+
+if ($IsInteractiveShell) {
+  try {
+    # $host.UI.RawUI.ForegroundColor = "White";
+    # $host.UI.RawUI.BackgroundColor = "Black";
+    # Set-Location D:\
+    # Clear-Host
+    oh-my-posh --init --shell pwsh --config C:\BrunoLM\Projects\dotfiles\windows\_brunolm.omp.json | Invoke-Expression
+  }
+  catch {}
+}
 
 ## PSReadLine
-if ($host.Name -eq 'ConsoleHost') {
-  Import-Module PSReadLine
+if ($IsInteractiveShell) {
+  try {
+    Import-Module PSReadLine
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+    Set-PSReadLineOption -PredictionSource History
+    Set-PSReadLineOption -PredictionViewStyle ListView
+    Set-PSReadLineOption -EditMode Windows
+  }
+  catch {}
 }
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -PredictionViewStyle ListView
-Set-PSReadLineOption -EditMode Windows
 ##
 
 function zsh() {
@@ -64,10 +92,13 @@ function edit-history {
 ##
 # Import-Module PSReadline
 # Import-Module PowerTab
-Import-Module posh-git
+
 # $global:GitPromptSettings.WorkingForegroundColor = "Red"
 
-Import-Module -Name Terminal-Icons
+if ($IsInteractiveShell) {
+  Import-Module posh-git
+  Import-Module -Name Terminal-Icons
+}
 ##
 
 Set-Alias -Name wf -Value "C:\Users\bruno\AppData\Local\nvs\default\wf.ps1"
