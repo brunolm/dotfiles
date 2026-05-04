@@ -12,3 +12,9 @@ sandbox = "unelevated"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
+
+[projects.'c:\brunolm\projects']
+trust_level = "trusted"
+
+[projects.'p:\']
+trust_level = "trusted"
