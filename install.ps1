@@ -27,9 +27,9 @@ function Install() {
   if (Test-Path "$claudeDir\CLAUDE.md") { Remove-Item -Force "$claudeDir\CLAUDE.md"; }
   if (Test-Path "$claudeDir\settings.json") { Remove-Item -Force "$claudeDir\settings.json"; }
   if (Test-Path "$claudeDir\skills") { Remove-Item -Recurse -Force "$claudeDir\skills"; }
-  New-Item -Path "$claudeDir\CLAUDE.md" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\CLAUDE.md");
-  New-Item -Path "$claudeDir\settings.json" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\settings.json");
-  New-Item -Path "$claudeDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.claude\skills");
+  New-Item -Path "$claudeDir\CLAUDE.md" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\CLAUDE.md");
+  New-Item -Path "$claudeDir\settings.json" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\settings.json");
+  New-Item -Path "$claudeDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\skills");
 
   # Link ~/.codex config files/folders to dotfiles versions
   $codexDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.codex";
@@ -39,9 +39,9 @@ function Install() {
   if (Test-Path "$codexDir\AGENTS.md") { Remove-Item -Force "$codexDir\AGENTS.md"; }
   if (Test-Path "$codexDir\config.toml") { Remove-Item -Force "$codexDir\config.toml"; }
   if (Test-Path "$codexDir\skills") { Remove-Item -Recurse -Force "$codexDir\skills"; }
-  New-Item -Path "$codexDir\AGENTS.md" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.codex\AGENTS.md");
-  New-Item -Path "$codexDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.codex\config.toml");
-  New-Item -Path "$codexDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\.codex\skills");
+  New-Item -Path "$codexDir\AGENTS.md" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\AGENTS.md");
+  New-Item -Path "$codexDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\config.toml");
+  New-Item -Path "$codexDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\skills");
 
   if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
     mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
