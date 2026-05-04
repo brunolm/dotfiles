@@ -9,3 +9,8 @@ poe*-filters.zip
 *.local.*
 keys/obj
 keys/bin
+
+
+# Codex
+**/.codex/skills/.system/
+
