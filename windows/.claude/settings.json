@@ -172,8 +172,10 @@
     "deny": [],
     "ask": [
       "Bash(bun run dev)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "effortLevel": "high",
-  "autoUpdatesChannel": "latest"
+  "effortLevel": "xhigh",
+  "autoUpdatesChannel": "latest",
+  "skipAutoPermissionPrompt": true
 }
