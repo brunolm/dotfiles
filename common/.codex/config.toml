@@ -16,5 +16,5 @@ sandbox = "unelevated"
 [projects.'c:\brunolm\projects']
 trust_level = "trusted"
 
-[projects.'p:\']
+[projects.'c:\brunolm\projects\dotfiles']
 trust_level = "trusted"
