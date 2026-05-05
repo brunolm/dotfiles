@@ -1,6 +1,4 @@
-# Converted from Claude's settings.json.
-# Claude's per-command allowlist does not have a direct Codex config equivalent;
-# Codex command approval is controlled by approval_policy plus sandbox settings.
+approvals_reviewer = "auto_review"
 
 model_reasoning_effort = "xhigh"
 approval_policy = "on-request"
@@ -8,7 +6,7 @@ sandbox_mode = "workspace-write"
 model = "gpt-5.5"
 
 [windows]
-sandbox = "unelevated"
+sandbox = "elevated"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
