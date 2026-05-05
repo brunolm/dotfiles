@@ -13,4 +13,4 @@ keys/bin
 
 # Codex
 **/.codex/skills/.system/
-
+**/.codex/config.toml
