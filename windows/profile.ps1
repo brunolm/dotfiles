@@ -120,6 +120,11 @@ if (Test-Path "${env:HomeDrive}${env:HomePath}") {
   }
 }
 
+try {
+  mise activate pwsh | Out-String | Invoke-Expression
+}
+catch {}
+
 
 ## ENV
 . ~/env.ps1

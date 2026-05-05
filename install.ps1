@@ -49,6 +49,14 @@ function Install() {
   New-Item -Path "$codexDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\config.toml") | Out-Null;
   New-Item -Path "$codexDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\skills") | Out-Null;
 
+  # Link ~/.config/mise/config.toml to dotfiles version
+  $miseDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.config\mise";
+  if (!(Test-Path $miseDir)) {
+    mkdir $miseDir | Out-Null;
+  }
+  if (Test-Path "$miseDir\config.toml") { Remove-Item -Force "$miseDir\config.toml"; }
+  New-Item -Path "$miseDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.config\mise\config.toml") | Out-Null;
+
   if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
     mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
   }
