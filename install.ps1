@@ -19,7 +19,7 @@ function Install() {
   $copilotDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.copilot\instructions";
   New-Item -Path $copilotDir -ItemType SymbolicLink -Value (Resolve-Path ".\common\.copilot\instructions");
 
-  # Copy ~/.claude config files/folders from dotfiles versions
+  # Link ~/.claude config files/folders to dotfiles versions
   $claudeDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.claude";
   if (!(Test-Path $claudeDir)) {
     mkdir $claudeDir | Out-Null;
@@ -27,11 +27,17 @@ function Install() {
   if (Test-Path "$claudeDir\CLAUDE.md") { Remove-Item -Force "$claudeDir\CLAUDE.md"; }
   if (Test-Path "$claudeDir\settings.json") { Remove-Item -Force "$claudeDir\settings.json"; }
   if (Test-Path "$claudeDir\skills") { Remove-Item -Recurse -Force "$claudeDir\skills"; }
-  Copy-Item -Path (Resolve-Path ".\common\.claude\CLAUDE.md") -Destination "$claudeDir\CLAUDE.md" -Force;
-  Copy-Item -Path (Resolve-Path ".\common\.claude\settings.json") -Destination "$claudeDir\settings.json" -Force;
-  Copy-Item -Path (Resolve-Path ".\common\.claude\skills") -Destination "$claudeDir\skills" -Recurse -Force;
+  New-Item -Path "$claudeDir\CLAUDE.md" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\CLAUDE.md") | Out-Null;
+  New-Item -Path "$claudeDir\settings.json" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\settings.json") | Out-Null;
+  New-Item -Path "$claudeDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\skills") | Out-Null;
 
-  # Copy ~/.codex config files/folders from dotfiles versions
+  # Seed local config.toml from the example, then link ~/.codex config to dotfiles versions
+  $codexConfig = Join-Path $PSScriptRoot "common\.codex\config.toml";
+  $codexConfigExample = Join-Path $PSScriptRoot "common\.codex\config.example.toml";
+  if (!(Test-Path $codexConfig)) {
+    Copy-Item -Path $codexConfigExample -Destination $codexConfig;
+  }
+
   $codexDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.codex";
   if (!(Test-Path $codexDir)) {
     mkdir $codexDir | Out-Null;
@@ -39,9 +45,9 @@ function Install() {
   if (Test-Path "$codexDir\AGENTS.md") { Remove-Item -Force "$codexDir\AGENTS.md"; }
   if (Test-Path "$codexDir\config.toml") { Remove-Item -Force "$codexDir\config.toml"; }
   if (Test-Path "$codexDir\skills") { Remove-Item -Recurse -Force "$codexDir\skills"; }
-  Copy-Item -Path (Resolve-Path ".\common\.codex\AGENTS.md") -Destination "$codexDir\AGENTS.md" -Force;
-  Copy-Item -Path (Resolve-Path ".\common\.codex\config.toml") -Destination "$codexDir\config.toml" -Force;
-  Copy-Item -Path (Resolve-Path ".\common\.codex\skills") -Destination "$codexDir\skills" -Recurse -Force;
+  New-Item -Path "$codexDir\AGENTS.md" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\AGENTS.md") | Out-Null;
+  New-Item -Path "$codexDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\config.toml") | Out-Null;
+  New-Item -Path "$codexDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\skills") | Out-Null;
 
   if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
     mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
