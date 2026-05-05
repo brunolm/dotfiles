@@ -49,12 +49,7 @@ Read the full diff, then read enough of the surrounding source to judge context 
 - **Dead / risky code** - unused vars, unreachable branches, swallowed exceptions, TODOs without tickets, debug prints left in, commented-out blocks.
 - **Tests** - are behavior changes covered? Are new tests actually asserting something meaningful?
 - **Performance** - only flag concrete problems (N+1, unnecessary sync I/O in hot path, accidental O(n^2) on unbounded input). Do not speculate.
-
-Do not flag:
-
-- Pure style/formatting the formatter handles.
-- Hypothetical "what if someone later..." risks.
-- Rewrites of working code for taste.
+- **Memory leaks** - unreleased resources (file handles, sockets, DB connections, native handles), missing `dispose`/`close`/`using`, event listeners or subscriptions added without removal, timers/intervals never cleared, growing caches/maps with no eviction, closures retaining large objects, retained references in long-lived singletons.
 
 ## Severity levels
 
@@ -65,7 +60,7 @@ Do not flag:
 
 ## Output format
 
-Output should be saved in `.branch-docs/brunolm-code-review.md`. Chat should output a clickable link to open this file.
+Output should be saved in `.branch-docs/pr-<id>-codex.md`. Chat should output a clickable link to open this file.
 
 ```
 ## Code review - <scope one-liner>
@@ -82,13 +77,10 @@ Output should be saved in `.branch-docs/brunolm-code-review.md`. Chat should out
 ### Nits
 - ...
 
-### Looks good
-- <one line per notable positive - e.g., "Nice: new retry logic has a capped backoff and a test."> (omit section if nothing to highlight)
-
 <one-line summary: e.g., "2 blockers, 3 major - do not merge yet.">
 ```
 
-Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location. If a section is empty, write `- (none)` rather than omitting the header - except **Looks good**, which may be omitted entirely.
+Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location. If a section is empty, write `- (none)` rather than omitting the header.
 
 Note the link path needs to consider that the output will be saved in `.branch-docs/` - adjust the relative path accordingly.
 
