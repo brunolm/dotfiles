@@ -40,7 +40,9 @@ State the chosen scope in one line before diving in (e.g., "Reviewing branch `fe
 
 ## What to review
 
-Read the full diff, then read enough of the surrounding source to judge context — do not review lines in isolation. For each changed file, consider:
+Read the full diff, then read enough of the surrounding source to judge context - do not review lines in isolation. PRs often hide issues outside the immediate changed hunk, so search and inspect related code instead of stopping at the diff.
+
+For each changed file, consider:
 
 - **Correctness** — logic errors, off-by-one, null/undefined handling, race conditions, wrong API usage, broken error handling, missed edge cases.
 - **Security** — injection (SQL, command, XSS), secrets in code, unsafe deserialization, missing auth checks, unsafe file/path handling, weak crypto.
@@ -85,6 +87,8 @@ Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location
 Note the link path needs to consider that the output will be saved in `.branch-docs/` — adjust the relative path accordingly.
 
 End with the one-line summary. No closing paragraph, no restating what the diff does.
+
+Once the output is generated you should review the generated items and check if they are valid. If you find any invalid items, remove them from the output and update the summary accordingly. If any of the items result in "no changes needed" then you should remove the item and update the summary accordingly.
 
 ## Rules for the review itself
 
