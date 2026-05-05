@@ -3,10 +3,14 @@ approvals_reviewer = "auto_review"
 model_reasoning_effort = "xhigh"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
+# sandbox_mode = "danger-full-access"
 model = "gpt-5.5"
 
 [windows]
 sandbox = "elevated"
+
+[shell_environment_policy]
+inherit = "all"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4

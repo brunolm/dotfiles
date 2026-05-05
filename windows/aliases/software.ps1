@@ -1,7 +1,3 @@
-function Update-SW-GitHubCli() {
-  # TODO: get GitHub CLI
-}
-
 function Update-SW-GitHubCopilot() {
   winget install GitHub.Copilot
 }
@@ -15,10 +11,6 @@ function Update-SW-Chrome() {
   Start-Process (join-path $env:TEMP chrome.exe);
 }
 # TODO: add Brave, Firefox
-
-function Update-SW-Node() {
-  # get NVS from GitHub releases
-}
 
 function Update-SW-Steam() {
   Invoke-WebRequest "https://steamcdn-a.akamaihd.net/client/installer/SteamSetup.exe" -OutFile (join-path $env:TEMP steam.exe);
@@ -47,4 +39,8 @@ function Update-SW-Powershell() {
 
 function Update-SW-qTorrent() {
   # TODO: dl
+}
+
+function Update-SW-Mise() {
+  winget install jdx.mise
 }

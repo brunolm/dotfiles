@@ -8,23 +8,23 @@
       "type": "prompt",
       "alignment": "left",
       "segments": [
-        {
-          "type": "time",
-          "style": "powerline",
-          "invert_powerline": true,
-          "foreground": "#111111",
-          "background": "#2e9599",
-          "leading_diamond": "\ue0b2",
-          "trailing_diamond": "\ue0b4",
-          "template": " {{ .CurrentDate | date .Format }} "
-        },
+        // {
+        //   "type": "time",
+        //   "style": "powerline",
+        //   "invert_powerline": true,
+        //   "foreground": "#111111",
+        //   "background": "#2e9599",
+        //   "leading_diamond": "\ue0b2",
+        //   "trailing_diamond": "\ue0b4",
+        //   "template": " {{ .CurrentDate | date .Format }} "
+        // },
         {
           "type": "path",
           "style": "powerline",
-          "powerline_symbol": "\ue0b0",
+          // "powerline_symbol": "\ue0b0",
           "foreground": "#000000",
           "background": "#ffd970",
-          "template": " \uf74a  {{ .Path }} ",
+          "template": " \uf74a {{ .Path }} ",
           "properties": {
             "folder_separator_icon": " \ue0b1 ",
             "home_icon": "~",
@@ -47,7 +47,7 @@
           "trailing_diamond": "\ue0b4",
           "template": " {{ .UpstreamIcon }}{{ .HEAD }}{{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \uf692 {{ .StashCount }}{{ end }} ",
           "properties": {
-            "branch_max_length": 25,
+            "branch_max_length": 20,
             "fetch_stash_count": true,
             "fetch_status": true,
             "fetch_upstream_icon": true
@@ -59,7 +59,8 @@
           "powerline_symbol": "\ue0b0",
           "foreground": "#ffffff",
           "background": "#6CA35E",
-          "template": " \uf898 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} ",
+          // "template": " \uf898 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} ",
+          "template": " \uf898 ",
           "properties": {
             "fetch_version": true
           }
@@ -132,7 +133,8 @@
             "{{if contains \"default\" .Profile}}#FFA400{{end}}",
             "{{if contains \"jan\" .Profile}}#f1184c{{end}}"
           ],
-          "template": " \ue7ad {{ .Profile }}{{ if .Region }}@{{ .Region }}{{ end }} ",
+          "template_": " \ue7ad {{ .Profile }}{{ if .Region }}@{{ .Region }}{{ end }} ",
+          "template": " \ue7ad aws ",
           "properties": {
             "display_default": false
           }

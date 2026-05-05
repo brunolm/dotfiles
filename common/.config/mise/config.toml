@@ -2,3 +2,8 @@
 node = "lts"
 bun = "latest"
 python = "3.13"
+rust = "stable"
+go = "latest"
+gh = "latest"
+# aws is provided by the official Windows MSI (C:\Program Files\Amazon\AWSCLIV2);
+# mise's aqua-based aws-cli plugin only supports linux/darwin.
