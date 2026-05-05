@@ -3,7 +3,10 @@ try {
 } catch { }
 
 Set-Location "${env:HomeDrive}${env:HomePath}"
-. "${env:HomeDrive}${env:HomePath}\profile.ps1"
+$HomeProfile = "${env:HomeDrive}${env:HomePath}\profile.ps1"
+if (Test-Path -LiteralPath $HomeProfile -ErrorAction SilentlyContinue) {
+  . $HomeProfile
+}
 
 # http://stackoverflow.com/a/38381054/340760
 function Invoke-Git {

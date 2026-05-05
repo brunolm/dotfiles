@@ -2,7 +2,10 @@ try {
     Set-ExecutionPolicy RemoteSigned
 } catch { }
 
-. "${env:HomeDrive}${env:HomePath}\profile.ps1"
+$HomeProfile = "${env:HomeDrive}${env:HomePath}\profile.ps1"
+if (Test-Path -LiteralPath $HomeProfile -ErrorAction SilentlyContinue) {
+  . $HomeProfile
+}
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
