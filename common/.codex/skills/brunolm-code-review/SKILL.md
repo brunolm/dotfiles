@@ -40,7 +40,7 @@ State the chosen scope in one line before diving in (e.g., "Reviewing branch `fe
 
 ## What to review
 
-Read the full diff, then read enough of the surrounding source to judge context - do not review lines in isolation. PRs often hide issues outside the immediate changed hunk, so search and inspect related code instead of stopping at the diff.
+Read the full diff, then read enough of the surrounding source to judge context - do not review lines in isolation. PRs often hide issues outside the immediate changed hunk, so search and inspect related code if more context is needed to evaluate the changes. Focus the review on the changes, do not review things that are not part of the changes and PR scope.
 
 For each changed file, consider:
 
@@ -62,13 +62,16 @@ For each changed file, consider:
 
 ## Output format
 
-Output should be saved in `.branch-docs/pr-<id>-codex.md`. Chat should output a clickable link to open this file.
+Output should be saved in `.branch-docs/pr-<id>-codex.md`, if the file already exists then overwrite it. Chat should output a clickable link to open this file.
 
 ```
 ## Code review - <scope one-liner>
 
+- Author: `<author login>` (`<author name>`)
+- Branch: `<headRefName>` (vs `<baseRefName>`)
+
 ### Blockers
-- [path/file.ts:42](../path/file.ts#L42) - <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.>
+- [path/file.ts:42](../path/file.ts#L42) - <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.> (confidence: x%)
 
 ### Major
 - ...
@@ -88,7 +91,22 @@ Note the link path needs to consider that the output will be saved in `.branch-d
 
 End with the one-line summary. No closing paragraph, no restating what the diff does.
 
-Once the output is generated you should review the generated items and check if they are valid. If you find any invalid items, remove them from the output and update the summary accordingly. If any of the items result in "no changes needed" then you should remove the item and update the summary accordingly.
+## Per-finding verification
+
+Every review item must be verified by an independent subagent before the review is finalized. **No bullet may be left without a `(confidence: x%)` suffix.**
+
+Workflow:
+
+1. As soon as you identify a finding, append it to the output file under the appropriate severity heading using the format above (initially without the `(confidence: x%)` suffix), and track it in your task list as `verify: <short bullet text>`. The task list is the source of truth for which items still need verification - do not rely on memory.
+2. For every pending verify-task, spawn a subagent. Batch all pending verifications in parallel - do not serialize them, and do not stop after the first batch if more findings are added later. Pass each subagent:
+   - The exact bullet text you wrote.
+   - The file path and line range it points to.
+   - The reasoning behind the claim and what would prove or disprove it.
+   - An instruction to investigate the surrounding code (read the file, grep for callers, check related tests/config) and report a confidence percentage `0%`-`100%` plus a one-line justification. `100%` = the claim is definitely correct as written; `0%` = the claim is wrong or the code already handles the case.
+3. When a subagent returns, append ` (confidence: x%)` to the end of that bullet in the output file and mark its task completed. Do not mark the task done before the suffix is written.
+4. **Completeness gate (mandatory before returning to the user):** re-read the output file and scan every bullet under `### Blockers`, `### Major`, `### Minor`, `### Nits`. Any bullet that does not end with `(confidence: NN%)` is unverified - spawn a verification subagent for it now and append the suffix when it returns. Repeat the scan until zero bullets are missing the suffix. Only then write the final summary line and present the link to the user.
+
+The final summary line should reflect only items that survived verification, and counts must match the bullets actually present in the file.
 
 ## Rules for the review itself
 
