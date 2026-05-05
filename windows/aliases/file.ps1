@@ -1,3 +1,3 @@
 function touch($name) {
-    New-Item ".\$name" -type file;
+  New-Item ".\$name" -type file;
 }

@@ -1,3 +1,3 @@
 function code() {
-    code-insiders.cmd -n $args
+  code-insiders.cmd -n $args
 }
