@@ -15,7 +15,7 @@ function InstallSoftware() {
   # choco install heroku-cli
   # choco install vercel
   choco install nvs -y
-  choco install vim -y
+  # choco install vim -y
   choco install gnupg -y
 
   choco install vscode-insiders -y
@@ -33,7 +33,7 @@ function InstallSoftware() {
   # Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
   # choco install pyenv-win
 
-  choco install tableplus -y
+  # choco install tableplus -y
 
   # Gaming
   choco install discord -y
@@ -43,3 +43,7 @@ function InstallSoftware() {
 }
 
 InstallSoftware
+
+
+# Install chocolatey
+# Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
