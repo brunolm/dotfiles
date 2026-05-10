@@ -105,7 +105,7 @@ function Show-Info {
     Write-Row 'Git' '(not a git repo)' 'DarkGray'
   }
 
-  # Node — omp default trigger: package.json, *.js/.ts/.jsx/.tsx/.mjs/.cjs, .nvmrc
+  # Node - omp default trigger: package.json, *.js/.ts/.jsx/.tsx/.mjs/.cjs, .nvmrc
   if (Get-Command node -ErrorAction SilentlyContinue) {
     if (Test-AnyFile @('package.json','.nvmrc','*.js','*.cjs','*.mjs','*.ts','*.tsx','*.jsx')) {
       $v = (& node --version) -replace '^v',''
@@ -113,7 +113,7 @@ function Show-Info {
     }
   }
 
-  # Go — omp default trigger: *.go, go.mod
+  # Go - omp default trigger: *.go, go.mod
   if (Get-Command go -ErrorAction SilentlyContinue) {
     if (Test-AnyFile @('go.mod','*.go')) {
       $raw = (& go version) 2>$null
@@ -121,7 +121,7 @@ function Show-Info {
     }
   }
 
-  # Julia — omp default trigger: *.jl
+  # Julia - omp default trigger: *.jl
   if (Get-Command julia -ErrorAction SilentlyContinue) {
     if (Test-AnyFile @('*.jl')) {
       $raw = (& julia --version) 2>$null
@@ -129,7 +129,7 @@ function Show-Info {
     }
   }
 
-  # Python — display_mode: files; trigger: *.py, requirements.txt, pyproject.toml, etc.
+  # Python - display_mode: files; trigger: *.py, requirements.txt, pyproject.toml, etc.
   if (Get-Command python -ErrorAction SilentlyContinue) {
     if (Test-AnyFile @('*.py','requirements.txt','pyproject.toml','Pipfile','setup.py','tox.ini')) {
       $raw = (& python --version 2>&1)
@@ -141,7 +141,7 @@ function Show-Info {
     }
   }
 
-  # Ruby — display_mode: files; trigger: *.rb, Gemfile, Rakefile
+  # Ruby - display_mode: files; trigger: *.rb, Gemfile, Rakefile
   if (Get-Command ruby -ErrorAction SilentlyContinue) {
     if (Test-AnyFile @('*.rb','Gemfile','Rakefile','*.gemspec')) {
       $raw = (& ruby --version) 2>$null
@@ -149,12 +149,12 @@ function Show-Info {
     }
   }
 
-  # Azure Functions — display_mode: files; trigger: host.json, local.settings.json, function.json
+  # Azure Functions - display_mode: files; trigger: host.json, local.settings.json, function.json
   if (Test-AnyFile @('host.json','local.settings.json','function.json')) {
     Write-Row 'AzFunc' '(project detected)' 'DarkYellow'
   }
 
-  # AWS — profile from env
+  # AWS - profile from env
   $awsProfile = if ($env:AWS_PROFILE) { $env:AWS_PROFILE } else { $env:AWS_DEFAULT_PROFILE }
   $awsRegion  = if ($env:AWS_REGION)  { $env:AWS_REGION }  else { $env:AWS_DEFAULT_REGION }
   if ($awsProfile -or $awsRegion) {
@@ -166,14 +166,14 @@ function Show-Info {
     Write-Row 'AWS' '(no profile in env)' 'DarkGray'
   }
 
-  # Execution time — last command from PSReadLine history
+  # Execution time - last command from PSReadLine history
   $last = Get-History -Count 1 -ErrorAction SilentlyContinue
   if ($last) {
     $ms = [int]($last.EndExecutionTime - $last.StartExecutionTime).TotalMilliseconds
-    Write-Row 'LastCmd' "$ms ms — $($last.CommandLine)" 'DarkMagenta'
+    Write-Row 'LastCmd' "$ms ms - $($last.CommandLine)" 'DarkMagenta'
   }
 
-  # YTM — try the YouTube Music Desktop local API (no auth)
+  # YTM - try the YouTube Music Desktop local API (no auth)
   try {
     $ytm = Invoke-RestMethod -Uri 'http://localhost:9863/query' -TimeoutSec 1 -ErrorAction Stop
     if ($ytm -and $ytm.player -and $ytm.player.hasSong) {
@@ -220,5 +220,59 @@ function Single-Select {
 
   Write-Host "`n"
   return $Items[$pos]
+}
+
+function Watch-MemoryHogs {
+  param(
+    [int]$MinMemoryMB = 500,
+    [int]$RefreshSeconds = 2,
+    [int]$WarnMemoryMB = 1024,
+    [int]$CriticalWarnMemoryMB = 3072
+  )
+
+  $threshold = $MinMemoryMB * 1MB
+  $warn = $WarnMemoryMB * 1MB
+  $critical = $CriticalWarnMemoryMB * 1MB
+
+  try {
+    while ($true) {
+      Clear-Host
+      Write-Host "Processes using over $MinMemoryMB MB (warn >= $WarnMemoryMB MB, critical >= $CriticalWarnMemoryMB MB, refresh ${RefreshSeconds}s) - Ctrl+C to stop" -ForegroundColor Yellow
+      Write-Host ("Updated: {0}" -f (Get-Date -Format 'HH:mm:ss')) -ForegroundColor DarkGray
+      Write-Host ''
+
+      $rows = Get-Process |
+        Where-Object { $_.WorkingSet64 -gt $threshold } |
+        Sort-Object WorkingSet64 -Descending |
+        ForEach-Object {
+          [pscustomobject]@{
+            PID_       = $_.Id
+            Name       = $_.ProcessName
+            MemoryMB   = [math]::Round($_.WorkingSet64 / 1MB, 1)
+            CPU_s      = if ($_.CPU) { [math]::Round($_.CPU, 1) } else { 0 }
+            _RawMemory = $_.WorkingSet64
+          }
+        }
+
+      if (-not $rows) {
+        Write-Host "(no processes above threshold)" -ForegroundColor DarkGray
+      } else {
+        $fmt = "{0,-7} {1,-30} {2,12} {3,10}"
+        Write-Host ($fmt -f 'PID', 'Name', 'Memory(MB)', 'CPU(s)') -ForegroundColor Cyan
+        Write-Host ($fmt -f '---', '----', '----------', '------') -ForegroundColor DarkCyan
+        foreach ($r in $rows) {
+          $color =
+            if ($r._RawMemory -ge $critical) { 'Red' }
+            elseif ($r._RawMemory -ge $warn) { 'Yellow' }
+            else { 'White' }
+          Write-Host ($fmt -f $r.PID_, $r.Name, $r.MemoryMB, $r.CPU_s) -ForegroundColor $color
+        }
+      }
+
+      Start-Sleep -Seconds $RefreshSeconds
+    }
+  } finally {
+    Write-Host "`nStopped watching." -ForegroundColor DarkGray
+  }
 }
 
