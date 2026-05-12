@@ -32,7 +32,9 @@ State the chosen file in one short line before continuing.
 
 ## 2. Parse findings
 
-Read the review file. Extract every finding under `### Blockers`, `### Major`, `### Minor`, and `### Nits` in that order (ignore sections that say `- (none)`). Keep the original bullet text verbatim — you will use it to identify the item when rewriting the file later.
+Read the review file and extract every finding bullet in the order it appears, top to bottom. Treat any bullet that names a file/symbol or describes an issue as a finding, regardless of which heading it sits under. Skip placeholder lines like `- (none)`. Keep the original bullet text verbatim — you will use it to identify the item when rewriting the file later.
+
+Working top-to-bottom keeps the skill format-agnostic: it does not matter whether the file uses severity headings (`### Blockers` / `### Major` / ...), numbered lists, or some other shape — process whatever bullets you find in order.
 
 ## 3. Walk findings one at a time
 
@@ -62,7 +64,7 @@ Options, in order:
    - Stage only the files touched for this finding (`git add <files>`). Never `git add -A` or `git add .`.
    - Use a focused message: `fix(<scope>): <short summary>`, with a body that names the file/line and one sentence on the underlying issue.
    - Capture the short SHA via `git rev-parse --short HEAD`.
-4. Update the review file: remove the bullet from its severity section and append it under a `### Fixed` section as `- <original first sentence> — fixed in <short-sha>`. Create the `### Fixed` section if it does not exist yet.
+4. Update the review file: remove the original bullet wherever it sat and append it under a `### Fixed` section as `- <original first sentence> — fixed in <short-sha>`. Create the `### Fixed` section at the bottom of the file if it does not exist yet.
 
 ### If Explain more
 
@@ -70,7 +72,7 @@ Give a deeper explanation — root cause, why it matters, how the proposed fix w
 
 ### If Skip
 
-Remove the bullet from its severity section and append it under a `### Skipped` section as `- <original first sentence> — skipped`. Create `### Skipped` if needed. Do not commit the review-file change on its own yet; it will ride along with the next code commit, or get its own commit at the end if no more code changes happen.
+Remove the original bullet wherever it sat and append it under a `### Skipped` section as `- <original first sentence> — skipped`. Create `### Skipped` at the bottom of the file if needed. Do not commit the review-file change on its own yet; it will ride along with the next code commit, or get its own commit at the end if no more code changes happen.
 
 ## 4. After every finding is handled
 
