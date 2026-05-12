@@ -35,17 +35,21 @@ Read the review file. Extract every finding under `### Blockers`, `### Major`, `
 
 ## 3. Walk findings one at a time
 
-For each finding, present three things:
+For each finding, present two things:
 
 1. **The original item** - verbatim, including the file link and severity.
 2. **Plain-language explanation** - what the problem actually is, no jargon, 1-2 sentences.
-3. **Proposed fix** - the concrete change you would make (which function, which line, which API), 1-2 sentences.
 
-Then ask the user to choose:
+Then ask the user to choose, and fold the proposed fix(es) into the options. Each fix option is labelled `Fix - <short fix name>` (3-6 words naming the approach) followed by a one-sentence summary of the concrete change (which function, which line, which API).
 
-1. **Fix** - apply the change now.
-2. **Explain more** - give a deeper explanation, then re-ask.
-3. **Skip** - leave the code alone and mark the item skipped.
+If there's a single sensible fix, present one Fix option. If there are multiple viable approaches (e.g., narrow patch vs. proper refactor, or two different APIs that resolve the issue), present each as its own Fix option - keep it to a maximum of two so the prompt stays focused.
+
+Options, in order:
+
+1. `Fix - <short fix name>` - one-sentence summary of this fix.
+2. (optional) `Fix - <short fix name>` - one-sentence summary of the alternative fix.
+3. `Explain more` - give a deeper explanation, then re-ask.
+4. `Skip` - leave the code alone and mark the item skipped.
 
 ### If Fix
 
