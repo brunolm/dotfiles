@@ -45,7 +45,7 @@ Read the full diff, then read enough of the surrounding source to judge context 
 For each changed file, consider:
 
 - **Correctness** - logic errors, off-by-one, null/undefined handling, race conditions, wrong API usage, broken error handling, missed edge cases.
-- **Security** - injection (SQL, command, XSS), secrets in code, unsafe deserialization, missing auth checks, unsafe file/path handling, weak crypto.
+- **Security** - injection (SQL, command, XSS), secrets in code, unsafe deserialization, missing auth checks, unsafe file/path handling, weak crypto, PII leaks.
 - **Project-specific rules** - honor any rules in `AGENTS.md` files at the repo root or parent directories. For this dotfiles repo specifically: C# low-level Windows hooks (`LowLevelMouseProc`, `LowLevelKeyboardProc`) must never call `SendInput` synchronously.
 - **Consistency** - does the change match surrounding conventions (naming, error handling style, logging, file layout)? Flag only real inconsistencies, not personal preference.
 - **Dead / risky code** - unused vars, unreachable branches, swallowed exceptions, TODOs without tickets, debug prints left in, commented-out blocks.
@@ -62,7 +62,9 @@ For each changed file, consider:
 
 ## Output format
 
-Output should be saved in `.branch-docs/pr-<id>-codex.md`, if the file already exists then overwrite it. Chat should output a clickable link to open this file.
+Output should be saved in `.branch-docs/pr-<id>-codex.md`, if the file already exists then overwrite it. If a PR hasn't been specified use the current branch name as `<id>`.
+
+Chat should output a clickable link to open this file.
 
 ```
 ## Code review - <scope one-liner>
@@ -90,23 +92,6 @@ Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location
 Note the link path needs to consider that the output will be saved in `.branch-docs/` - adjust the relative path accordingly.
 
 End with the one-line summary. No closing paragraph, no restating what the diff does.
-
-## Per-finding verification
-
-Every review item must be verified by an independent subagent before the review is finalized. **No bullet may be left without a `(confidence: x%)` suffix.**
-
-Workflow:
-
-1. As soon as you identify a finding, append it to the output file under the appropriate severity heading using the format above (initially without the `(confidence: x%)` suffix), and track it in your task list as `verify: <short bullet text>`. The task list is the source of truth for which items still need verification - do not rely on memory.
-2. For every pending verify-task, spawn a subagent. Batch all pending verifications in parallel - do not serialize them, and do not stop after the first batch if more findings are added later. Pass each subagent:
-   - The exact bullet text you wrote.
-   - The file path and line range it points to.
-   - The reasoning behind the claim and what would prove or disprove it.
-   - An instruction to investigate the surrounding code (read the file, grep for callers, check related tests/config) and report a confidence percentage `0%`-`100%` plus a one-line justification. `100%` = the claim is definitely correct as written; `0%` = the claim is wrong or the code already handles the case.
-3. When a subagent returns, append ` (confidence: x%)` to the end of that bullet in the output file and mark its task completed. Do not mark the task done before the suffix is written.
-4. **Completeness gate (mandatory before returning to the user):** re-read the output file and scan every bullet under `### Blockers`, `### Major`, `### Minor`, `### Nits`. Any bullet that does not end with `(confidence: NN%)` is unverified - spawn a verification subagent for it now and append the suffix when it returns. Repeat the scan until zero bullets are missing the suffix. Only then write the final summary line and present the link to the user.
-
-The final summary line should reflect only items that survived verification, and counts must match the bullets actually present in the file.
 
 ## Rules for the review itself
 
