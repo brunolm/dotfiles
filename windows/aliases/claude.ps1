@@ -18,6 +18,22 @@ function Claude-Ask {
   & claude @args_
 }
 
+function Claude-AskSimple {
+  param([string]$Prompt)
+  $out = New-TemporaryFile
+  $in  = New-TemporaryFile  # empty file, gives claude an immediate-EOF stdin
+  try {
+    Start-Process claude -ArgumentList "-- `"$Prompt`"" `
+      -RedirectStandardInput  $in.FullName `
+      -RedirectStandardOutput $out.FullName `
+      -NoNewWindow -Wait
+    Get-Content $out.FullName -Raw
+  }
+  finally {
+    Remove-Item $out.FullName, $in.FullName -ErrorAction SilentlyContinue
+  }
+}
+
 ## Claude-AskWatching: run claude with stdout/stderr captured to temp logs.
 ## A background watcher tails the log for a sentinel string and kills the
 ## claude process tree as soon as it appears.
