@@ -4,3 +4,8 @@
   - .env vars
   - repository names (if they're private)
   - any other potential secrets
+
+# When making changes on aliases
+
+- Consider if the alias can and should be ported
+  - If yes, keep windows alias <-> wsl alias in sync

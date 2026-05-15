@@ -3,6 +3,8 @@ function InstallSoftware() {
 
   choco install git -y
   choco install gnupg -y
+  choco install ffmpeg -y
+  choco install imagemagick -y
 
   choco install powertoys -y
   choco install autohotkey -y

@@ -19,11 +19,22 @@ function Claude-Ask {
 }
 
 function Claude-AskSimple {
-  param([string]$Prompt)
+  param(
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$Prompt,
+
+    [string]$Model = 'claude-opus-4-7',
+
+    [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')]
+    [string]$Effort = 'xhigh',
+
+    [string]$PermissionMode = 'auto'
+  )
   $out = New-TemporaryFile
   $in  = New-TemporaryFile  # empty file, gives claude an immediate-EOF stdin
   try {
-    Start-Process claude -ArgumentList "-- `"$Prompt`"" `
+    $argLine = "--model `"$Model`" --effort `"$Effort`" --permission-mode `"$PermissionMode`" -- `"$Prompt`""
+    Start-Process claude -ArgumentList $argLine `
       -RedirectStandardInput  $in.FullName `
       -RedirectStandardOutput $out.FullName `
       -NoNewWindow -Wait

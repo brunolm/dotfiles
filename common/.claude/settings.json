@@ -177,5 +177,6 @@
   },
   "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
+  "autoMemoryEnabled": true,
   "skipAutoPermissionPrompt": true
 }
