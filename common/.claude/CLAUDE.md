@@ -12,3 +12,8 @@
   - sending emails
   - making changes on the calendar
   - making changes on Linear
+
+## Coding
+
+- prefer early returns
+- avoid using explicit return types unless required
