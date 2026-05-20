@@ -1,92 +1,84 @@
 function Install() {
-  $baseProfile = "${env:HOMEDRIVE}${env:HOMEPATH}\profile.ps1";
-  Remove-Item $baseProfile;
-  New-Item -Path $baseProfile -ItemType SymbolicLink -Value (Resolve-Path ".\windows\profile.ps1");
-  New-Item -Path "${env:HOMEDRIVE}${env:HOMEPATH}\env.ps1" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\env.ps1");
+  Set-Location $PSScriptRoot
 
-  $docs = [Environment]::GetFolderPath("MyDocuments");
-  $docs = (Join-Path $docs "WindowsPowerShell");
+  # Create or refresh a symlink at $Path pointing to $Target.
+  # Idempotent: removes any existing file/dir/link before linking.
+  function New-Link($Path, $Target) {
+    $parent = Split-Path -Parent $Path
+    if ($parent -and !(Test-Path $parent)) {
+      New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    if (Test-Path $Path) {
+      $item = Get-Item $Path -Force
+      if ($item.LinkType) {
+        # Symlink or junction — delete just the link, never recurse into target
+        $item.Delete()
+      } elseif ($item.PSIsContainer) {
+        Remove-Item -Recurse -Force $Path
+      } else {
+        Remove-Item -Force $Path
+      }
+    }
+    New-Item -Path $Path -ItemType SymbolicLink -Value $Target | Out-Null
+  }
 
-  $powershellProfile = (Join-Path $docs "Microsoft.PowerShell_profile.ps1");
-  $powershellISEProfile = (Join-Path $docs "Microsoft.PowerShellISE_profile.ps1");
+  $home_ = "${env:HOMEDRIVE}${env:HOMEPATH}"
 
-  Remove-Item $powershellProfile;
-  Remove-Item $powershellISEProfile;
-  New-Item -Path $powershellProfile -ItemType SymbolicLink -Value (Resolve-Path ".\windows\Microsoft.PowerShell_profile.ps1");
-  New-Item -Path $powershellISEProfile -ItemType SymbolicLink -Value (Resolve-Path ".\windows\Microsoft.PowerShellISE_profile.ps1");
+  # PowerShell profiles
+  $baseProfile = Join-Path $home_ "profile.ps1"
+  New-Link $baseProfile (Join-Path $PSScriptRoot "windows\profile.ps1")
+  New-Link (Join-Path $home_ "env.ps1") (Join-Path $PSScriptRoot "windows\env.ps1")
+
+  $docs = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "WindowsPowerShell"
+  $powershellProfile = Join-Path $docs "Microsoft.PowerShell_profile.ps1"
+  $powershellISEProfile = Join-Path $docs "Microsoft.PowerShellISE_profile.ps1"
+  New-Link $powershellProfile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShell_profile.ps1")
+  New-Link $powershellISEProfile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShellISE_profile.ps1")
 
   # Link .copilot instructions folder to ~/.copilot/instructions
-  $copilotDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.copilot\instructions";
-  New-Item -Path $copilotDir -ItemType SymbolicLink -Value (Resolve-Path ".\common\.copilot\instructions");
+  New-Link (Join-Path $home_ ".copilot\instructions") (Join-Path $PSScriptRoot "common\.copilot\instructions")
 
   # Link ~/.claude config files/folders to dotfiles versions
-  $claudeDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.claude";
-  if (!(Test-Path $claudeDir)) {
-    mkdir $claudeDir | Out-Null;
-  }
-  if (Test-Path "$claudeDir\CLAUDE.md") { Remove-Item -Force "$claudeDir\CLAUDE.md"; }
-  if (Test-Path "$claudeDir\settings.json") { Remove-Item -Force "$claudeDir\settings.json"; }
-  if (Test-Path "$claudeDir\skills") { Remove-Item -Recurse -Force "$claudeDir\skills"; }
-  New-Item -Path "$claudeDir\CLAUDE.md" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\CLAUDE.md") | Out-Null;
-  New-Item -Path "$claudeDir\settings.json" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\settings.json") | Out-Null;
-  New-Item -Path "$claudeDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.claude\skills") | Out-Null;
+  $claudeDir = Join-Path $home_ ".claude"
+  New-Link (Join-Path $claudeDir "CLAUDE.md") (Join-Path $PSScriptRoot "common\.claude\CLAUDE.md")
+  New-Link (Join-Path $claudeDir "settings.json") (Join-Path $PSScriptRoot "common\.claude\settings.json")
+  New-Link (Join-Path $claudeDir "skills") (Join-Path $PSScriptRoot "common\.claude\skills")
 
   # Seed local config.toml from the example, then link ~/.codex config to dotfiles versions
-  $codexConfig = Join-Path $PSScriptRoot "common\.codex\config.toml";
-  $codexConfigExample = Join-Path $PSScriptRoot "common\.codex\config.example.toml";
+  $codexConfig = Join-Path $PSScriptRoot "common\.codex\config.toml"
+  $codexConfigExample = Join-Path $PSScriptRoot "common\.codex\config.example.toml"
   if (!(Test-Path $codexConfig)) {
-    Copy-Item -Path $codexConfigExample -Destination $codexConfig;
+    Copy-Item -Path $codexConfigExample -Destination $codexConfig
   }
 
-  $codexDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.codex";
-  if (!(Test-Path $codexDir)) {
-    mkdir $codexDir | Out-Null;
-  }
-  if (Test-Path "$codexDir\AGENTS.md") { Remove-Item -Force "$codexDir\AGENTS.md"; }
-  if (Test-Path "$codexDir\config.toml") { Remove-Item -Force "$codexDir\config.toml"; }
-  if (Test-Path "$codexDir\skills") { Remove-Item -Recurse -Force "$codexDir\skills"; }
-  New-Item -Path "$codexDir\AGENTS.md" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\AGENTS.md") | Out-Null;
-  New-Item -Path "$codexDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\config.toml") | Out-Null;
-  New-Item -Path "$codexDir\skills" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.codex\skills") | Out-Null;
+  $codexDir = Join-Path $home_ ".codex"
+  New-Link (Join-Path $codexDir "AGENTS.md") (Join-Path $PSScriptRoot "common\.codex\AGENTS.md")
+  New-Link (Join-Path $codexDir "config.toml") (Join-Path $PSScriptRoot "common\.codex\config.toml")
+  New-Link (Join-Path $codexDir "skills") (Join-Path $PSScriptRoot "common\.codex\skills")
 
   # Link ~/.config/mise/config.toml to dotfiles version
-  $miseDir = "${env:HOMEDRIVE}${env:HOMEPATH}\.config\mise";
-  if (!(Test-Path $miseDir)) {
-    mkdir $miseDir | Out-Null;
-  }
-  if (Test-Path "$miseDir\config.toml") { Remove-Item -Force "$miseDir\config.toml"; }
-  New-Item -Path "$miseDir\config.toml" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.config\mise\config.toml") | Out-Null;
+  New-Link (Join-Path $home_ ".config\mise\config.toml") (Join-Path $PSScriptRoot "common\.config\mise\config.toml")
 
-  if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases")) {
-    mkdir "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\";
-  }
-
-  if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\dotfiles")) {
-    New-Item -Path "${env:HOMEDRIVE}${env:HOMEPATH}\aliases\dotfiles" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\aliases");
-  }
-
-  if (!(Test-Path "${env:HOMEDRIVE}${env:HOMEPATH}\.gitconfig")) {
-    New-Item -Path "${env:HOMEDRIVE}${env:HOMEPATH}\.gitconfig" -ItemType SymbolicLink -Value (Resolve-Path ".\common\.gitconfig");
-  }
+  # Aliases and gitconfig
+  New-Link (Join-Path $home_ "aliases\dotfiles") (Join-Path $PSScriptRoot "windows\aliases")
+  New-Link (Join-Path $home_ ".gitconfig") (Join-Path $PSScriptRoot "common\.gitconfig")
 
   # Need to create a task to run startup.cmd in TaskScheduler as admin
-  New-Item -Path "${env:HOMEDRIVE}\System\startup.cmd" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup\startup.cmd");
-  New-Item -Path "${env:HOMEDRIVE}\System\startup.ps1" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup\startup.ps1");
-
-  New-Item -Path "C:\System\Startup" -ItemType SymbolicLink -Value (Resolve-Path ".\windows\startup-files\");
+  New-Link "${env:HOMEDRIVE}\System\startup.cmd" (Join-Path $PSScriptRoot "windows\startup\startup.cmd")
+  New-Link "${env:HOMEDRIVE}\System\startup.ps1" (Join-Path $PSScriptRoot "windows\startup\startup.ps1")
+  New-Link "C:\System\Startup" (Join-Path $PSScriptRoot "windows\startup-files")
 
   Write-Host ""
-  Write-Host "Base profile linked to $baseProfile";
-  Write-Host "Powershell profile linked to $powershellProfile";
-  Write-Host "Powershell ISE profile linked to $powershellISEProfile";
-  Write-Host "Aliases linked to ~/aliases/dotfiles";
-  Write-Host "Git config linked to ~/aliases/dotfiles";
+  Write-Host "Base profile linked to $baseProfile"
+  Write-Host "Powershell profile linked to $powershellProfile"
+  Write-Host "Powershell ISE profile linked to $powershellISEProfile"
+  Write-Host "Aliases linked to ~/aliases/dotfiles"
+  Write-Host "Git config linked to ~/.gitconfig"
 
   Write-Host " ======= NEXT ======= "
-  Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin";
-  Write-Host " - Install oh-my-posh and fonts";
+  Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin"
+  Write-Host " - Install oh-my-posh and fonts"
   Write-Host " ======= /NEXT ======= "
-  Write-Host ""
 
   Write-Host ""
   Write-Host -ForegroundColor Green "Successfully installed!"

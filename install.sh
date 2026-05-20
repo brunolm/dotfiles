@@ -139,40 +139,7 @@ upsert_block "$HOME/.zshrc" \
   '# <<< dotfiles: prompt + zoxide <<<' \
   "$(cat <<'EOF'
 # >>> dotfiles: prompt + zoxide >>>
-# Git-aware prompt via vcs_info: dir  (branch*+)         elapsed
-autoload -Uz vcs_info
-zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:git:*' check-for-changes true
-zstyle ':vcs_info:git:*' stagedstr   '+'
-zstyle ':vcs_info:git:*' unstagedstr '*'
-zstyle ':vcs_info:git:*' formats       ' %F{yellow}(%b%u%c)%f'
-zstyle ':vcs_info:git:*' actionformats ' %F{yellow}(%b|%a%u%c)%f'
-
-# Execution-time tracking (RPROMPT, shown only when >= 0.5s)
-zmodload zsh/datetime
-_cmd_timer_start=0
-preexec() { _cmd_timer_start=$EPOCHREALTIME }
-precmd() {
-  vcs_info
-  RPROMPT=''
-  if (( _cmd_timer_start > 0 )); then
-    local elapsed=$(( EPOCHREALTIME - _cmd_timer_start ))
-    _cmd_timer_start=0
-    if (( elapsed >= 0.5 )); then
-      local secs=${elapsed%.*}
-      if   (( elapsed < 60 ));   then
-        RPROMPT="%F{magenta}$(printf '%.2fs' $elapsed)%f"
-      elif (( elapsed < 3600 )); then
-        RPROMPT="%F{magenta}$((secs/60))m$((secs%60))s%f"
-      else
-        RPROMPT="%F{magenta}$((secs/3600))h$(((secs%3600)/60))m$((secs%60))s%f"
-      fi
-    fi
-  fi
-}
-
-setopt prompt_subst
-PROMPT='%F{cyan}%30<..<%1~%<<%f${vcs_info_msg_0_} %# '
+PROMPT='%F{cyan}%30<..<%1~%<<%f %# '
 
 # zoxide — `z <substr>` to jump to a frecent dir
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
