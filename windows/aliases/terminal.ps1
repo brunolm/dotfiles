@@ -242,13 +242,13 @@ function Watch-MemoryHogs {
       Write-Host ''
 
       $rows = Get-Process |
-        Where-Object { $_.WorkingSet64 -gt $threshold } |
+        Where-Object { $_.WorkingSet64 -gt $threshold -and $_.ProcessName -ne 'Memory Compression' } |
         Sort-Object WorkingSet64 -Descending |
         ForEach-Object {
           [pscustomobject]@{
             PID_       = $_.Id
             Name       = $_.ProcessName
-            MemoryMB   = [math]::Round($_.WorkingSet64 / 1MB, 1)
+            MemoryMB   = [math]::Ceiling($_.WorkingSet64 / 1MB)
             CPU_s      = if ($_.CPU) { [math]::Round($_.CPU, 1) } else { 0 }
             _RawMemory = $_.WorkingSet64
           }
