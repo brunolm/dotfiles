@@ -6,6 +6,8 @@
   autocrlf = input
   editor = \"C:\\Program Files\\Microsoft VS Code Insiders\\Code - Insiders.exe\" --wait
   longpaths = true
+  fsmonitor = true
+  untrackedcache = true
 [color]
   ui = true
 [push]
