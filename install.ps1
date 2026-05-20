@@ -68,6 +68,17 @@ function Install() {
   New-Link "${env:HOMEDRIVE}\System\startup.ps1" (Join-Path $PSScriptRoot "windows\startup\startup.ps1")
   New-Link "C:\System\Startup" (Join-Path $PSScriptRoot "windows\startup-files")
 
+  # Install or upgrade Oh My Posh to the latest version via winget
+  $ompPkg = "JanDeDobbeleer.OhMyPosh"
+  $ompListed = winget list --id $ompPkg --exact --accept-source-agreements 2>$null | Select-String $ompPkg
+  if ($ompListed) {
+    Write-Host "Upgrading $ompPkg (if newer is available)..."
+    winget upgrade --id $ompPkg --exact --silent --accept-source-agreements --accept-package-agreements
+  } else {
+    Write-Host "Installing $ompPkg..."
+    winget install --id $ompPkg --exact --silent --accept-source-agreements --accept-package-agreements
+  }
+
   Write-Host ""
   Write-Host "Base profile linked to $baseProfile"
   Write-Host "Powershell profile linked to $powershellProfile"
@@ -77,7 +88,7 @@ function Install() {
 
   Write-Host " ======= NEXT ======= "
   Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin"
-  Write-Host " - Install oh-my-posh and fonts"
+  Write-Host " - Install nerd fonts (Oh My Posh is installed automatically)"
   Write-Host " ======= /NEXT ======= "
 
   Write-Host ""
