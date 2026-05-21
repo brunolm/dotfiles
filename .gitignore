@@ -16,3 +16,12 @@ keys/bin
 **/.codex/config.toml
 
 .playwright-mcp/
+
+backup/
+
+# GPG key backup files — never commit these, regardless of location
+public.asc
+secret.asc
+secret-subkeys.asc
+ownertrust.txt
+revoke.asc

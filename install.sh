@@ -295,5 +295,37 @@ else
   log "skipping Codex sync"
 fi
 
+# ---------------------------------------------------------------------------
+# 9) optional: copy ~/.gitconfig from repo (translate Windows paths to /mnt/<drive>/)
+# ---------------------------------------------------------------------------
+if prompt_yn "Copy $SCRIPT_DIR/common/.gitconfig to ~/.gitconfig (translating Windows paths)?"; then
+  gitconfig_src="$SCRIPT_DIR/common/.gitconfig"
+  gitconfig_dst="$HOME/.gitconfig"
+  if [[ ! -f "$gitconfig_src" ]]; then
+    log "source $gitconfig_src not found; skipping git config copy"
+  else
+    if [[ -e "$gitconfig_dst" || -L "$gitconfig_dst" ]]; then
+      backup="$gitconfig_dst.bak.$(date +%Y%m%d%H%M%S)"
+      log "backing up existing $gitconfig_dst -> $backup"
+      mv "$gitconfig_dst" "$backup"
+    fi
+    cp "$gitconfig_src" "$gitconfig_dst"
+    log "translating Windows paths in $gitconfig_dst"
+    # Match drive letter + colon + one-or-more `\\segment` (segments may contain
+    # spaces; they end at `\`, `"`, or newline). Rewrite to /mnt/<drive>/...
+    perl -i -pe '
+      s{([A-Za-z]):((?:\\\\[^\\"\n]+)+)}{
+        my $drive = lc $1;
+        my $rest = $2;
+        $rest =~ s|\\\\|/|g;
+        "/mnt/$drive$rest"
+      }ge;
+    ' "$gitconfig_dst"
+    log "copied $gitconfig_src -> $gitconfig_dst"
+  fi
+else
+  log "skipping git config copy"
+fi
+
 log "done."
 log "if default shell changed: run 'wsl --shutdown' from PowerShell, then reopen WSL"
