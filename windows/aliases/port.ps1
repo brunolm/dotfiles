@@ -1,5 +1,10 @@
-function Stop-Port($port) {
-    $p = Get-Process -Id (Get-NetTCPConnection -LocalPort $port).OwningProcess
+function Kill-Port($port) {
+  $processesOnPort = Get-NetTCPConnection -LocalPort $port -State Listen
+  Write-Output $processesOnPort
 
-    Stop-Process -Id $p.Id
+  $connection = $processesOnPort | Select-Object -Property OwningProcess
+
+  if ($connection.OwningProcess) {
+    Stop-Process -Id $connection.OwningProcess
+  }
 }

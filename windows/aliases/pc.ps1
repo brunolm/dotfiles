@@ -34,19 +34,6 @@ function PC-Disable-RealtimeProtection() {
   Set-MpPreference -DisableRealtimeMonitoring $true
 }
 
-# TODO: move to another file
-
-function Kill-Port($port) {
-  $processesOnPort = Get-NetTCPConnection -LocalPort $port -State Listen
-  Write-Output $processesOnPort
-
-  $connection = $processesOnPort | Select-Object -Property OwningProcess
-
-  if ($connection.OwningProcess) {
-    Stop-Process -Id $connection.OwningProcess
-  }
-}
-
 function psl() {
   $saveY = [console]::CursorTop
   $saveX = [console]::CursorLeft
