@@ -1,5 +1,4 @@
-## Claude-Ask: ask Claude a prompt non-interactively and return the result inline.
-function Claude-Ask {
+function Claude-AskP {
   [CmdletBinding()]
   param(
     [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')]
@@ -18,7 +17,7 @@ function Claude-Ask {
   & claude @args_
 }
 
-function Claude-AskSimple {
+function Claude-Ask {
   param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$Prompt,
@@ -45,10 +44,8 @@ function Claude-AskSimple {
   }
 }
 
-## Claude-AskWatching: run claude with stdout/stderr captured to temp logs.
-## A background watcher tails the log for a sentinel string and kills the
-## claude process tree as soon as it appears.
-function Claude-AskWatching {
+
+function Claude-__UNUSED_ASKCOMPLEXWORKAROUND {
   [CmdletBinding()]
   param(
     [string]$Prompt   = "1+1. After answering, reply with ENDSESSIONNOW (no spaces).",
