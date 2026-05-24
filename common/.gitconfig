@@ -46,3 +46,9 @@
 	process = git-lfs filter-process
 [credential "https://huggingface.co"]
 	provider = generic
+[lfs]
+	concurrenttransfers = 3
+[lfs "customtransfer.xet"]
+	path = git-xet
+	args = transfer
+	concurrent = true
