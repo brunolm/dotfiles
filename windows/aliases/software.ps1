@@ -76,6 +76,12 @@ function Update-SW-Mise() {
   winget install $id
 }
 
+function Update-SW-Slack() {
+  $id = 'SlackTechnologies.Slack'
+  if (-not (Confirm-BuildAge -BuiltAt (Get-WingetManifestDate -PackageId $id) -Label "$id manifest")) { return }
+  winget install $id
+}
+
 function Get-WingetManifestDate {
   param([Parameter(Mandatory)][string]$PackageId)
 
