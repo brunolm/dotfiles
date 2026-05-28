@@ -28,7 +28,7 @@
             "fetch_upstream_icon": true
           },
           "cache": {
-            "duration": "5s",
+            "duration": "2s",
             "strategy": "folder"
           },
           "leading_diamond": "\ue0b6",
