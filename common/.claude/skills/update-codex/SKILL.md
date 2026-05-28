@@ -33,9 +33,9 @@ Update the OpenAI Codex CLI and refresh the local binaries used from `C:\Users\b
 
 3. **Copy the vendored .exe files into `C:\Users\bruno\.local\bin`**
 
-   Source folders (both):
-   - `<prefix>\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\codex`
-   - `<prefix>\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc\path`
+   Vendor base: `<prefix>\node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc`
+
+   Codex restructures this folder between releases (historically `codex\` + `path\`; as of 0.134.0 it's `bin\`, `codex-path\`, and `codex-resources\`). Recursively sweep all `*.exe` under the vendor base so the skill keeps working across reorganizations.
 
    Destination: `C:\Users\bruno\.local\bin`
 
@@ -45,13 +45,10 @@ Update the OpenAI Codex CLI and refresh the local binaries used from `C:\Users\b
    $prefix = (npm config get prefix).Trim()
    $dest = 'C:\Users\bruno\.local\bin'
    $base = Join-Path $prefix 'node_modules\@openai\codex\node_modules\@openai\codex-win32-x64\vendor\x86_64-pc-windows-msvc'
-   $sources = @(
-       (Join-Path $base 'codex'),
-       (Join-Path $base 'path')
-   )
    New-Item -ItemType Directory -Force -Path $dest | Out-Null
-   foreach ($src in $sources) {
-       Get-ChildItem -Path $src -Filter *.exe -File | Copy-Item -Destination $dest -Force
+   Get-ChildItem -Path $base -Recurse -Filter *.exe -File | ForEach-Object {
+       Copy-Item -Path $_.FullName -Destination $dest -Force
+       Write-Output ("Copied: " + $_.Name)
    }
    ```
 
