@@ -6,6 +6,7 @@
 # Rules
 
 - Always tailor terminal commands and scripts to the current environment (Windows 11 Pro + PowerShell). Do not suggest Unix/macOS-specific commands or syntax unless explicitly requested.
+- Match command syntax to the tool you invoke, not the OS. The Bash tool runs **bash**, the PowerShell tool runs **pwsh** — they don't share syntax. In particular, PowerShell here-strings (`@'...'@`, `@"..."@`) are not special in bash; they leak in as literal `@` characters (e.g. into commit messages). For multi-line strings: in the Bash tool use a normal `'...'`/`"..."` quoted string with real newlines; reserve `@'...'@` for the PowerShell tool.
 - Always show a summary and ask permission before:
   - sending emails
   - making changes on the calendar
