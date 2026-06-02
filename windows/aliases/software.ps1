@@ -52,6 +52,44 @@ function Update-SW-VSCode() {
   code-insiders --version
 }
 
+function Update-SW-VSCodeExtensions() {
+  param([double]$MinAgeHours = 12)
+
+  $editorVersion = [version](((code-insiders --version)[0]) -replace '-insider$', '')
+
+  Write-Host "Checking installed VS Code extensions for updates..." -ForegroundColor Cyan
+  $installed = code-insiders --list-extensions --show-versions
+
+  foreach ($line in $installed) {
+    if ($line -notmatch '^(.+)@(.+)$') { continue }
+    $id = $Matches[1]
+    $current = $Matches[2]
+
+    $latest = Get-VSCodeExtensionLatest -ExtensionId $id -EditorVersion $editorVersion
+    if (-not $latest) {
+      Write-Host "  $id - no compatible release found, skipping." -ForegroundColor DarkGray
+      continue
+    }
+
+    $hasUpdate = try { [version]$latest.Version -gt [version]$current } catch { $latest.Version -ne $current }
+    if (-not $hasUpdate) {
+      Write-Host "  $id - up to date ($current)." -ForegroundColor DarkGray
+      continue
+    }
+
+    $ageHours = ((Get-Date).ToUniversalTime() - $latest.LastUpdated.ToUniversalTime()).TotalHours
+    if ($ageHours -lt $MinAgeHours) {
+      Write-Host ("  $id - {0} available but only {1:N1}h old, skipping." -f $latest.Version, $ageHours) -ForegroundColor Yellow
+      continue
+    }
+
+    Write-Host ("  $id - updating {0} -> {1} ({2:N1}h old)..." -f $current, $latest.Version, $ageHours) -ForegroundColor Green
+    code-insiders --install-extension "$id@$($latest.Version)" --force
+  }
+
+  Write-Host "Done." -ForegroundColor Green
+}
+
 function Update-SW-Powershell() {
   Write-Host "Checking latest PowerShell release..." -ForegroundColor Cyan
   $release = gh release view --repo PowerShell/PowerShell --json assets,publishedAt,tagName | ConvertFrom-Json
@@ -103,6 +141,57 @@ function Get-UrlLastModified {
   param([Parameter(Mandatory)][string]$Url)
   $head = Invoke-WebRequest $Url -Method Head
   return [DateTime]::Parse($head.Headers.'Last-Modified')
+}
+
+function Get-VSCodeExtensionLatest {
+  param(
+    [Parameter(Mandatory)][string]$ExtensionId,
+    [version]$EditorVersion
+  )
+
+  # flags 17 = IncludeVersions (1) | IncludeVersionProperties (16); filterType 7 = ExtensionName
+  $body = @{
+    filters = @(@{ criteria = @(@{ filterType = 7; value = $ExtensionId }) })
+    flags   = 17
+  } | ConvertTo-Json -Depth 6
+
+  $headers = @{
+    'Accept'       = 'application/json;api-version=3.0-preview.1'
+    'Content-Type' = 'application/json'
+  }
+
+  $resp = Invoke-RestMethod -Uri 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery' -Method Post -Body $body -Headers $headers
+  $ext = $resp.results[0].extensions | Select-Object -First 1
+  if (-not $ext) { return $null }
+
+  # Versions are newest-first; pick the newest stable build the installed editor can run.
+  foreach ($v in $ext.versions) {
+    $props = $v.properties
+    if ((($props | Where-Object { $_.key -eq 'Microsoft.VisualStudio.Code.PreRelease' }).value) -eq 'true') { continue }
+
+    $engine = ($props | Where-Object { $_.key -eq 'Microsoft.VisualStudio.Code.Engine' }).value
+    if ($EditorVersion -and -not (Test-VSCodeEngineMatch -Engine $engine -EditorVersion $EditorVersion)) { continue }
+
+    return [PSCustomObject]@{
+      Version     = $v.version
+      LastUpdated = [DateTime]$v.lastUpdated
+    }
+  }
+
+  return $null
+}
+
+function Test-VSCodeEngineMatch {
+  param(
+    [AllowEmptyString()][string]$Engine,
+    [Parameter(Mandatory)][version]$EditorVersion
+  )
+
+  if (-not $Engine -or $Engine -eq '*') { return $true }
+  if ($Engine -notmatch '(\d+)\.(\d+)(?:\.(\d+))?') { return $true }
+
+  $patch = if ($Matches[3]) { $Matches[3] } else { '0' }
+  return $EditorVersion -ge [version]"$($Matches[1]).$($Matches[2]).$patch"
 }
 
 function Confirm-BuildAge {
