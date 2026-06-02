@@ -52,7 +52,7 @@ F4:: {
 
 ^!+d:: {
     arg := WinGetTitle("A") = "Path of Exile" ? "poe1" : "poe2"
-    script := A_ScriptDir '\poe-get-tools.ps1'
+    script := 'C:\BrunoLM\Projects\dotfiles\windows\startup-source\poe-get-tools.ps1'
     if !FileExist(script) {
         MsgBox("Script not found:`n" script, "Error", 16)
         return

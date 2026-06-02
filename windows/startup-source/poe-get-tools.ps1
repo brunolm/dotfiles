@@ -35,12 +35,18 @@ function Get-PoeFilters {
 
   $poe1 = Join-Path $env:USERPROFILE "Documents\My Games\Path of Exile"
   $poe2 = Join-Path $env:USERPROFILE "Documents\My Games\Path of Exile 2"
-  $repo = "NeverSinkDev/NeverSink-Filter"
 
   $targetDir = switch ($Target) {
     "poe1" { $poe1 }
     "poe2" { $poe2 }
   }
+
+  # PoE1 and PoE2 filters live in separate NeverSink repos
+  $repo = switch ($Target) {
+    "poe1" { "NeverSinkDev/NeverSink-Filter" }
+    "poe2" { "NeverSinkDev/NeverSink-Filter-for-PoE2" }
+  }
+  $repoName = $repo.Split('/')[-1]
 
   $zipFile = "$Target-filters.zip"
   $extractDir = "$Target-filters"
@@ -84,9 +90,9 @@ function Get-PoeFilters {
 
   Write-Host "`nCopying .filter files to $targetDir..." -ForegroundColor Cyan
 
-  # Find extracted release folder (NeverSink-Filter-<version>) under target-prefixed extract folder
+  # Find extracted release folder (<repoName>-<version>) under target-prefixed extract folder
   $releaseFolder = Get-ChildItem -Path $extractDir -Directory |
-  Where-Object { $_.Name -like "NeverSink-Filter-*" } |
+  Where-Object { $_.Name -like "$repoName-*" } |
   Sort-Object LastWriteTime -Descending |
   Select-Object -First 1
 
