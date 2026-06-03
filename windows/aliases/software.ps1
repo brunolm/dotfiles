@@ -56,6 +56,7 @@ function Update-SW-VSCodeExtensions() {
   param([double]$MinAgeHours = 12)
 
   $editorVersion = [version](((code-insiders --version)[0]) -replace '-insider$', '')
+  $preReleaseMode = Get-VSCodePreReleaseExtensions
 
   Write-Host "Checking installed VS Code extensions for updates..." -ForegroundColor Cyan
   $installed = code-insiders --list-extensions --show-versions
@@ -64,8 +65,9 @@ function Update-SW-VSCodeExtensions() {
     if ($line -notmatch '^(.+)@(.+)$') { continue }
     $id = $Matches[1]
     $current = $Matches[2]
+    $allowPreRelease = $preReleaseMode.ContainsKey($id.ToLower())
 
-    $latest = Get-VSCodeExtensionLatest -ExtensionId $id -EditorVersion $editorVersion
+    $latest = Get-VSCodeExtensionLatest -ExtensionId $id -EditorVersion $editorVersion -AllowPreRelease:$allowPreRelease
     if (-not $latest) {
       Write-Host "  $id - no compatible release found, skipping." -ForegroundColor DarkGray
       continue
@@ -84,7 +86,9 @@ function Update-SW-VSCodeExtensions() {
     }
 
     Write-Host ("  $id - updating {0} -> {1} ({2:N1}h old)..." -f $current, $latest.Version, $ageHours) -ForegroundColor Green
-    code-insiders --install-extension "$id@$($latest.Version)" --force
+    $installArgs = @("--install-extension", "$id@$($latest.Version)", "--force")
+    if ($allowPreRelease) { $installArgs += "--pre-release" }
+    code-insiders @installArgs
   }
 
   Write-Host "Done." -ForegroundColor Green
@@ -143,10 +147,22 @@ function Get-UrlLastModified {
   return [DateTime]::Parse($head.Headers.'Last-Modified')
 }
 
+function Get-VSCodePreReleaseExtensions {
+  $file = Join-Path $env:USERPROFILE ".vscode-insiders\extensions\extensions.json"
+  $map = @{}
+  if (-not (Test-Path $file)) { return $map }
+
+  foreach ($e in (Get-Content $file -Raw | ConvertFrom-Json)) {
+    if ($e.metadata.preRelease) { $map[$e.identifier.id.ToLower()] = $true }
+  }
+  return $map
+}
+
 function Get-VSCodeExtensionLatest {
   param(
     [Parameter(Mandatory)][string]$ExtensionId,
-    [version]$EditorVersion
+    [version]$EditorVersion,
+    [switch]$AllowPreRelease
   )
 
   # flags 17 = IncludeVersions (1) | IncludeVersionProperties (16); filterType 7 = ExtensionName
@@ -164,10 +180,11 @@ function Get-VSCodeExtensionLatest {
   $ext = $resp.results[0].extensions | Select-Object -First 1
   if (-not $ext) { return $null }
 
-  # Versions are newest-first; pick the newest stable build the installed editor can run.
+  # Versions are newest-first; pick the newest build the installed editor can run,
+  # skipping pre-releases unless this extension is installed in pre-release mode.
   foreach ($v in $ext.versions) {
     $props = $v.properties
-    if ((($props | Where-Object { $_.key -eq 'Microsoft.VisualStudio.Code.PreRelease' }).value) -eq 'true') { continue }
+    if (-not $AllowPreRelease -and (($props | Where-Object { $_.key -eq 'Microsoft.VisualStudio.Code.PreRelease' }).value) -eq 'true') { continue }
 
     $engine = ($props | Where-Object { $_.key -eq 'Microsoft.VisualStudio.Code.Engine' }).value
     if ($EditorVersion -and -not (Test-VSCodeEngineMatch -Engine $engine -EditorVersion $EditorVersion)) { continue }
