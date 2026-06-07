@@ -53,7 +53,7 @@ function Update-SW-VSCode() {
 }
 
 function Update-SW-VSCodeExtensions() {
-  param([double]$MinAgeHours = 12)
+  param([double]$MinAgeHours = 8)
 
   $editorVersion = [version](((code-insiders --version)[0]) -replace '-insider$', '')
   $preReleaseMode = Get-VSCodePreReleaseExtensions
