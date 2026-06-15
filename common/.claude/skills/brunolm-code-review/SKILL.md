@@ -61,6 +61,15 @@ For each changed file, consider:
 - **Minor** — small correctness/clarity improvement; author's call.
 - **Nit** — optional polish. Group and keep brief.
 
+## Confidence pass
+
+After drafting the findings but before writing the output file, run a confidence pass over every item:
+
+- **Minor and Nit items** — drop any item whose confidence is below 75%. These are low-stakes, so a shaky claim is not worth the author's attention.
+- **Blocker and Major items** — if confidence is below 80%, do not drop it. Instead, do a deep dive into the claim: re-read the flagged code and enough surrounding context, trace the relevant callers/callees, inspect related files, and test the assumption that created the doubt. Then update the confidence to match what you found — raise it and keep the item if the issue holds, remove the item if the dive disproves it, or keep it while stating the residual doubt explicitly if it stays genuinely uncertain.
+
+Re-number the surviving items 1…N (continuous across all sections) after the pass so the final list has no gaps.
+
 ## Output format
 
 Output should be saved in `.branch-docs/pr-<id>-claude.md`, if the file already exists then overwrite it. If a PR hasn't been specified use the current branch name as `<id>`.
@@ -74,19 +83,25 @@ Chat should output a clickable link to open this file.
 - Branch: `<headRefName>` (vs `<baseRefName>`)
 
 ### Blockers
-- [path/file.ts:42](../path/file.ts#L42) — <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.> (confidence: x%)
+1. [path/file.ts:42](../path/file.ts#L42) — <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.> (confidence: x%)
+   - **tl;dr:** <the claim boiled down to one short line>
 
 ### Major
-- ...
+2. ...
+   - **tl;dr:** ...
 
 ### Minor
-- ...
+3. ...
+   - **tl;dr:** ...
 
 ### Nits
-- ...
+4. ...
+   - **tl;dr:** ...
 
 <one-line summary: e.g., "2 blockers, 3 major — do not merge yet.">
 ```
+
+Number every item continuously across all sections (1…N) so each finding can be referenced by its number; do not restart numbering per section. End every item with a `**tl;dr:**` sub-bullet that boils the claim down to one short line.
 
 Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location. If a section is empty, write `- (none)` rather than omitting the header.
 
