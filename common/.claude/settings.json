@@ -175,6 +175,18 @@
     ],
     "defaultMode": "auto"
   },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File C:/Users/bruno/.claude/hooks/stop-notify.ps1"
+          }
+        ]
+      }
+    ]
+  },
   "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "autoMemoryEnabled": true,

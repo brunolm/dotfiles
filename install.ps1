@@ -43,6 +43,7 @@ function Install() {
   New-Link (Join-Path $claudeDir "CLAUDE.md") (Join-Path $PSScriptRoot "common\.claude\CLAUDE.md")
   New-Link (Join-Path $claudeDir "settings.json") (Join-Path $PSScriptRoot "common\.claude\settings.json")
   New-Link (Join-Path $claudeDir "skills") (Join-Path $PSScriptRoot "common\.claude\skills")
+  New-Link (Join-Path $claudeDir "hooks") (Join-Path $PSScriptRoot "common\.claude\hooks")
 
   # Seed local config.toml from the example, then link ~/.codex config to dotfiles versions
   $codexConfig = Join-Path $PSScriptRoot "common\.codex\config.toml"
