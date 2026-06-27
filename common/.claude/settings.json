@@ -187,8 +187,9 @@
       }
     ]
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "low",
   "autoUpdatesChannel": "latest",
+  "tui": "fullscreen",
   "autoMemoryEnabled": true,
   "skipAutoPermissionPrompt": true
 }
