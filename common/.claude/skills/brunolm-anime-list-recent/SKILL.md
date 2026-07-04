@@ -2,6 +2,8 @@
 name: brunolm-anime-list-recent
 description: Use this skill when the user wants to see TV anime premiering around now — shows whose first episode aired within the last 2 weeks or premieres within the next 2 weeks. Triggers include "/brunolm-anime-list-recent", "check anime", "what anime is starting", "new anime this season", "what's airing soon", or any phrasing pairing anime with a near-term premiere window. Uses the MyAnimeList (MAL) MCP to pull seasonal anime, filters to media type TV inside a −2 week / +2 week window around today, hides shows already on the user's watching / plan-to-watch lists and anything tagged Kids, and prints a table of title (with alternative / Japanese names), genres/tags, air start date, and a link to its MAL page. Accepts an optional argument: `html` writes and opens an HTML file in the browser, `both` does terminal + HTML, and the default (no argument) prints the terminal table.
 version: 1.0.0
+model: haiku
+effort: low
 allowed-tools:
   - mcp__mal-mcp__get_seasonal_anime
   - mcp__mal-mcp__get_anime_details

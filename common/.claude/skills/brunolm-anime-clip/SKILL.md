@@ -2,6 +2,8 @@
 name: brunolm-anime-clip
 description: Use this skill when the user wants to cut a clip from an anime episode and get the spoken Japanese + romaji for that moment. Triggers include "/brunolm-anime-clip", "make a clip of <episode> <time range>", "clip <show> from MM:SS to MM:SS", "cut <episode> <start>~<end> and give me the japanese/romaji", or any phrasing pairing a video file + a time range with intent to export a short clip. Takes the video (name or path) and a time range, renders an optimized, subtitle-burned MP4 into the Downloads folder, then prints the dialogue that falls inside the clip as Japanese + Hepburn romaji. Optionally accepts a path (file or folder) telling it where to find external subtitle files.
 version: 1.0.0
+model: sonnet
+effort: medium
 allowed-tools:
   - PowerShell
   - Glob

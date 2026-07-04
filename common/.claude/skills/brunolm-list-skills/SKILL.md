@@ -2,6 +2,8 @@
 name: brunolm-list-skills
 description: Use this skill when the user wants to see all of their personal `brunolm-` prefixed skills in one place. Triggers include "/brunolm-list-skills", "list my brunolm skills", "what brunolm skills do I have", "show my skills", "list my skills in a table", or any phrasing that pairs listing/inventorying skills with the brunolm- prefix. Scans the installed Claude skill directories, reads each SKILL.md frontmatter, filters to names starting with `brunolm-`, and prints a table of skill name + what it does.
 version: 1.0.0
+model: haiku
+effort: low
 allowed-tools:
   - PowerShell
 ---
