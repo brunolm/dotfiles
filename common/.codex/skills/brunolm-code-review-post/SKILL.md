@@ -87,7 +87,7 @@ Keep the review's original numbering (gaps from skipped items are fine - they ma
 **Each inline comment**:
 
 ```
-**<Severity> #<n>:** <finding text - the sentence(s) from the review, without the markdown link wrapper>
+**<Severity>:** <finding text - the sentence(s) from the review, without the markdown link wrapper>
 
 **tl;dr:** <tl;dr line>
 ```
