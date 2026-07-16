@@ -27,7 +27,7 @@ Map the user's intent to one of:
 - **start** - begin a timer. Pass the project and note if the user gave them (e.g. "start tracking acme, fixing the api" -> `start acme fixing the api`). The script refuses if a timer is already running - relay that message.
 - **stop** - close the running timer; the script prints the tracked duration.
 - **status** - the running timer (if any) plus today's total.
-- **report** - per-day and per-project totals with a grand total. Resolve the month argument the same way as other skills: omitted -> current month; `june` / `2026-06` / `last month` -> that month, as `yyyy-MM`.
+- **report** - a two-column per-day table (date, hours) plus a Total line and an Overtime line (total vs 8h per Mon-Fri workday; the current month counts workdays through today). Resolve the month argument the same way as other skills: omitted -> current month; `june` / `2026-06` / `last month` -> that month, as `yyyy-MM`.
 - **log** - record finished ranges after the fact. Normalize the user's phrasing into 24h `-Start`/`-End` times, one `log` call per range:
   - `10am +8h` -> `-Start 10:00 -End 18:00` (end = start + duration)
   - `10am ~ 5pm` -> `-Start 10:00 -End 17:00`
