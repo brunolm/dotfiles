@@ -9,3 +9,7 @@
 
 - Consider if the alias can and should be ported
   - If yes, keep windows alias <-> wsl alias in sync
+
+# Time tracking local project
+
+`C:\BrunoLM\Projects\time-tracking`
