@@ -65,7 +65,7 @@ When mirroring `CLAUDE.md` <-> `AGENTS.md` or `SKILL.md` <-> `SKILL.md`, the _co
 
 When copying **Codex -> Claude**, reverse only the `AGENTS.md` -> `CLAUDE.md` and `Codex` -> `Claude` substitutions. Do NOT promote ASCII punctuation back to unicode - leave dashes/quotes as the user wrote them; the Claude side is allowed to contain either.
 
-The `brunolm-code-review` skill at [common/.codex/skills/brunolm-code-review/SKILL.md](../../../common/.codex/skills/brunolm-code-review/SKILL.md) is a good worked example of these transforms.
+The `b-code-review` skill at [common/.codex/skills/b-code-review/SKILL.md](../../../common/.codex/skills/b-code-review/SKILL.md) is a good worked example of these transforms.
 
 ## settings.json <-> config.toml (semantic mapping)
 
