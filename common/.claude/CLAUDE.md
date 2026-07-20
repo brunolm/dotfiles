@@ -7,6 +7,7 @@
 
 - Always tailor terminal commands and scripts to the current environment (Windows 11 Pro + PowerShell). Do not suggest Unix/macOS-specific commands or syntax unless explicitly requested.
 - Match command syntax to the tool you invoke, not the OS. The Bash tool runs **bash**, the PowerShell tool runs **pwsh** — they don't share syntax. In particular, PowerShell here-strings (`@'...'@`, `@"..."@`) are not special in bash; they leak in as literal `@` characters (e.g. into commit messages). For multi-line strings: in the Bash tool use a normal `'...'`/`"..."` quoted string with real newlines; reserve `@'...'@` for the PowerShell tool.
+- When asked to create a git worktree, place it under `.claude/worktrees/<branch-name>` at the repo root, unless a different location is specified.
 - Always show a summary and ask permission before:
   - sending emails
   - making changes on the calendar
@@ -21,6 +22,7 @@
 - prefer truthy/falsy checks like `if (x)` over verbose comparisons (`if (x === true)`, `if (x !== null && x !== undefined)`). Exception: when `0`, `""`, or `false` are valid values — don't let a falsy zero get treated as missing.
 - prefer async/await for sequencing and error handling — use `try`/`catch`/`finally` instead of `.then`/`.catch`/`.finally` chains. `Promise.all` / `Promise.allSettled` are fine, just `await` them. The only acceptable `.catch(...)` is a one-liner fallback like `await x().catch(() => default)`.
 - split files along concern boundaries. When a file mixes multiple unrelated responsibilities (e.g., HTTP handling + business logic + data formatting), break them apart. Line count alone isn't a trigger, but a file past ~500 lines is a strong signal to look for a seam.
+- before implementing a helper or utility function, check whether it already exists — search shared/utility modules, files adjacent to the one you're editing, and the project's existing dependencies (including the language's standard library). Search by domain terms and plausible names, not just the name you had in mind. If a match exists, call it; if something almost fits, extend it rather than writing a near-duplicate. Write new only when the search comes up empty or the existing code is a genuinely wrong fit.
 - extract duplicated code when the repetition has become a maintenance burden — that threshold is a judgment call, not a fixed count. It might be 2 occurrences, or 3+, depending on the size of the block, how related the call sites are, and how likely they are to diverge. When you do extract, place the helper in the nearest shared module or create a file for it depending on its scope. Don't extract structurally similar code that's conceptually unrelated — duplication beats a wrong abstraction.
 
 ### Self-review
