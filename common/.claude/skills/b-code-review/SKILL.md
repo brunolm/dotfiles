@@ -54,6 +54,56 @@ For each changed file, consider:
 - **Performance** — only flag concrete problems (N+1, unnecessary sync I/O in hot path, accidental O(n²) on unbounded input). Do not speculate.
 - **Memory leaks** — unreleased resources (file handles, sockets, DB connections, native handles), missing `dispose`/`close`/`using`, event listeners or subscriptions added without removal, timers/intervals never cleared, growing caches/maps with no eviction, closures retaining large objects, retained references in long-lived singletons.
 
+## Review angles
+
+The checklist above is what to look for; the angles below are how to sweep the diff. Run each as its own pass. Intent checks the diff against its stated purpose; Angles A–D hunt for bugs; Reuse, Simplification, Efficiency, and Altitude hunt for cleanup in the changed code.
+
+### Intent
+
+Establish what the PR is supposed to do from whatever context exists — PR title/description, branch name, commit messages, linked issues — then check the diff against that intent in both directions:
+
+- **Promised but missing** — the intent implies changes the diff doesn't deliver: an unhandled case the fix claims to cover, a half-done rename, a feature path left out.
+- **Present but unexplained** — the diff contains changes the intent doesn't account for: unrelated edits, drive-by refactors, scope creep.
+
+Flag mismatches in either direction. An unexplained change isn't automatically a defect — raise it as a question for the author unless it's independently wrong.
+
+### Angle A — line-by-line diff scan
+
+Read every hunk in the diff, line by line. Then Read the enclosing function for each hunk — bugs in unchanged lines of a touched function are in scope (the PR re-exposes or fails to fix them). For every line ask: what input, state, timing, or platform makes this line wrong? Look for inverted/wrong conditions, off-by-one, null/undefined deref, missing `await`, falsy-zero checks, wrong-variable copy-paste, error swallowed in catch, unescaped regex metachars.
+
+### Angle B — removed-behavior auditor
+
+For every line the diff DELETES or replaces, name the invariant or behavior it enforced, then search the new code for where that invariant is re-established. If you can't find it, that's a candidate: a removed guard, a dropped error path, a narrowed validation, a deleted test that was covering a real case.
+
+### Angle C — cross-file tracer
+
+For each function the diff changes, find its callers (Grep for the symbol) and check whether the change breaks any call site: a new precondition, a changed return shape, a new exception, a timing/ordering dependency. Also check callees: does a parallel change in the same PR make a call unsafe?
+
+### Angle D — blast radius
+
+Angle C traces direct callers; this angle hunts for side effects a symbol search won't surface. For each change, ask what else observes its effects and whether any of those observers break:
+
+- **External contracts** — public APIs, schemas, serialized/wire formats, cache keys, file formats: can old data still be read, and can old readers handle new data (rolling deploys, queued messages, existing files)?
+- **Shared state and config** — globals, singletons, env vars, feature flags, tuned constants also read elsewhere; a value adjusted for this change may be load-bearing for another feature.
+- **Timing and ordering** — changed initialization order, new async boundaries, widened/narrowed lock scope, events now firing earlier or later than consumers expect.
+- **Operational surface** — logs, metrics, alerts, exit codes, error messages that dashboards, monitors, or scripts key on; renaming or removing these breaks them silently.
+
+### Reuse
+
+Flag new code that re-implements something the codebase already has — Grep shared/utility modules and files adjacent to the change, and name the existing helper to call instead.
+
+### Simplification
+
+Flag unnecessary complexity the diff adds: redundant or derivable state, copy-paste with slight variation, deep nesting, dead code left behind. Name the simpler form that does the same job.
+
+### Efficiency
+
+Flag wasted work the diff introduces: redundant computation or repeated I/O, independent operations run sequentially, blocking work added to startup or hot paths. Also flag long-lived objects built from closures or captured environments — they keep the entire enclosing scope alive for the object's lifetime (a memory leak when that scope holds large values); prefer a class/struct that copies only the fields it needs. Name the cheaper alternative.
+
+### Altitude
+
+Check that each change is implemented at the right depth, not as a fragile bandaid. Special cases layered on shared infrastructure are a sign the fix isn't deep enough — prefer generalizing the underlying mechanism over adding special cases.
+
 ## Severity levels
 
 - **Blocker** — will break production, corrupt data, leak secrets, or violate an explicit project rule. Must fix before merge.
