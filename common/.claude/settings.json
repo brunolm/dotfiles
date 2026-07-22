@@ -187,11 +187,15 @@
       }
     ]
   },
+  "worktree": {
+    "bgIsolation": "none"
+  },
   "enableArtifact": false,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "autoMemoryEnabled": true,
   "remoteControlAtStartup": false,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "workflowKeywordTriggerEnabled": false
 }
