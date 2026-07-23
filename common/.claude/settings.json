@@ -191,11 +191,11 @@
     "bgIsolation": "none"
   },
   "enableArtifact": false,
-  "effortLevel": "xhigh",
+  "workflowKeywordTriggerEnabled": false,
+  "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "autoMemoryEnabled": true,
   "remoteControlAtStartup": false,
-  "skipAutoPermissionPrompt": true,
-  "workflowKeywordTriggerEnabled": false
+  "skipAutoPermissionPrompt": true
 }
