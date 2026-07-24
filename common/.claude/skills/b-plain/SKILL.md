@@ -1,6 +1,6 @@
 ---
 name: b-plain
-description: Use this skill when the user wants prose written or rewritten in plain English following six plain-writing rules. Triggers include "/b-plain", "write this plainly", "apply the writing rules", "review this prose", "make this doc/PR/message plainer", or any phrasing that pairs prose output (docs, PR text, commit messages, emails, replies) with plain-language quality. Governs prose only — never code or technical terms.
+description: Use this skill ONLY when the user explicitly invokes it as "/b-plain". Do NOT trigger on any other phrasing — requests like "write this plainly", "review this prose", or "make this plainer" must NOT activate it. Writes or rewrites prose in plain English following six plain-writing rules. Governs prose only — never code or technical terms.
 version: 1.0.0
 ---
 
