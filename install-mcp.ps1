@@ -109,7 +109,7 @@ function Install-McpServers {
   Write-Host ""
   $results | Format-Table Name, Build, Registered, Notes -AutoSize
 
-  $needsEnv = @($results | Where-Object { $_.Notes -match "credentials" })
+  $needsEnv = @($results | Where-Object { $_.EnvPath })
   if ($needsEnv) {
     Write-Host " ======= NEXT ======= " -ForegroundColor Yellow
     foreach ($result in $needsEnv) {
