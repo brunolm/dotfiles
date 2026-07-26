@@ -83,6 +83,17 @@ $Servers = @(
     Args     = { param($Dir) @("x", "-C", $Dir, "--", "uv", "run", "--script", "$Dir/server.py") }
   },
   @{
+    Name     = "input"
+    Folder   = "input-mcp"
+    Requires = @("dotnet")
+    Build    = {
+      param($Dir)
+      Invoke-Step $Dir "dotnet" @("publish", "src/InputMcp", "-c", "Release", "-o", "publish", "--nologo")
+    }
+    Command  = { param($Dir) "$Dir/publish/input-mcp.exe" }
+    Args     = { @() }
+  },
+  @{
     Name     = "screenshot"
     Folder   = "screenshot-mcp"
     Requires = @("dotnet")

@@ -170,9 +170,23 @@
     ],
     "deny": [],
     "ask": [
-      "Bash(bun run dev)"
+      "Bash(bun run dev)",
+      "mcp__input",
+      "mcp__input__input_click",
+      "mcp__input__input_move_mouse",
+      "mcp__input__input_drag",
+      "mcp__input__input_scroll",
+      "mcp__input__input_type_text",
+      "mcp__input__input_press_keys",
+      "mcp__input__input_arm"
     ],
     "defaultMode": "auto"
+  },
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Calling any mcp__input__ tool. These synthesize real mouse clicks and keystrokes on the user's desktop. Only proceed when the user explicitly asked for that specific action; never to unblock yourself, dismiss a dialog, or work around a failed tool."
+    ]
   },
   "model": "claude-fable-5[1m]",
   "hooks": {
