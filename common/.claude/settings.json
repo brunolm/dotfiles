@@ -171,21 +171,14 @@
     "deny": [],
     "ask": [
       "Bash(bun run dev)",
-      "mcp__input",
-      "mcp__input__input_click",
-      "mcp__input__input_move_mouse",
-      "mcp__input__input_drag",
-      "mcp__input__input_scroll",
-      "mcp__input__input_type_text",
-      "mcp__input__input_press_keys",
-      "mcp__input__input_arm"
+      "mcp__input__input_enable"
     ],
     "defaultMode": "auto"
   },
   "autoMode": {
     "soft_deny": [
       "$defaults",
-      "Calling any mcp__input__ tool. These synthesize real mouse clicks and keystrokes on the user's desktop. Only proceed when the user explicitly asked for that specific action; never to unblock yourself, dismiss a dialog, or work around a failed tool."
+      "Calling mcp__input__input_enable, which asks the user to hand over mouse and keyboard control. Only proceed when the user asked for something that needs it; never on your own initiative, never to unblock yourself, and never to retry after they decline."
     ]
   },
   "model": "claude-fable-5[1m]",
