@@ -192,7 +192,7 @@
   },
   "enableArtifact": false,
   "workflowKeywordTriggerEnabled": false,
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "autoMemoryEnabled": true,
