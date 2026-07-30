@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install.sh — set up WSL: install zsh, port custom env from ~/.bashrc to ~/.zshrc,
-# and optionally sync SSH / Claude / Codex settings from Windows.
+# and optionally sync SSH / Claude / Codex / Grok settings from Windows.
 # Idempotent: marker-delimited block in ~/.zshrc is refreshed in place; copies overwrite.
 set -euo pipefail
 
@@ -296,7 +296,27 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9) optional: copy ~/.gitconfig from repo (translate Windows paths to /mnt/<drive>/)
+# 9) optional: sync Grok settings from Windows
+# ---------------------------------------------------------------------------
+if prompt_yn "Sync Grok settings from Windows ~/.grok into WSL?"; then
+  if win_home=$(resolve_win_home); then
+    win_grok="$win_home/.grok"
+    if [[ ! -d "$win_grok" ]]; then
+      log "Windows ~/.grok ($win_grok) not found; skipping Grok sync"
+    else
+      mkdir -p "$HOME/.grok"
+      copy_item "$win_grok/config.toml" "$HOME/.grok/config.toml"
+      log "translating Windows paths under ~/.grok"
+      xlate_paths "$HOME/.grok"
+      log "Grok settings synced"
+    fi
+  fi
+else
+  log "skipping Grok sync"
+fi
+
+# ---------------------------------------------------------------------------
+# 10) optional: copy ~/.gitconfig from repo (translate Windows paths to /mnt/<drive>/)
 # ---------------------------------------------------------------------------
 if prompt_yn "Copy $SCRIPT_DIR/common/.gitconfig to ~/.gitconfig (translating Windows paths)?"; then
   gitconfig_src="$SCRIPT_DIR/common/.gitconfig"

@@ -57,6 +57,9 @@ function Install() {
   New-Link (Join-Path $codexDir "config.toml") (Join-Path $PSScriptRoot "common\.codex\config.toml")
   New-Link (Join-Path $codexDir "skills") (Join-Path $PSScriptRoot "common\.codex\skills")
 
+  # Link ~/.grok config to dotfiles version
+  New-Link (Join-Path $home_ ".grok\config.toml") (Join-Path $PSScriptRoot "common\.grok\config.toml")
+
   # Link ~/.config/mise/config.toml to dotfiles version
   New-Link (Join-Path $home_ ".config\mise\config.toml") (Join-Path $PSScriptRoot "common\.config\mise\config.toml")
 

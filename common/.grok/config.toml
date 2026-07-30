@@ -1,0 +1,35 @@
+[cli]
+installer = "internal"
+
+[marketplace]
+default_skills_installs_purged = true
+official_marketplace_auto_installed = true
+
+[[marketplace.sources]]
+name = "xAI Official"
+git = "https://github.com/xai-org/plugin-marketplace.git"
+
+[ui]
+max_thoughts_width = 120
+fork_secondary_model = "grok-4.5"
+yolo = false
+compact_mode = false
+permission_mode = "auto"
+
+# Privacy hardening: no telemetry, no session-trace uploads, no repository-state
+# (git bundle) uploads, no workspace teleport to cloud sessions, no feedback
+# channel. Coding-data sharing/retention/training is account-level — opt out via
+# /privacy in the TUI; it is NOT controlled by this file. Remote settings can
+# override config.toml, so the same knobs are pinned as GROK_* env vars in
+# windows/profile.ps1.
+[features]
+telemetry = false
+feedback = false
+
+[telemetry]
+trace_upload = false
+mixpanel_enabled = false
+
+[harness]
+disable_codebase_upload = true
+disable_workspace_teleport = true
