@@ -174,13 +174,7 @@
     ],
     "defaultMode": "auto"
   },
-  "autoMode": {
-    "soft_deny": [
-      "$defaults",
-      "Calling any mcp__input__ tool that sends input (click, move, drag, scroll, type, press keys). These drive the real mouse and keyboard. Only proceed when the user asked for that action; never on your own initiative, and never to unblock yourself or work around a failed tool."
-    ]
-  },
-  "model": "claude-fable-5[1m]",
+  "model": "claude-fable-5",
   "hooks": {
     "Stop": [
       {
@@ -203,5 +197,11 @@
   "tui": "fullscreen",
   "autoMemoryEnabled": true,
   "remoteControlAtStartup": false,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Calling any mcp__input__ tool that sends input (click, move, drag, scroll, type, press keys). These drive the real mouse and keyboard. Only proceed when the user asked for that action; never on your own initiative, and never to unblock yourself or work around a failed tool."
+    ]
+  }
 }
