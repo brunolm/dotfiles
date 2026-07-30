@@ -3,6 +3,13 @@ try {
 }
 catch {}
 
+# Grok privacy: second layer over common/.grok/config.toml — remote settings can
+# override the TOML, but env vars win the precedence resolution.
+$env:GROK_TELEMETRY_ENABLED = "0"
+$env:GROK_TELEMETRY_TRACE_UPLOAD = "0"
+$env:GROK_TELEMETRY_MIXPANEL_ENABLED = "0"
+$env:GROK_FEEDBACK_ENABLED = "0"
+
 function Test-InteractiveShell {
   if ($host.Name -ne 'ConsoleHost') {
     return $false
