@@ -6,6 +6,11 @@ sandbox_mode = "workspace-write"
 # sandbox_mode = "danger-full-access"
 model = "gpt-5.5"
 
+# Privacy: no machine analytics, no statsig metrics (otel.metrics_exporter
+# defaults to "statsig" when unset)
+analytics.enabled = false
+otel.metrics_exporter = "none"
+
 [windows]
 sandbox = "elevated"
 
