@@ -1,4 +1,9 @@
 {
+  "env": {
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1"
+  },
   "permissions": {
     "allow": [
       "Edit(.branch-docs/**)",
@@ -175,11 +180,6 @@
     "defaultMode": "auto"
   },
   "model": "claude-fable-5",
-  "env": {
-    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "DISABLE_TELEMETRY": "1",
-    "DISABLE_ERROR_REPORTING": "1"
-  },
   "hooks": {
     "Stop": [
       {
