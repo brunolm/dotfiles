@@ -5,7 +5,7 @@
 
 # Rules
 
-- Always tailor terminal commands and scripts to the current environment (Windows 11 Pro + PowerShell). Do not suggest Unix/macOS-specific commands or syntax unless explicitly requested.
+- Always tailor terminal commands and scripts to the current environment (Windows 11 Pro + PowerShell). Do not suggest Unix/macOS-specific commands or syntax unless explicitly requested. Or unless the CLI is running from WSL.
 - Match command syntax to the tool you invoke, not the OS. The Bash tool runs **bash**, the PowerShell tool runs **pwsh** — they don't share syntax. In particular, PowerShell here-strings (`@'...'@`, `@"..."@`) are not special in bash; they leak in as literal `@` characters (e.g. into commit messages). For multi-line strings: in the Bash tool use a normal `'...'`/`"..."` quoted string with real newlines; reserve `@'...'@` for the PowerShell tool.
 - When asked to create a git worktree, place it under `.claude/worktrees/<branch-name>` at the repo root, unless a different location is specified.
 - Web fetching fallback chain: try the `stealth-fetch` MCP `fetch` tool first; if it fails or is blocked (403/406, bot detection, challenge page, empty content), fall back to WebFetch; if that also fails, drive a real browser via the `patchright` MCP.
@@ -39,7 +39,9 @@ When you finish a change, sweep your own diff once for:
 
 Default to no comments. A comment earns its place only when it encodes a *why* the code itself can't show.
 
-Justified cases:
+#### Justified cases
+
+Justified comments describe the code as it is — what the thing is and the constraint it serves — never the events that led to it.
 
 - a hidden constraint or invariant not visible from the signature
 - a workaround for a known bug, platform quirk, or external API behavior
@@ -48,11 +50,13 @@ Justified cases:
 - a reference to an external spec / RFC / standard (name + version)
 - public API docs (JSDoc / docstrings) that add real semantic info beyond the signature — units, error conditions, lifetime, idempotency
 
-Don't write:
+#### Don't write
 
 - narration of what the code does — well-named identifiers do that
+- narration of the conversation or prompts that produced the code
+- investigation stories — hypotheses, measurements, probes, research notes ("this turned out to be the cause") — state the constraint as a present-tense fact; discovery belongs in the commit/PR
 - restatements of the function name or signature
-- references to the current task / PR / ticket / fix ("fix for #123") — that belongs in the commit message
+- references to tickets, PRs, issues, or incidents, current or past ("fix for #123", "the cause of #5431") — that history belongs in the commit message or the tracker
 - references to callers ("used by ComponentX", "called from the auth flow")
 - divider banners (`// =====`) or empty JSDoc tags that just restate the signature
 - vague TODOs ("// TODO: fix this someday") — give actionable context or skip
