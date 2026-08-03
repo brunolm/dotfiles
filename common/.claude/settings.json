@@ -179,7 +179,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5",
+  "model": "claude-fable-5[1m]",
   "hooks": {
     "Stop": [
       {
