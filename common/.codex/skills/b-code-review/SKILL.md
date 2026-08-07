@@ -112,10 +112,33 @@ Check that each change is implemented at the right depth, not as a fragile banda
 
 ## Confidence pass
 
-After drafting the findings but before writing the output file, run a confidence pass over every item:
+After drafting the findings but before writing the output file, rank every item's confidence and enforce the per-severity thresholds.
 
-- **Minor and Nit items** - drop any item whose confidence is below 75%. These are low-stakes, so a shaky claim is not worth the author's attention.
-- **Blocker and Major items** - if confidence is below 80%, do not drop it. Instead, do a deep dive into the claim: re-read the flagged code and enough surrounding context, trace the relevant callers/callees, inspect related files, and test the assumption that created the doubt. Then update the confidence to match what you found - raise it and keep the item if the issue holds, remove the item if the dive disproves it, or keep it while stating the residual doubt explicitly if it stays genuinely uncertain.
+### Confidence ranks
+
+| Rank | Meaning |
+|------|---------|
+| **S** | Verified - traced the exact failure path in the code (or the violated rule is explicit); no assumptions left. |
+| **A** | Near-certain - the logic is wrong on its face; no plausible reading makes it correct, though the failure wasn't traced end-to-end. |
+| **B** | Confident - strong evidence with one unverified assumption (an input shape, caller behavior, or config inferred from convention). |
+| **C** | Probable - plausible, but rests on multiple unverified assumptions; surrounding context supports it without confirming it. |
+| **D** | Uncertain - the code looks suspicious but no concrete failure scenario could be pinned down. |
+| **E** | Speculative - pattern-matching on "this often goes wrong"; no evidence in this specific code. |
+| **F** | Unfounded - no articulable failure scenario. |
+
+Classify every finding as exactly one rank. Rank the claim as written - if verifying an assumption would change the rank, verify it (read/grep) instead of guessing.
+
+### Per-severity thresholds
+
+| Severity | Deep dive first if | Keep | Drop |
+|----------|--------------------|------|------|
+| Blocker | C or below | S-B, plus C with the residual doubt stated in the finding | D-F |
+| Major | C or below | S-B | C-F |
+| Minor | (no dive) | S-B | C-F |
+| Nit | (no dive) | S-A | B-F |
+
+- **Deep dive** (Blocker/Major ranked C or below): before deciding, re-read the flagged code and enough surrounding context, trace the relevant callers/callees, inspect related files, and test the assumption that created the doubt - then re-rank from what you found and apply the Keep/Drop columns to the new rank. High-stakes claims are never dropped on the initial rank alone.
+- Minor and Nit items are low-stakes: a shaky claim is not worth the author's attention, so they are dropped on their initial rank without a dive.
 
 Re-number the surviving items 1...N (continuous across all sections) after the pass so the final list has no gaps.
 
@@ -132,25 +155,29 @@ Chat should output a clickable link to open this file.
 - Branch: `<headRefName>` (vs `<baseRefName>`)
 
 ### Blockers
-1. [path/file.ts:42](../path/file.ts#L42) - <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.> (confidence: x%)
-   - **tl;dr:** <the claim boiled down to one short line>
+1. [path/file.ts:42](../path/file.ts#L42) - <what's wrong, in one sentence>. <Why it matters / suggested fix, one sentence.> (confidence: <S|A|B|C>)
+   - **tl;dr (problem):** <the claim problem boiled down to one short line>
+   - **tl;dr (fix):** <the claim suggested fix boiled down to one short line>
 
 ### Major
 2. ...
-   - **tl;dr:** ...
+   - **tl;dr (problem):** ...
+   - **tl;dr (fix):** ...
 
 ### Minor
 3. ...
-   - **tl;dr:** ...
+   - **tl;dr (problem):** ...
+   - **tl;dr (fix):** ...
 
 ### Nits
 4. ...
-   - **tl;dr:** ...
+   - **tl;dr (problem):** ...
+   - **tl;dr (fix):** ...
 
 <one-line summary: e.g., "2 blockers, 3 major - do not merge yet.">
 ```
 
-Number every item continuously across all sections (1...N) so each finding can be referenced by its number; do not restart numbering per section. End every item with a `**tl;dr:**` sub-bullet that boils the claim down to one short line.
+Number every item continuously across all sections (1...N) so each finding can be referenced by its number; do not restart numbering per section. End every item with two sub-bullets: `**tl;dr (problem):**` boiling the problem down to one short line, and `**tl;dr (fix):**` boiling the suggested fix down to one short line.
 
 Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location. If a section is empty, write `- (none)` rather than omitting the header.
 

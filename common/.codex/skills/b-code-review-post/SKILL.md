@@ -39,7 +39,7 @@ Pick the review source in this order:
 
 ## 3. Parse findings and apply the item filter
 
-Extract every finding in order: number, severity section, file path + line, full finding text, and its `**tl;dr:**` line. Skip placeholder lines like `- (none)` and items already sitting under `### Fixed` / `### Skipped`.
+Extract every finding in order: number, severity section, file path + line, full finding text, and its `**tl;dr (problem):**` and `**tl;dr (fix):**` lines (older reviews may have a single `**tl;dr:**` line - treat it as the problem line). Skip placeholder lines like `- (none)` and items already sitting under `### Fixed` / `### Skipped`.
 
 If the user gave an item filter, apply it against the review's own numbering:
 
@@ -75,11 +75,11 @@ For each finding:
 <1-2 sentence summary of the review outcome, e.g. "2 majors around session handling; the rest is polish.">
 
 **tl;dr:**
-1. `path/file.ts:42` - <tl;dr line of finding 1>
-3. `path/other.ts:10` - <tl;dr line of finding 3>
+1. `path/file.ts:42` - <tl;dr problem line of finding 1>
+3. `path/other.ts:10` - <tl;dr problem line of finding 3>
 
 **Not anchorable inline:** (only if any)
-5. `path/file.ts:120` - <full finding text> - **tl;dr:** <tl;dr line>
+5. `path/file.ts:120` - <full finding text> - **problem:** <tl;dr problem line> - **fix:** <tl;dr fix line>
 ```
 
 Keep the review's original numbering (gaps from skipped items are fine - they match the review file).
@@ -89,7 +89,8 @@ Keep the review's original numbering (gaps from skipped items are fine - they ma
 ```
 **<Severity>:** <finding text - the sentence(s) from the review, without the markdown link wrapper>
 
-**tl;dr:** <tl;dr line>
+**tl;dr (problem):** <tl;dr problem line>
+**tl;dr (fix):** <tl;dr fix line>
 ```
 
 ## 7. Confirm, then submit
