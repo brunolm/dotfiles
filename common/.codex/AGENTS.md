@@ -57,6 +57,7 @@ Justified comments describe the code as it is — what the thing is and the cons
 - investigation stories — hypotheses, measurements, probes, research notes ("this turned out to be the cause") — state the constraint as a present-tense fact; discovery belongs in the commit/PR
 - restatements of the function name or signature
 - references to tickets, PRs, issues, or incidents, current or past ("fix for #123", "the cause of #5431") — that history belongs in the commit message or the tracker
+- references to build artifacts or gitignored paths ("@see dist/bundle.js") — they don't exist in a fresh checkout and go stale silently; reference the source file that produces them instead
 - references to callers ("used by ComponentX", "called from the auth flow")
 - divider banners (`// =====`) or empty JSDoc tags that just restate the signature
 - vague TODOs ("// TODO: fix this someday") — give actionable context or skip
