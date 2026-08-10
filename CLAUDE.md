@@ -18,3 +18,8 @@
 # Time tracking local project
 
 `C:\BrunoLM\Projects\time-tracking`
+
+# For any temporary files, screenshots, scripts, probes, etc
+
+Use the gitignored folder `.tmp`
+

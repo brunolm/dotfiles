@@ -11,6 +11,7 @@ poe*-filters.zip
 keys/obj
 keys/bin
 
+.tmp
 
 # Codex
 **/.codex/skills/.system/
