@@ -1,6 +1,6 @@
 ---
 name: b-code-review
-description: Use this skill when the user asks for a code review, wants feedback on changes, or says things like "review my code", "review this branch", "review this PR", "review the diff", "what do you think of these changes", or "look over my changes". Reviews either the current branch diff, uncommitted working-tree changes, or a specified GitHub PR, and reports findings grouped by severity.
+description: Use this skill when the user asks for a code review, wants feedback on changes, or says things like "review my code", "review this branch", "review this PR", "review the diff", "what do you think of these changes", or "look over my changes". Reviews either the current branch diff, uncommitted working-tree changes, or a specified GitHub PR, and reports findings grouped by severity. Accepts optional `--grok` / `--codex` / `--claude` flags to get a second opinion on the findings from that agent's CLI (default: no secondary agent).
 version: 1.0.0
 allowed-tools:
   - Bash(git diff:*)
@@ -14,6 +14,10 @@ allowed-tools:
   - Bash(gh pr checks:*)
   - Bash(echo:*)
   - Bash(sed:*)
+  - Bash(mktemp:*)
+  - Bash(claude -p:*)
+  - Bash(codex exec:*)
+  - Bash(grok -p:*)
   - Read
   - Grep
   - Glob
@@ -142,6 +146,45 @@ Classify every finding as exactly one rank. Rank the claim as written - if verif
 
 Re-number the surviving items 1...N (continuous across all sections) after the pass so the final list has no gaps.
 
+## Second opinion (`--grok` / `--codex` / `--claude`)
+
+Default: no secondary agent. When the user passes `--grok`, `--codex`, or `--claude`, get a second opinion from that agent's CLI after the confidence pass and before writing the output file. If more than one flag is passed, run each agent and merge each response separately.
+
+### 1. Build the context file
+
+Create a temp path (`CTX="$(mktemp -d)/review-context.md"`) and write a file there containing everything the agent needs to judge the review without re-deriving it:
+
+- the scope one-liner and PR metadata (title, description, branch, author) when available
+- the full diff under review
+- the surviving draft findings, numbered, each with file:line, severity, confidence rank, and the one-sentence claim
+
+### 2. Run the agent
+
+From the repo root (so the agent can read surrounding source for context), with a generous command timeout (10 minutes):
+
+```bash
+claude -p "<prompt>"     # --claude
+codex exec "<prompt>"    # --codex
+grok -p "<prompt>"       # --grok
+```
+
+Prompt (substitute the real temp path):
+
+```
+Second opinion on a code review. Read <CTX path> - it contains the diff under review and the reviewer's draft findings. You may read the repository for extra context. Reply with: (1) for each numbered finding, AGREE / DISAGREE / ADJUST plus one sentence of reasoning; (2) any real issues in the diff the review missed, each as file:line, severity (Blocker/Major/Minor/Nit), and a one-line explanation. Be concrete; do not pad with speculative items.
+```
+
+Use this prompt verbatim - only the path varies. Never inline the diff, findings, or any other per-review content into the command-line prompt; long argv breaks on Windows (~32k char limit). Everything sized by the review belongs in the context file.
+
+### 3. Merge the response
+
+- **Agreements** - no change to the finding.
+- **Disagreements / adjustments** - re-check the disputed claim yourself; if the agent is right, drop or re-rank the finding as in the confidence pass, otherwise keep it. Either way append a sub-bullet to the finding: `**second opinion (<agent>):** <verdict and resolution in one line>`.
+- **New issues** - verify and confidence-rank each one exactly like your own findings; those that survive the per-severity thresholds join the numbered list with `(raised by <agent>)` at the end of the claim. Silently drop the rest.
+- Re-number after merging, then fill in the `### Second opinion` section of the output (see template).
+- If the CLI fails or is not installed, say so in chat and finish the normal review without it.
+- Delete the temp folder after merging.
+
 ## Output format
 
 Output should be saved in `.branch-docs/pr-<id>-codex.md`, if the file already exists then overwrite it. If a PR hasn't been specified use the current branch name as `<id>`.
@@ -174,8 +217,15 @@ Chat should output a clickable link to open this file.
    - **tl;dr (problem):** ...
    - **tl;dr (fix):** ...
 
+### Second opinion - <agent>
+- Agrees with: <finding numbers, or "(none)">
+- Disputed: <finding number> - <resolution in one line>
+- Raised: <numbers of findings it added, or "(none)">
+
 <one-line summary: e.g., "2 blockers, 3 major - do not merge yet.">
 ```
+
+Omit the `### Second opinion` section entirely when no secondary agent flag was passed; repeat it per agent when several were.
 
 Number every item continuously across all sections (1...N) so each finding can be referenced by its number; do not restart numbering per section. End every item with two sub-bullets: `**tl;dr (problem):**` boiling the problem down to one short line, and `**tl;dr (fix):**` boiling the suggested fix down to one short line.
 
