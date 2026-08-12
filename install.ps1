@@ -72,9 +72,8 @@ function Install() {
   New-Link "${env:HOMEDRIVE}\System\startup.ps1" (Join-Path $PSScriptRoot "windows\startup\startup.ps1")
   New-Link "C:\System\Startup" (Join-Path $PSScriptRoot "windows\startup-files")
 
-  # Install and apply the custom cursor scheme + click sparkle effect
+  # Install and apply the custom cursor scheme
   & (Join-Path $PSScriptRoot "windows\cursors\install-cursors.ps1")
-  & (Join-Path $PSScriptRoot "windows\cursors\click-sparkle\install-click-sparkle.ps1")
 
   # Install or upgrade Oh My Posh to the latest version via winget
   $ompPkg = "JanDeDobbeleer.OhMyPosh"
