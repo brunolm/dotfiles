@@ -1,7 +1,7 @@
 ---
 name: b-video-finder
 description: Use this skill when the user wants to find videos matching specific content criteria, verified by actually opening each video and inspecting frames. Triggers include "/b-video-finder", "find me N videos that show X", "search <site> for videos containing X", "look for videos with X", or any phrasing pairing video search with must-have visual criteria. Drives a real browser via the patchright MCP, screenshots each candidate at several timestamps, scores every candidate S/A/B/C/D against the criteria, keeps searching until the target count at the minimum rating is met (default 10 at B or better), then writes and opens an HTML report table (platform, thumbnail, title, duration, rating, tags).
-version: 1.18.0
+version: 1.20.0
 allowed-tools:
   - mcp__patchright__browser_navigate
   - mcp__patchright__browser_navigate_back
@@ -20,7 +20,7 @@ allowed-tools:
 
 # Video finder
 
-Find videos that actually contain what the user asked for - not videos whose *title* claims to. Search one or more video platforms with the patchright browser MCP, skip obvious misses from metadata, open the rest, capture frames, judge those frames against the criteria, and score the match. Keep going until enough videos meet the bar, then deliver an HTML report.
+Find videos that actually contain what the user asked for - not videos whose *title* claims to. Search one or more video platforms with the patchright browser MCP, skip obvious misses from metadata, rank the rest by what their result-page thumbnails show, open those, capture frames, judge those frames against the criteria, and score the match. Keep going until enough videos meet the bar, then deliver an HTML report.
 
 ## What the user specifies
 
@@ -76,11 +76,14 @@ At the end of the run, upsert **one short section per host** you actually used. 
 For each platform:
 
 1. Navigate to the platform's search results for a query derived from the criteria. The first phrasing is a guess - the same words often name a different arrangement on that platform. Keep 2-3 phrasings ready (the specific arrangement, plus a broader query that still has the same people or setting). If the first page is mostly a different reading of the words, reword immediately; do not drain a bad list.
-2. Extract candidates from the results (one short evaluate can return URL, title, duration, thumbnail, and tags as JSON). Read the title from the card's title/name text, not from thumbnail markup. Drop non-result links (watch-later, channel rails, ads). Start probing the plausible ones in batches (section 3) - don't screenshot the results page first.
+2. Extract candidates from the results (one short evaluate can return URL, title, duration, thumbnail, and tags as JSON). Read the title from the card's title/name text, not from thumbnail markup. Drop non-result links (watch-later, channel rails, ads).
 3. **Skip from metadata before opening.** If title, duration, or tags already fail a hard criterion (too short, wrong genre, compilation when a single scene is required, sequential wording like "then" when the criterion is a simultaneous arrangement, etc.), do not open that video. Skipped-from-metadata videos are not verified and do not go in the report.
-4. Related / recommended / up-next cards come back on the probe result. When a score meets the bar, prefer those URLs next - their thumbnails often show the arrangement more clearly than search titles.
+4. **Rank from the results screenshot.** After the metadata skip, screenshot the visible results grid as JPEG into `$runDir` (e.g. `search-yt-1.jpg`) and read that file. Do not wait for thumbs to finish loading. Order the remaining candidates by how clearly the on-page thumbnail shows the criteria - likely hits first. Skip a card only when its thumbnail clearly contradicts a hard visual criterion (wrong body, wrong setting, the opposite arrangement). An ambiguous, cropped, or logo/poster thumb is not a skip: keep it, just don't lead with it. A thumbnail is ranking evidence, not a score - do not put thumb-only videos in the report. If the thumbs are still placeholders, keep metadata order.
+5. Related / recommended / up-next cards come back on the probe result, plus one JPEG of that rail when the probe captured it. When a score meets the bar, prefer those URLs next. Rank them from the related-rail shot the same way as a results grid (step 4) before prepending.
 
-Go back for more (next result page, reworded query, next platform) when the current result list is exhausted or is clearly the wrong reading of the query.
+Then probe the ranked list in batches (section 3).
+
+Go back for more (next result page, reworded query, next platform) when the current result list is exhausted or is clearly the wrong reading of the query. Rank each new results page the same way before probing it.
 
 ## 2. Handle login walls
 
@@ -92,7 +95,7 @@ Some sites gate playback or search behind login. When that happens:
 
 ## 3. Verify candidates
 
-Judge with frames, not metadata - but only after a video survived the metadata skip.
+Judge with player frames, not titles or thumbnails - but only after a video survived the metadata skip and any clear thumb contradiction.
 
 Probe first, score later, **batch** videos at a time (default 5).
 
@@ -111,8 +114,9 @@ Probe first, score later, **batch** videos at a time (default 5).
    - If `duration` is not finite, do **not** capture a single `t=0` poster and return. Inside this same probe, take five fallback frames: digit keys `1` / `3` / `5` / `7` / `9`, or clicks at ~10% / 30% / 50% / 70% / 90% on the seek bar. Then return whatever you have.
    - Pick probe timestamps: **5 by default**, at ~10% / 30% / 50% / 70% / 90% of the duration. If the criterion is a specific arrangement that is usually a later beat, not the opening, bias the back half and always keep one late probe (~90%). Longer videos get more - one extra frame per 10 minutes after the first 10 minutes - as many as the 30-second budget allows. A compilation or long video cannot be confirmed from a handful of cuts: rate only the frames you captured.
    - For each timestamp: set `video.currentTime`, then screenshot the player (the `<video>` node or its player container), not the full page, as JPEG into `$runDir` (name encodes candidate + timestamp). Use `animations: 'disabled'` and a short timeout. Fall back to a viewport shot only if the player shot fails or is empty. No wait between seeks (if you race `seeked`, cap it at a few hundred milliseconds). If a write is empty or tiny, one immediate retry of that timestamp.
+   - Take **one** JPEG of the related / up-next section if that container is already in the DOM (e.g. `03-yt-abc123-related.jpg`). Screenshot the rail node, not the player. Do not wait for it to load, do not scroll the page to find it, and do not retry if it is missing or empty. Do not add this file to `paths` - it is ranking input, not a scored frame.
    - Also collect `meta[property="og:image"]` and the related / up-next cards (url, title, duration, thumb) if they are already in the DOM. Do not wait for that rail to finish loading.
-   - Return `{ duration, paths, thumb, related }`.
+   - Return `{ duration, paths, thumb, related, relatedShot }`.
 3. Hold the result. Do not score yet. Go to the next candidate in the batch.
 
 If the player blocks seeking, keep whatever frames you got (poster frame, early playback). Stop the probe pass when the batch is full or the plausible list is empty.
@@ -121,7 +125,7 @@ If the player blocks seeking, keep whatever frames you got (poster frame, early 
 
 ## 4. Score
 
-Read the JPEG paths yourself and score them against the table below. Do not treat a bumper / slate / trailer card as evidence. After each score, append one line to `$runDir/log.txt` (url, title, duration, rating) and, if the score meets the bar, prepend that video's `related` list to the candidate queue.
+Read the JPEG paths yourself and score them against the table below. Do not treat a bumper / slate / trailer card as evidence. After each score, append one line to `$runDir/log.txt` (url, title, duration, rating) and, if the score meets the bar, prepend that video's `related` list to the candidate queue (ranked from that video's related-rail shot per section 1).
 
 | Rating | Meaning |
 |--------|---------|
