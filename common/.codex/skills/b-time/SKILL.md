@@ -1,7 +1,7 @@
 ---
 name: b-time
 description: Use this skill when the user wants to track work hours with their self-hosted time log. Triggers include "/b-time", "start tracking", "punch in", "punch out", "stop the timer", "am I tracking time", "time status", "time report for june", "how many hours did I work this month", logging finished ranges like "10am +8h" / "10am ~ 5pm" / "10am ~ 1pm 5pm ~ 8pm", clearing a day like "reset today" / "clear yesterday" / "clear 2026-07-10", or any phrasing pairing time tracking with start/stop/status/report/log/clear - as long as Toggl or Harvest is NOT named (those have their own tools). Wraps the time.ps1 CLI in the local time-tracking repo: entries are stored as monthly JSONL files and synced via git. After a log/stop adds finished time, it also mirrors the new entries to Toggl and Harvest via their MCPs (with one confirmation before writing).
-version: 1.1.0
+version: 1.2.0
 allowed-tools:
   - Read
   - PowerShell
@@ -16,17 +16,21 @@ allowed-tools:
 
 Drive the CLI at **`C:\BrunoLM\Projects\time-tracking\time.ps1`** - entries live in that repo as `<yyyy>/<yyyy-MM>.jsonl` (one JSON entry per line; `end: null` marks the running timer) and every mutation commits, pulling/pushing automatically when an `origin` remote exists. Never edit the JSONL by hand unless the user explicitly asks to fix an entry.
 
+## Always run it with PowerShell 7
+
+The script uses PowerShell 7 syntax (the `? :` ternary and `??`), so Windows PowerShell 5.1 fails to even parse it - `powershell` / `powershell.exe` is 5.1 and must never be used here. Always invoke it as `pwsh -NoProfile -File '<script>' <args>`, which is correct from any shell (Bash tool, cmd, a 5.1 session, or the PowerShell tool) because it launches PowerShell 7 as its own process.
+
 ## Subcommands
 
 Map the user's intent to one of:
 
 ```powershell
-& 'C:\BrunoLM\Projects\time-tracking\time.ps1' start [project] [note...]
-& 'C:\BrunoLM\Projects\time-tracking\time.ps1' stop
-& 'C:\BrunoLM\Projects\time-tracking\time.ps1' status
-& 'C:\BrunoLM\Projects\time-tracking\time.ps1' report -Month yyyy-MM
-& 'C:\BrunoLM\Projects\time-tracking\time.ps1' log [project] [note...] -Start HH:mm -End HH:mm [-Date yyyy-MM-dd] [-Force]
-& 'C:\BrunoLM\Projects\time-tracking\time.ps1' clear [-Date yyyy-MM-dd]
+pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' start [project] [note...]
+pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' stop
+pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' status
+pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' report -Month yyyy-MM
+pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' log [project] [note...] -Start HH:mm -End HH:mm [-Date yyyy-MM-dd] [-Force]
+pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' clear [-Date yyyy-MM-dd]
 ```
 
 - **start** - begin a timer. Pass the project and note if the user gave them (e.g. "start tracking acme, fixing the api" -> `start acme fixing the api`). The script refuses if a timer is already running - relay that message.
