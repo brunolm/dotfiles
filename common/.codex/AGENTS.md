@@ -8,7 +8,11 @@
 - Always tailor terminal commands and scripts to the current environment (Windows 11 Pro + PowerShell). Do not suggest Unix/macOS-specific commands or syntax unless explicitly requested. Or unless the CLI is running from WSL.
 - Match command syntax to the tool you invoke, not the OS. The Bash tool runs **bash**, the PowerShell tool runs **pwsh** - they don't share syntax. In particular, PowerShell here-strings (`@'...'@`, `@"..."@`) are not special in bash; they leak in as literal `@` characters (e.g. into commit messages). For multi-line strings: in the Bash tool use a normal `'...'`/`"..."` quoted string with real newlines; reserve `@'...'@` for the PowerShell tool.
 - When asked to create a git worktree, place it under `.claude/worktrees/<branch-name>` at the repo root, unless a different location is specified.
-- Web fetching fallback chain: try the `stealth-fetch` MCP `fetch` tool first; if it fails or is blocked (403/406, bot detection, challenge page, empty content), fall back to the built-in web fetch; if that also fails, drive a real browser via the `patchright` MCP.
+- Web fetching fallback chain - move to the next step whenever one fails, is blocked (403/406, bot detection, challenge page), or returns empty content / a bare JS shell. The `impersonate` values are pinned to the newest curl_cffi targets; bump them when it ships newer ones.
+  1. `stealth-fetch` MCP `fetch` with `impersonate="chrome150"`
+  2. `stealth-fetch` MCP `fetch` with `impersonate="chrome131_android"` - a mobile UA often gets server-rendered HTML where desktop returns a shell, and yields 2-3x more content on sites like X and Instagram
+  3. the built-in web fetch
+  4. a real browser via the `patchright` MCP
 - Always show a summary and ask permission before:
   - sending emails
   - making changes on the calendar
