@@ -34,6 +34,39 @@ function PC-Disable-RealtimeProtection() {
   Set-MpPreference -DisableRealtimeMonitoring $true
 }
 
+# NVMe link/idle power settings. Aggressive ASPM L1 plus a short disk idle timeout
+# can leave the controller unresponsive on wake; "original" is what the machine shipped with.
+function PC-Set-PowerProfile($preset) {
+  $presets = @{
+    power    = @{ AspmAc = 1; AspmDc = 2; DiskIdleAc = 900; DiskIdleDc = 60 }
+    original = @{ AspmAc = 2; AspmDc = 2; DiskIdleAc = 30; DiskIdleDc = 60 }
+  }
+
+  if (!$preset -or !$presets.ContainsKey($preset)) {
+    Write-Error "Usage: PC-Set-PowerProfile <$($presets.Keys -join '|')>"
+    return
+  }
+
+  $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+  if (!([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Error "Needs an elevated shell - run PC-Start-Powershell first."
+    return
+  }
+
+  $p = $presets[$preset]
+
+  powercfg /setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM $p.AspmAc
+  powercfg /setdcvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM $p.AspmDc
+  powercfg /setacvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE $p.DiskIdleAc
+  powercfg /setdcvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE $p.DiskIdleDc
+  powercfg /setactive SCHEME_CURRENT
+
+  $aspmNames = @{ 0 = 'Off'; 1 = 'Moderate'; 2 = 'Maximum' }
+  Write-Host "Applied '$preset':"
+  Write-Host "  ASPM      AC: $($aspmNames[$p.AspmAc])  DC: $($aspmNames[$p.AspmDc])"
+  Write-Host "  DiskIdle  AC: $($p.DiskIdleAc)s  DC: $($p.DiskIdleDc)s"
+}
+
 function psl() {
   $saveY = [console]::CursorTop
   $saveX = [console]::CursorLeft
