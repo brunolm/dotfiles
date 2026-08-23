@@ -19,6 +19,8 @@ install_software() {
   # sudo snap install slack --classic
   # sudo snap install obs-studio
   # whatsapp: no first-party Linux client; use the web app.
+  # copyq: apt ships an old build; grab the AppImage from
+  #   https://github.com/hluk/CopyQ/releases
 
   # Gaming
   # sudo snap install discord
@@ -30,7 +32,7 @@ install_software() {
   # sudo apt install -y vim
 
   # Windows-only on the original list, no Linux port:
-  #   powertoys, autohotkey, ditto, sharex
+  #   powertoys, autohotkey, sharex
 }
 
 install_software
