@@ -204,6 +204,10 @@
   "effortLevel": "high",
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
   "autoMemoryEnabled": true,
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
@@ -213,9 +217,5 @@
       "Calling any mcp__input__ tool that sends input (click, move, drag, scroll, type, press keys). These drive the real mouse and keyboard. Only proceed when the user asked for that action; never on your own initiative, and never to unblock yourself or work around a failed tool."
     ]
   },
-  "voiceEnabled": true,
-  "voice": {
-    "enabled": true,
-    "mode": "hold"
-  }
+  "voiceEnabled": true
 }
