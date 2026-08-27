@@ -39,16 +39,28 @@ function PC-Disable-RealtimeProtection() {
   Set-MpPreference -DisableRealtimeMonitoring $true
 }
 
-# NVMe link/idle power settings. Aggressive ASPM L1 plus a short disk idle timeout
-# can leave the controller unresponsive on wake; "original" is what the machine shipped with.
-function PC-Set-PowerProfile($preset) {
-  $presets = @{
-    power    = @{ AspmAc = 1; AspmDc = 2; DiskIdleAc = 900; DiskIdleDc = 60 }
-    original = @{ AspmAc = 2; AspmDc = 2; DiskIdleAc = 30; DiskIdleDc = 60 }
-  }
+# NVMe link/idle power settings.
+#
+# Windows parks the NVMe controller in a non-operational power state after the primary
+# idle timeout elapses with no I/O (200ms on AC out of the box), and NOPPME lets it do so
+# without waiting for the controller to go quiescent. A drive that wakes back up too
+# slowly surfaces as a storport timeout: bugcheck 0x124 with error source 0x10 (device
+# driver), sometimes preceded by 0x154 when the stall lands on a store page-in.
+#
+# "original" is stock Windows/OEM; "power" relaxes it; "nvme-safe" keeps the drive awake.
+# Every preset leaves the DC side at stock - parking the drive is a real battery saver and
+# the wake stall only shows up on AC.
+function PC-Set-PowerProfile {
+  [CmdletBinding()]
+  param(
+    [Parameter(Position = 0)]
+    [ValidateSet('nvme-safe', 'power', 'original', 'status')]
+    [string]$Preset = 'status',
+    [switch]$AllSchemes
+  )
 
-  if (!$preset -or !$presets.ContainsKey($preset)) {
-    Write-Error "Usage: PC-Set-PowerProfile <$($presets.Keys -join '|')>"
+  if ($Preset -eq 'status') {
+    PCPower-Status
     return
   }
 
@@ -57,18 +69,166 @@ function PC-Set-PowerProfile($preset) {
     return
   }
 
-  $p = $presets[$preset]
+  $settings = PCPower-Settings
+  $values = (PCPower-Presets)[$Preset]
 
-  powercfg /setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM $p.AspmAc
-  powercfg /setdcvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM $p.AspmDc
-  powercfg /setacvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE $p.DiskIdleAc
-  powercfg /setdcvalueindex SCHEME_CURRENT SUB_DISK DISKIDLE $p.DiskIdleDc
-  powercfg /setactive SCHEME_CURRENT
+  $schemes = if ($AllSchemes) { PCPower-SchemeGuids } else { @(PCPower-ActiveScheme) }
+  if (!$schemes) {
+    Write-Error "Could not resolve a power scheme GUID from powercfg."
+    return
+  }
 
-  $aspmNames = @{ 0 = 'Off'; 1 = 'Moderate'; 2 = 'Maximum' }
-  Write-Host "Applied '$preset':"
-  Write-Host "  ASPM      AC: $($aspmNames[$p.AspmAc])  DC: $($aspmNames[$p.AspmDc])"
-  Write-Host "  DiskIdle  AC: $($p.DiskIdleAc)s  DC: $($p.DiskIdleDc)s"
+  $failed = 0
+  foreach ($scheme in $schemes) {
+    $failed += PCPower-Apply $scheme $settings $values
+  }
+
+  # powercfg only writes the registry; the scheme has to be re-applied to take effect.
+  powercfg /setactive (PCPower-ActiveScheme) | Out-Null
+
+  $scope = if ($AllSchemes) { "$($schemes.Count) scheme(s)" } else { 'active scheme' }
+  if ($failed) {
+    Write-Warning "Applied '$Preset' to $scope with $failed setting(s) rejected by powercfg."
+  }
+  else {
+    Write-Host "Applied '$Preset' to $scope." -ForegroundColor Green
+  }
+
+  PCPower-Status
+}
+
+# Subgroup + setting GUIDs. The NVMe entries are marked hidden, so they never show up in
+# powercfg /query or the Control Panel UI and have to be addressed by GUID.
+function PCPower-Settings() {
+  $disk = '0012ee47-9041-4b5d-9b77-535fba8b1442'
+  $pcie = '501a4d13-42af-4429-9fd1-a8218c268e20'
+
+  return [ordered]@{
+    Aspm                   = @{ Sub = $pcie; Guid = 'ee12f906-d277-404b-b6da-e5fa1a576df5'; Label = 'PCIe ASPM'; Unit = 'aspm' }
+    DiskIdle               = @{ Sub = $disk; Guid = '6738e2c4-e8a5-4a42-b16a-e040e769756e'; Label = 'Turn off hard disk after'; Unit = 's' }
+    NvmePrimaryIdle        = @{ Sub = $disk; Guid = 'd639518a-e56d-4345-8af2-b9f32fb26109'; Label = 'NVMe primary idle timeout'; Unit = 'ms' }
+    NvmeSecondaryIdle      = @{ Sub = $disk; Guid = 'd3d55efd-c1ff-424e-9dc3-441be7833010'; Label = 'NVMe secondary idle timeout'; Unit = 'ms' }
+    NvmeThresholdPrimary   = @{ Sub = $disk; Guid = 'fc95af4d-40e7-4b6d-835a-56d131dbc80e'; Label = 'NVMe primary threshold'; Unit = 'us' }
+    NvmeThresholdSecondary = @{ Sub = $disk; Guid = 'dbc9e238-6de9-49e3-92cd-8c2b4946b472'; Label = 'NVMe secondary threshold'; Unit = 'us' }
+    Noppme                 = @{ Sub = $disk; Guid = 'fc7372b6-ab2d-43ee-8797-15e9841f2cca'; Label = 'NVMe NOPPME'; Unit = 'bool' }
+  }
+}
+
+# Each entry is @(AC, DC). A threshold of 0 means no non-operational state qualifies,
+# because none has an ENLAT+EXLAT at or below zero.
+function PCPower-Presets() {
+  return [ordered]@{
+    'nvme-safe' = [ordered]@{
+      Aspm                   = @(0, 2)
+      DiskIdle               = @(0, 60)
+      NvmePrimaryIdle        = @(60000, 100)
+      NvmeSecondaryIdle      = @(60000, 1000)
+      NvmeThresholdPrimary   = @(0, 50)
+      NvmeThresholdSecondary = @(0, 100)
+      Noppme                 = @(0, 0)
+    }
+    'power'     = [ordered]@{
+      Aspm                   = @(1, 2)
+      DiskIdle               = @(900, 60)
+      NvmePrimaryIdle        = @(60000, 100)
+      NvmeSecondaryIdle      = @(60000, 1000)
+      NvmeThresholdPrimary   = @(15, 50)
+      NvmeThresholdSecondary = @(100, 100)
+      Noppme                 = @(0, 0)
+    }
+    'original'  = [ordered]@{
+      Aspm                   = @(2, 2)
+      DiskIdle               = @(30, 60)
+      NvmePrimaryIdle        = @(200, 100)
+      NvmeSecondaryIdle      = @(2000, 1000)
+      NvmeThresholdPrimary   = @(15, 50)
+      NvmeThresholdSecondary = @(100, 100)
+      Noppme                 = @(1, 0)
+    }
+  }
+}
+
+function PCPower-Apply($scheme, $settings, $values) {
+  $failed = 0
+
+  foreach ($name in $values.Keys) {
+    $setting = $settings[$name]
+    $pair = $values[$name]
+
+    powercfg /setacvalueindex $scheme $setting.Sub $setting.Guid $pair[0] | Out-Null
+    if ($LASTEXITCODE -ne 0) { $failed++; Write-Warning "AC $($setting.Label) rejected." }
+
+    powercfg /setdcvalueindex $scheme $setting.Sub $setting.Guid $pair[1] | Out-Null
+    if ($LASTEXITCODE -ne 0) { $failed++; Write-Warning "DC $($setting.Label) rejected." }
+  }
+
+  return $failed
+}
+
+function PCPower-Status() {
+  $scheme = PCPower-ActiveScheme
+  if (!$scheme) {
+    Write-Error "Could not resolve the active power scheme."
+    return
+  }
+
+  $settings = PCPower-Settings
+  $rows = foreach ($name in $settings.Keys) {
+    $setting = $settings[$name]
+    $current = PCPower-CurrentValue $scheme $setting
+
+    [pscustomobject]@{
+      Setting = $setting.Label
+      AC      = PCPower-Format $setting $current.Ac
+      DC      = PCPower-Format $setting $current.Dc
+      Source  = if ($current) { $current.Source } else { 'unset' }
+    }
+  }
+
+  Write-Host ""
+  Write-Host "Active scheme: $scheme" -ForegroundColor DarkGray
+  $rows | Format-Table -AutoSize
+  Write-Host "Source 'scheme' = set by a preset, 'default' = still Windows stock." -ForegroundColor DarkGray
+}
+
+# Hidden settings are absent from powercfg /query, so current values come from the
+# registry: the per-scheme override if one was written, otherwise the shipped default.
+function PCPower-CurrentValue($scheme, $setting) {
+  $override = "HKLM:\SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes\$scheme\$($setting.Sub)\$($setting.Guid)"
+  $live = Get-ItemProperty -Path $override -ErrorAction SilentlyContinue
+  if ($null -ne $live.ACSettingIndex) {
+    return [pscustomobject]@{ Ac = $live.ACSettingIndex; Dc = $live.DCSettingIndex; Source = 'scheme' }
+  }
+
+  $shipped = "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\$($setting.Sub)\$($setting.Guid)\DefaultPowerSchemeValues\$scheme"
+  $default = Get-ItemProperty -Path $shipped -ErrorAction SilentlyContinue
+  if ($null -ne $default.ACSettingIndex) {
+    return [pscustomobject]@{ Ac = $default.ACSettingIndex; Dc = $default.DCSettingIndex; Source = 'default' }
+  }
+
+  return $null
+}
+
+function PCPower-SchemeGuids() {
+  return powercfg /list | ForEach-Object {
+    if ($_ -match 'GUID:\s*([0-9a-f-]{36})') { $Matches[1] }
+  }
+}
+
+function PCPower-ActiveScheme() {
+  if ((powercfg /getactivescheme) -match 'GUID:\s*([0-9a-f-]{36})') { return $Matches[1] }
+  return $null
+}
+
+function PCPower-Format($setting, $value) {
+  if ($null -eq $value) { return '?' }
+
+  switch ($setting.Unit) {
+    'aspm' { return @('Off', 'Moderate', 'Maximum')[$value] }
+    'bool' { return @('Off', 'On')[$value] }
+    's' { if ($value -eq 0) { return 'never' } else { return "${value}s" } }
+    default { return "$value$($setting.Unit)" }
+  }
 }
 
 # Interactive "free up resources before gaming" sweep. Samples CPU/GPU/IO over a
