@@ -39,6 +39,11 @@ function PC-Disable-RealtimeProtection() {
   Set-MpPreference -DisableRealtimeMonitoring $true
 }
 
+# Windows Session Manager relaunches dwm.exe after it exits.
+function PC-Restart-Dwm() {
+  Stop-Process -Name dwm -Force
+}
+
 # NVMe link/idle power settings.
 #
 # Windows parks the NVMe controller in a non-operational power state after the primary
