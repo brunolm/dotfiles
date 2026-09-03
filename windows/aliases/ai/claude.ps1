@@ -1,4 +1,4 @@
-function Claude-AskP {
+function B-AI-Claude-AskP {
   [CmdletBinding()]
   param(
     [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')]
@@ -17,12 +17,12 @@ function Claude-AskP {
   & claude @args_
 }
 
-function Claude-Ask {
+function B-AI-Claude-Ask {
   param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$Prompt,
 
-    [string]$Model = 'claude-opus-4-7',
+    [string]$Model = 'claude-opus-5',
 
     [ValidateSet('low', 'medium', 'high', 'xhigh', 'max')]
     [string]$Effort = 'xhigh',
@@ -45,7 +45,7 @@ function Claude-Ask {
 }
 
 
-function Claude-__UNUSED_ASKCOMPLEXWORKAROUND {
+function B-AI-Claude-__UNUSED_ASKCOMPLEXWORKAROUND {
   [CmdletBinding()]
   param(
     [string]$Prompt   = "1+1. After answering, reply with ENDSESSIONNOW (no spaces).",

@@ -1,4 +1,4 @@
-function Kill-Port($port) {
+function B-PC-Kill-Port($port) {
   $processesOnPort = Get-NetTCPConnection -LocalPort $port -State Listen
   Write-Output $processesOnPort
 

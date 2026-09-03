@@ -1,4 +1,4 @@
-function Discord-Restart() {
+function B-Discord-Restart() {
   $updater = "$env:LOCALAPPDATA\Discord\Update.exe"
   if (!(Test-Path $updater)) {
     Write-Host "Discord updater not found at $updater" -ForegroundColor Red

@@ -1,5 +1,4 @@
-## Start-Copilot: launches copilot with --allow-tool flags from Claude Code settings
-function Start-Copilot {
+function B-AI-Copilot-Start {
   $settingsPath = "$env:USERPROFILE\.claude\settings.json"
   $args_ = @()
 
