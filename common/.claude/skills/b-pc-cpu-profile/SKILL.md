@@ -1,6 +1,6 @@
 ---
 name: b-pc-cpu-profile
-description: Use this skill when the user wants to view, apply, or edit the CPU power presets managed by the `B-PC-Set-CpuProfile` alias. Triggers include "/b-pc-cpu-profile", "cpu profile status", "set cpu to cool", "apply the perf profile", "my laptop is hot, switch to cool", "go back to the default cpu profile", "change the EPP in the cool preset", "add a cpu preset", or any phrasing pairing CPU turbo / energy preference / max processor state / thread scheduling / Windows power mode with a preset. Takes an optional argument — `status` (default), `cool`, `balanced`, `perf`, `default` — and runs the alias; requests to change what a preset contains are handled by editing the preset tables in the dotfiles repo.
+description: Use this skill when the user wants to view, apply, or edit the CPU power presets managed by the `B-PC-Set-CpuProfile` alias. Triggers include "/b-pc-cpu-profile", "cpu profile status", "set cpu to cool", "apply the hell profile", "my laptop is hot, switch to cool", "go back to the default cpu profile", "change the EPP in the cool preset", "add a cpu preset", or any phrasing pairing CPU turbo / energy preference / max processor state / thread scheduling / Windows power mode with a preset. Takes an optional argument — `status` (default), `freezing`, `cool`, `balanced`, `default`, `perf`, `hell` — and runs the alias; requests to change what a preset contains are handled by editing the preset tables in the dotfiles repo.
 version: 1.0.0
 ---
 
@@ -14,16 +14,18 @@ The CPU runs in HWP autonomous mode, so these are the knobs that actually matter
 
 | Preset | Turbo | EPP (AC) | Max state E/P | Scheduling | Power mode | Use |
 |---|---|---|---|---|---|---|
-| `cool` | Disabled | 60% | 95 / 95 | Prefer E-cores | Balanced | Video, browsing, hot room |
-| `balanced` | Efficient Enabled | 50% | 95 / 95 | Automatic | Balanced | Daily driver with turbo for sustained work |
-| `perf` | Aggressive | 20% | 100 / 100 | Automatic | Best performance | Games, builds |
-| `default` | Disabled | 45% | 95 / 100 | Automatic | Best performance | Machine baseline captured 2026-09-03 |
+| `freezing` | Disabled | 70% | 40 / 40 | Prefer E-cores | Best efficiency | Emergency cooling, clocks capped at 40% |
+| `cool` | Disabled | 60% | 70 / 70 | Prefer E-cores | Best efficiency | Video, browsing, hot room |
+| `balanced` | Disabled | 50% | 95 / 95 | Automatic | Balanced | Daily driver, capped at 95% with turbo off |
+| `default` | Efficient Enabled | 45% | 95 / 95 | Automatic | Balanced | Machine baseline captured 2026-09-03 |
+| `perf` | Efficient Enabled | 35% | 95 / 95 | Automatic | Best performance | Default with the performance slider and a lower EPP |
+| `hell` | Aggressive | 20% | 100 / 100 | Automatic | Best performance | Games, builds |
 
-Higher EPP favors efficiency. `cool` also sets the cooling policy to passive and halves the latency hint so keyboard/mouse input doesn't spike the clock.
+Higher EPP favors efficiency. `freezing` and `cool` also set the cooling policy to passive and halve the latency hint so keyboard/mouse input doesn't spike the clock.
 
 ## Steps
 
-1. `status` (or no argument): run the status command and show the table. Nothing changes.
+1. `status` (or no argument): run the status command and show the live table. Nothing changes. `B-PC-Show-CpuProfiles` prints all presets side by side when the user wants to compare them.
 2. Applying a preset needs an elevated shell. The alias checks and refuses otherwise; tell the user to run `B-PC-Start-Powershell -Elevated` and retry if that happens.
 3. After applying, the alias prints the table again. Confirm the values match the preset and the `Power mode (overlay)` row matches. Report any `rejected` warnings verbatim.
 4. If the user asked because the machine is hot, follow up with a quick reading so the effect is visible: `\Energy Meter(rapl_package0_pkg)\Power` for package watts and the `Processor Information` counters for clock. The `b-pc-turbo-boost` skill has the snippet.
@@ -34,7 +36,8 @@ Higher EPP favors efficiency. `cool` also sets the cooling policy to passive and
 From a shell that has the profile loaded:
 
 ```powershell
-B-PC-Set-CpuProfile status
+B-PC-Set-CpuProfile status        # live values on the machine
+B-PC-Show-CpuProfiles             # every preset side by side, from the tables
 B-PC-Set-CpuProfile cool
 B-PC-Set-CpuProfile default
 ```

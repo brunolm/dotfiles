@@ -7,14 +7,16 @@
 # The power-mode overlay (the Settings > Power slider) sits on top of the scheme and
 # lowers EPP on "Best performance"; it is global, not per scheme.
 #
-# "default" is the machine's baseline as of 2026-09-03: stock Windows plus the 95% cap and
-# turbo disabled. "cool" trades peak speed for temperature, "balanced" keeps turbo for
-# sustained work only, "perf" is everything on.
+# "default" is the machine's 2026-09-03 baseline (stock Windows plus the 95% E-core cap)
+# with turbo set to Efficient Enabled and the power mode moved to Balanced. "balanced" is
+# the 95% cap on both core classes with turbo off, "cool" trades peak speed for
+# temperature, "freezing" is cool with the clocks capped at 40%, "perf" is default on the
+# Best performance power mode with a lower energy preference, "hell" is everything on.
 function B-PC-Set-CpuProfile {
   [CmdletBinding()]
   param(
     [Parameter(Position = 0)]
-    [ValidateSet('cool', 'balanced', 'perf', 'default', 'status')]
+    [ValidateSet('freezing', 'cool', 'balanced', 'default', 'perf', 'hell', 'status')]
     [string]$Preset = 'status',
     [switch]$AllSchemes
   )
@@ -34,6 +36,29 @@ function B-PC-Set-CpuProfile {
 
   powercfg /overlaysetactive (PCCpu-PowerModes)[$powerMode] | Out-Null
   PCPower-Status $settings (PCCpu-PowerModeRow)
+}
+
+# Prints every preset side by side. A cell shows one value when AC and DC agree,
+# otherwise "AC / DC".
+function B-PC-Show-CpuProfiles {
+  $settings = PCCpu-Settings
+  $presets = PCCpu-Presets
+
+  $rows = foreach ($name in $settings.Keys) {
+    $row = [ordered]@{ Setting = $settings[$name].Label }
+    foreach ($preset in $presets.Keys) {
+      $pair = $presets[$preset][$name]
+      $ac = PCPower-Format $settings[$name] $pair[0]
+      $dc = PCPower-Format $settings[$name] $pair[1]
+      $row[$preset] = if ($ac -eq $dc) { $ac } else { "$ac / $dc" }
+    }
+    [pscustomobject]$row
+  }
+
+  $modeRow = [ordered]@{ Setting = 'Power mode (overlay)' }
+  foreach ($preset in $presets.Keys) { $modeRow[$preset] = $presets[$preset].PowerMode }
+
+  @($rows) + [pscustomobject]$modeRow | Format-Table -AutoSize
 }
 
 # All under SUB_PROCESSOR. EPP: higher = favor efficiency (0-100). Latency hint: the clock
@@ -56,19 +81,30 @@ function PCCpu-Settings() {
 # Each entry is @(AC, DC), except PowerMode which is a key of PCCpu-PowerModes.
 function PCCpu-Presets() {
   return [ordered]@{
+    'freezing' = [ordered]@{
+      BoostMode     = @(0, 0)
+      Epp           = @(70, 80)
+      EppPCore      = @(70, 80)
+      MaxState      = @(40, 40)
+      MaxStatePCore = @(40, 40)
+      SchedPolicy   = @(4, 4)
+      CoolingPolicy = @(0, 0)
+      LatencyHint   = @(50, 50)
+      PowerMode     = 'best-efficiency'
+    }
     'cool'     = [ordered]@{
       BoostMode     = @(0, 0)
       Epp           = @(60, 70)
       EppPCore      = @(60, 70)
-      MaxState      = @(95, 95)
-      MaxStatePCore = @(95, 95)
+      MaxState      = @(70, 70)
+      MaxStatePCore = @(70, 70)
       SchedPolicy   = @(4, 4)
       CoolingPolicy = @(0, 0)
       LatencyHint   = @(50, 50)
-      PowerMode     = 'balanced'
+      PowerMode     = 'best-efficiency'
     }
     'balanced' = [ordered]@{
-      BoostMode     = @(3, 3)
+      BoostMode     = @(0, 0)
       Epp           = @(50, 60)
       EppPCore      = @(50, 60)
       MaxState      = @(95, 95)
@@ -78,22 +114,33 @@ function PCCpu-Presets() {
       LatencyHint   = @(99, 99)
       PowerMode     = 'balanced'
     }
+    'default'  = [ordered]@{
+      BoostMode     = @(3, 3)
+      Epp           = @(45, 50)
+      EppPCore      = @(45, 50)
+      MaxState      = @(95, 95)
+      MaxStatePCore = @(95, 95)
+      SchedPolicy   = @(5, 5)
+      CoolingPolicy = @(1, 0)
+      LatencyHint   = @(99, 99)
+      PowerMode     = 'balanced'
+    }
     'perf'     = [ordered]@{
-      BoostMode     = @(2, 2)
-      Epp           = @(20, 40)
-      EppPCore      = @(20, 40)
-      MaxState      = @(100, 95)
-      MaxStatePCore = @(100, 100)
+      BoostMode     = @(3, 3)
+      Epp           = @(35, 45)
+      EppPCore      = @(35, 45)
+      MaxState      = @(95, 95)
+      MaxStatePCore = @(95, 95)
       SchedPolicy   = @(5, 5)
       CoolingPolicy = @(1, 0)
       LatencyHint   = @(99, 99)
       PowerMode     = 'best-performance'
     }
-    'default'  = [ordered]@{
-      BoostMode     = @(0, 0)
-      Epp           = @(45, 50)
-      EppPCore      = @(45, 50)
-      MaxState      = @(95, 95)
+    'hell'     = [ordered]@{
+      BoostMode     = @(2, 2)
+      Epp           = @(20, 40)
+      EppPCore      = @(20, 40)
+      MaxState      = @(100, 95)
       MaxStatePCore = @(100, 100)
       SchedPolicy   = @(5, 5)
       CoolingPolicy = @(1, 0)
