@@ -1,6 +1,6 @@
 ---
 name: b-pc-cpu-profile
-description: Use this skill when the user wants to view, apply, or edit the CPU power presets managed by the `B-PC-Set-CpuProfile` alias. Triggers include "/b-pc-cpu-profile", "cpu profile status", "set cpu to cool", "apply the hell profile", "my laptop is hot, switch to cool", "go back to the default cpu profile", "change the EPP in the cool preset", "add a cpu preset", or any phrasing pairing CPU turbo / energy preference / max processor state / thread scheduling / Windows power mode with a preset. Takes an optional argument — `status` (default), `freezing`, `cool`, `balanced`, `default`, `perf`, `hell` — and runs the alias; requests to change what a preset contains are handled by editing the preset tables in the dotfiles repo.
+description: Use this skill when the user wants to view, apply, or edit the CPU power presets managed by the `B-PC-Set-CpuProfile` alias. Triggers include "/b-pc-cpu-profile", "cpu profile status", "set cpu to cool", "apply the hell profile", "my laptop is hot, switch to cool", "go back to the default cpu profile", "change the EPP in the cool preset", "add a cpu preset", or any phrasing pairing CPU turbo / energy preference / max processor state / thread scheduling / Windows power mode with a preset. Takes an optional argument — `status` (default), `freezing`, `cool`, `balanced`, `default`, `perf`, `hell`, `windows-balanced` — and runs the alias; requests to change what a preset contains are handled by editing the preset tables in the dotfiles repo.
 version: 1.0.0
 ---
 
@@ -18,8 +18,9 @@ The CPU runs in HWP autonomous mode, so these are the knobs that actually matter
 | `cool` | Disabled | 60% | 70 / 70 | Prefer E-cores | Best efficiency | Video, browsing, hot room |
 | `balanced` | Disabled | 50% | 95 / 95 | Automatic | Balanced | Daily driver, capped at 95% with turbo off |
 | `default` | Efficient Enabled | 45% | 95 / 95 | Automatic | Balanced | Machine baseline captured 2026-09-03 |
-| `perf` | Efficient Enabled | 35% | 95 / 95 | Automatic | Best performance | Default with the performance slider and a lower EPP |
-| `hell` | Aggressive | 20% | 100 / 100 | Automatic | Best performance | Games, builds |
+| `perf` | Efficient Enabled | 25% | 95 / 95 | Automatic | Best performance | Default with the performance slider and a lower EPP |
+| `hell` | Aggressive | 10% | 100 / 100 | Automatic | Best performance | Games, builds |
+| `windows-balanced` | Aggressive | 33% | 100 / 100 | Automatic | Balanced | Microsoft stock Balanced scheme; MSI provisioning uses EPP 45 on AC |
 
 Higher EPP favors efficiency. `freezing` and `cool` also set the cooling policy to passive and halve the latency hint so keyboard/mouse input doesn't spike the clock.
 

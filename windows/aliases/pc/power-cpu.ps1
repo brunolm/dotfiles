@@ -12,11 +12,13 @@
 # the 95% cap on both core classes with turbo off, "cool" trades peak speed for
 # temperature, "freezing" is cool with the clocks capped at 40%, "perf" is default on the
 # Best performance power mode with a lower energy preference, "hell" is everything on.
+# "windows-balanced" is Microsoft's shipped Balanced scheme, read from the registry's
+# DefaultPowerSchemeValues; MSI's provisioning raises the AC energy preference to 45.
 function B-PC-Set-CpuProfile {
   [CmdletBinding()]
   param(
     [Parameter(Position = 0)]
-    [ValidateSet('freezing', 'cool', 'balanced', 'default', 'perf', 'hell', 'status')]
+    [ValidateSet('freezing', 'cool', 'balanced', 'default', 'perf', 'hell', 'windows-balanced', 'status')]
     [string]$Preset = 'status',
     [switch]$AllSchemes
   )
@@ -127,25 +129,36 @@ function PCCpu-Presets() {
     }
     'perf'     = [ordered]@{
       BoostMode     = @(3, 3)
-      Epp           = @(35, 45)
-      EppPCore      = @(35, 45)
+      Epp           = @(25, 25)
+      EppPCore      = @(25, 25)
       MaxState      = @(95, 95)
       MaxStatePCore = @(95, 95)
       SchedPolicy   = @(5, 5)
-      CoolingPolicy = @(1, 0)
+      CoolingPolicy = @(1, 1)
       LatencyHint   = @(99, 99)
       PowerMode     = 'best-performance'
     }
     'hell'     = [ordered]@{
       BoostMode     = @(2, 2)
-      Epp           = @(20, 40)
-      EppPCore      = @(20, 40)
+      Epp           = @(10, 10)
+      EppPCore      = @(10, 10)
       MaxState      = @(100, 95)
+      MaxStatePCore = @(100, 100)
+      SchedPolicy   = @(5, 5)
+      CoolingPolicy = @(1, 1)
+      LatencyHint   = @(99, 99)
+      PowerMode     = 'best-performance'
+    }
+    'windows-balanced' = [ordered]@{
+      BoostMode     = @(2, 2)
+      Epp           = @(33, 50)
+      EppPCore      = @(33, 50)
+      MaxState      = @(100, 100)
       MaxStatePCore = @(100, 100)
       SchedPolicy   = @(5, 5)
       CoolingPolicy = @(1, 0)
       LatencyHint   = @(99, 99)
-      PowerMode     = 'best-performance'
+      PowerMode     = 'balanced'
     }
   }
 }
