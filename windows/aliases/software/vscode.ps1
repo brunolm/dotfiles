@@ -1,8 +1,8 @@
-function B-Software-Update-VSCode() {
+function B-Software-Update-VSCode([double]$MinAgeHours = 6) {
   $url = "https://code.visualstudio.com/sha/download?build=insider&os=win32-x64"
   $file = Join-Path $env:TEMP "VSCodeInsiders-latest-win-x64.exe"
 
-  if (-not (Confirm-BuildAge -BuiltAt (Get-UrlLastModified $url) -Label 'VS Code Insiders')) { return }
+  if (-not (Confirm-BuildAge -BuiltAt (Get-UrlLastModified $url) -MinAgeHours $MinAgeHours -Label 'VS Code Insiders')) { return }
 
   Write-Host "Downloading VS Code Insiders..." -ForegroundColor Cyan
   Invoke-WebRequest $url -OutFile $file

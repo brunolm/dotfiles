@@ -4,7 +4,7 @@ function B-Backup-All {
   param(
     [string[]]$ProjectsPath = @('C:\BrunoLM\Projects'),
     [string]$Destination,
-    [ValidateSet('ProjectsLocal', 'DevSettings', 'AiTools', 'BrowserExtensions', 'Razer', 'Terminal', 'CopyQ', 'ShareX', 'OBS', 'Wifi')]
+    [ValidateSet('ProjectsLocal', 'DevSettings', 'AiTools', 'BrowserExtensions', 'Razer', 'Terminal', 'CopyQ', 'ShareX', 'OBS', 'PowerToys', 'Wifi')]
     [string[]]$Skip = @(),
     [switch]$SkipGpg,
     [switch]$Force,
@@ -60,5 +60,6 @@ function BBackupAll-Jobs($projectsPaths, $skipGpg, $force) {
   [pscustomobject]@{ Name = 'CopyQ'; Label = 'CopyQ'; Zip = 'copyq-backup.zip'; Run = { param($zip, $dryRun) B-Backup-CopyQ -Output $zip -DryRun:$dryRun } }
   [pscustomobject]@{ Name = 'ShareX'; Label = 'ShareX'; Zip = 'sharex-backup.zip'; Run = { param($zip, $dryRun) B-Backup-ShareX -Output $zip -DryRun:$dryRun } }
   [pscustomobject]@{ Name = 'OBS'; Label = 'OBS'; Zip = 'obs-backup.zip'; Run = { param($zip, $dryRun) B-Backup-OBS -Output $zip -DryRun:$dryRun } }
+  [pscustomobject]@{ Name = 'PowerToys'; Label = 'PowerToys'; Zip = 'powertoys-backup.zip'; Run = { param($zip, $dryRun) B-Backup-PowerToys -Output $zip -DryRun:$dryRun } }
   [pscustomobject]@{ Name = 'Wifi'; Label = 'Wifi'; Zip = 'wifi-backup.zip'; Run = { param($zip, $dryRun) B-Backup-Wifi -Output $zip -DryRun:$dryRun } }
 }

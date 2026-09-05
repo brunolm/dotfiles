@@ -29,7 +29,6 @@ install_software() {
   # sudo apt install -y docker.io   # equivalent to docker-desktop on Linux
 
   # sudo npm install -g vercel
-  # sudo apt install -y vim
 
   # Windows-only on the original list, no Linux port:
   #   powertoys, autohotkey, sharex
