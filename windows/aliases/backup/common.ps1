@@ -12,11 +12,13 @@ function BBackup-ItemsBackup($items, $output, $dryRun) {
 }
 
 # Lists the files to zip, adds restore.ps1 and any extra text files (name -> content) at the
-# zip root, and writes the zip unless dry run.
+# zip root, and writes the zip unless dry run. A 'restore.ps1' entry in textFiles replaces the
+# default home/root restore script.
 function BBackup-HomeBackup($files, $output, $dryRun, $textFiles = @{}) {
   $staging = BBackup-NewStagingDir
   try {
-    $texts = @{ 'restore.ps1' = (BBackup-RestoreScript) } + $textFiles
+    $texts = @{} + $textFiles
+    if (!$texts.ContainsKey('restore.ps1')) { $texts['restore.ps1'] = BBackup-RestoreScript }
     $all = @($files)
     foreach ($name in ($texts.Keys | Sort-Object)) {
       $path = Join-Path $staging $name
