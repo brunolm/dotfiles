@@ -1,13 +1,18 @@
 # Shared by the B-Backup-* aliases. Backups that mirror the home folder store files under
 # home/<relative path> next to a restore.ps1, so one unzip + one script puts everything back.
 
-# Lists the files to zip, adds restore.ps1, and writes the zip unless dry run.
-function BBackup-HomeBackup($files, $output, $dryRun) {
+# Lists the files to zip, adds restore.ps1 and any extra text files (name -> content) at the
+# zip root, and writes the zip unless dry run.
+function BBackup-HomeBackup($files, $output, $dryRun, $textFiles = @{}) {
   $staging = BBackup-NewStagingDir
   try {
-    $restore = Join-Path $staging 'restore.ps1'
-    Set-Content -LiteralPath $restore -Value (BBackup-RestoreScript) -Encoding utf8BOM
-    $all = @($files) + [pscustomobject]@{ Path = $restore; Entry = 'restore.ps1' }
+    $texts = @{ 'restore.ps1' = (BBackup-RestoreScript) } + $textFiles
+    $all = @($files)
+    foreach ($name in ($texts.Keys | Sort-Object)) {
+      $path = Join-Path $staging $name
+      Set-Content -LiteralPath $path -Value $texts[$name] -Encoding utf8BOM
+      $all += [pscustomobject]@{ Path = $path; Entry = $name }
+    }
 
     foreach ($file in ($all | Sort-Object Entry)) { Write-Host "  $($file.Entry)" }
     Write-Host ""
@@ -97,11 +102,28 @@ function BBackup-RestoreScript() {
 .SYNOPSIS
   Restores the files in this backup into the home folder and imports the GPG keys if present.
   Existing files are renamed to *.bak-<timestamp>; destinations that are links are left alone.
+  Folders listed in replace-dirs.txt are swapped whole instead of merged file by file.
+  Close the apps that own the files first (browsers, Codex, Claude Code).
 #>
 param([switch]$DryRun)
 
 $ErrorActionPreference = 'Stop'
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+
+$replaceList = Join-Path $PSScriptRoot 'replace-dirs.txt'
+if (Test-Path -LiteralPath $replaceList) {
+  foreach ($relative in (Get-Content -LiteralPath $replaceList | Where-Object { $_ })) {
+    $target = Join-Path $HOME $relative
+    $existing = Get-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue
+    if (!$existing -or $existing.LinkType) { continue }
+    if ($DryRun) {
+      Write-Host "replace  $relative (whole folder)"
+      continue
+    }
+    Rename-Item -LiteralPath $target -NewName "$($existing.Name).bak-$stamp"
+    Write-Host "moved    $relative -> $($existing.Name).bak-$stamp (whole folder)" -ForegroundColor Yellow
+  }
+}
 
 $homeDir = Join-Path $PSScriptRoot 'home'
 if (Test-Path -LiteralPath $homeDir) {

@@ -115,6 +115,6 @@ function BHelp-IsPublic($name) {
 function BHelp-PrintEntry($entry, $width) {
   $color = if ($entry.Kind -eq 'alias') { 'DarkGray' } else { 'Green' }
   Write-Host ("  {0,-$width}" -f $entry.Name) -ForegroundColor $color -NoNewline
-  Write-Host ("{0,-22}" -f $entry.File) -ForegroundColor DarkGray -NoNewline
+  Write-Host ("{0,-24}" -f $entry.File) -ForegroundColor DarkGray -NoNewline
   Write-Host $entry.Description
 }
