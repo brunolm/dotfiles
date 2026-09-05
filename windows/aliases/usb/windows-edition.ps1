@@ -5,8 +5,8 @@ $script:WindowsEditions = @{
   Education = @{ Id = 'Education';    Key = 'YNMGQ-8RYV3-4PGQ3-C8XTP-7CFBY' }
 }
 
-## B-PC-Add-WindowsEditionPicker: writes sources\ei.cfg on a Windows install USB so setup asks which edition to install instead of silently picking the firmware OEM key's edition; -Edition Home|Pro|Education skips the picker and forces that edition (also works with the 24H2+ setup, which ignores the picker file)
-function B-PC-Add-WindowsEditionPicker {
+## B-USB-Add-WindowsEditionPicker: writes sources\ei.cfg on a Windows install USB so setup asks which edition to install instead of silently picking the firmware OEM key's edition; -Edition Home|Pro|Education skips the picker and forces that edition (also works with the 24H2+ setup, which ignores the picker file)
+function B-USB-Add-WindowsEditionPicker {
   [CmdletBinding()]
   param(
     [Parameter(Mandatory, Position = 0)]
