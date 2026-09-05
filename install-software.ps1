@@ -8,6 +8,12 @@ $steps = @(
   { B-Software-Update-FFmpeg }
   { B-Software-Update-ImageMagick }
 
+  # Codex needs npm, which comes from node installed by mise; both may need a new shell first.
+  { B-Software-Update-Mise }
+  { B-Software-Update-Claude }
+  { B-Software-Update-Grok }
+  { B-Software-Update-Codex }
+
   { B-Software-Update-Brave }
   { B-Software-Update-Firefox }
   { B-Software-Update-Chrome }
