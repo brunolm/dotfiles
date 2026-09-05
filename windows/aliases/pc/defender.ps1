@@ -1,7 +1,3 @@
-function B-PC-Disable-RealtimeProtection() {
-  Set-MpPreference -DisableRealtimeMonitoring $true
-}
-
 ## B-PC-Add-DefenderExclusions: excludes the C: and P: drives, the rust/bun/node/python/dotnet/go/C++ toolchains and the VS Code Insiders, Claude, Grok and Codex processes from Defender scanning (needs an elevated shell)
 function B-PC-Add-DefenderExclusions([switch]$DryRun) {
   if (!$DryRun -and !(B-PC-IsElevated)) {
