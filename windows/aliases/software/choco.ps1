@@ -8,6 +8,7 @@ function B-Software-Update-ShareX() { Software-ChocoUpgrade 'sharex' }
 function B-Software-Update-OBS() { Software-ChocoUpgrade 'obs-studio' }
 function B-Software-Update-WhatsApp() { Software-ChocoUpgrade 'whatsapp' }
 function B-Software-Update-Discord() { Software-ChocoUpgrade 'discord' }
+function B-Software-Update-Rufus() { Software-ChocoUpgrade 'rufus' }
 
 # choco upgrade installs the package when it is missing and updates it otherwise, so one
 # verb covers both a fresh machine and routine maintenance.
