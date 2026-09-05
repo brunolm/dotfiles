@@ -115,26 +115,6 @@ function BBackup-TrackedFiles($repo) {
   return $tracked
 }
 
-function BBackup-WriteZip($files, $output) {
-  $zipPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($output)
-  if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath }
-
-  $archive = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Create)
-  try {
-    foreach ($file in $files) {
-      [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $file.Path, $file.Entry, [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
-    }
-  }
-  finally {
-    $archive.Dispose()
-  }
-  return $zipPath
-}
-
-function BBackup-RelativePath($base, $path) {
-  return $path.Substring($base.Length).TrimStart([char]92).Replace([char]92, [char]47)
-}
-
 # .env, .env.<anything>, and <name>.local.<ext> (settings.local.json, CLAUDE.local.md).
 # The .local. part is case-sensitive so .NET assemblies like System.Transactions.Local.dll stay out.
 function BBackup-LocalFilePattern() {
