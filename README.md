@@ -1,10 +1,29 @@
 # dotfiles
 
-Install on Windows
+## Install on Windows
 
-```
+From an elevated PowerShell on a fresh machine. winget ships with Windows 11, so git needs no
+manual download. Clone over HTTPS: the SSH keys come back later from the dev settings backup,
+and commits need the GPG key from the same backup before signing works.
+
+```powershell
+winget install --id Git.Git -e
+irm https://claude.ai/install.ps1 | iex
+git clone https://github.com/brunolm/dotfiles C:\BrunoLM\Projects\dotfiles
+cd C:\BrunoLM\Projects\dotfiles
 Set-ExecutionPolicy RemoteSigned
 .\install.ps1
+```
+
+Claude Code is installed second on purpose: git gives it Git Bash for its Bash tool, and from
+then on `claude` can drive the rest of the setup. Run `claude` once to log in, then point it at
+`ai-instructions/` and the backup zips.
+
+`install.ps1` creates symlinks, so it needs the elevated shell (or Developer Mode). Once the
+backups are restored, switch the remote back to SSH:
+
+```powershell
+git remote set-url origin git@github.com:brunolm/dotfiles.git
 ```
 
 ## MCP servers
