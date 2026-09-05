@@ -49,7 +49,7 @@ pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' clear [-Date 
 
 After any change that adds finished time — a `log` call or a `stop` — mirror the new entries to Toggl and Harvest via their MCP tools. The sync is part of this skill's contract, so do it even though the user didn't name those services, but keep the global rule: show a summary and ask permission before writing (one confirmation covering both services). Skip the sync entirely for `start`, `status`, `report`, and `clear` (deletions/fixes are not auto-synced — just tell the user the services may now disagree).
 
-1. Read **`C:\BrunoLM\Projects\dotfiles\local\b-time-info.md`** (gitignored — it holds the workspace/project/task ids; never hardcode them here). Expected content:
+1. Read **`C:\BrunoLM\Projects\dotfiles\docs\local\b-time-info.md`** (gitignored — it holds the workspace/project/task ids; never hardcode them here). Expected content:
 
    ```markdown
    # b-time sync info

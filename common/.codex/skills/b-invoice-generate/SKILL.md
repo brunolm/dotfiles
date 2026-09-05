@@ -1,6 +1,6 @@
 ---
 name: b-invoice-generate
-description: Use this skill when the user wants to generate an invoice for a month. Triggers include "/b-invoice-generate", "generate an invoice", "create my invoice for June", "make the invoice for last month", or any phrasing pairing an invoice with a billing period. Takes an optional month argument like "june", "2026-06", or "last month" (default is the current month) and covers that whole month. Reads private billing details (name, line items, payment info) from `local/invoice-details.md`; if that file doesn't exist it asks the user for the details instead, so no personal information ever lives in the skill itself. Renders the invoice into `local/invoices/` as HTML plus a PDF (via headless Edge) and opens the PDF.
+description: Use this skill when the user wants to generate an invoice for a month. Triggers include "/b-invoice-generate", "generate an invoice", "create my invoice for June", "make the invoice for last month", or any phrasing pairing an invoice with a billing period. Takes an optional month argument like "june", "2026-06", or "last month" (default is the current month) and covers that whole month. Reads private billing details (name, line items, payment info) from `docs/local/invoice-details.md`; if that file doesn't exist it asks the user for the details instead, so no personal information ever lives in the skill itself. Renders the invoice into `docs/local/invoices/` as HTML plus a PDF (via headless Edge) and opens the PDF.
 version: 1.0.0
 allowed-tools:
   - Read
@@ -17,7 +17,7 @@ allowed-tools:
 
 # Generate invoice
 
-Generate a monthly invoice as a self-contained HTML file. The skill is generic - every piece of personal or business information comes from `local/invoice-details.md` (gitignored) or from asking the user; never hardcode names, prices, or payment details here.
+Generate a monthly invoice as a self-contained HTML file. The skill is generic - every piece of personal or business information comes from `docs/local/invoice-details.md` (gitignored) or from asking the user; never hardcode names, prices, or payment details here.
 
 ## 1. Resolve the billing month (argument)
 
@@ -52,7 +52,7 @@ If the argument is unparseable, fall back to the current month and note in one l
 
 ## 2. Load the private details
 
-Read **`local/invoice-details.md`** (relative to the repository root). This file is gitignored, so it can safely hold personal information. Expected content:
+Read **`docs/local/invoice-details.md`** (relative to the repository root). This file is gitignored, so it can safely hold personal information. Expected content:
 
 ```markdown
 # Invoice details
@@ -85,7 +85,7 @@ IBAN: XX00 0000 0000 0000
 - **Items** - the line items. A description may reference the billing period (e.g. contain `<period>`); replace such placeholders with the resolved dates.
 - **Pay to** - free-form; rendered on the invoice **exactly as written**, preserving line breaks.
 
-**If the file doesn't exist**, ask the user for each piece (full name, currency, line items with item type / description / quantity / unit price, and the pay-to block). After collecting the answers, offer to save them to `local/invoice-details.md` in the format above so future runs don't need to ask - but only write it if the user agrees.
+**If the file doesn't exist**, ask the user for each piece (full name, currency, line items with item type / description / quantity / unit price, and the pay-to block). After collecting the answers, offer to save them to `docs/local/invoice-details.md` in the format above so future runs don't need to ask - but only write it if the user agrees.
 
 If the file exists but is missing a section, ask only for the missing pieces.
 
@@ -108,7 +108,7 @@ For each item: `Amount = Quantity x Unit Price`. The **amount due** is the sum o
 
 ## 5. Render the invoice
 
-Write a single self-contained HTML file (inline CSS, no external assets) to **`local/invoices/invoice-YYYY-MM.html`** (billing year-month). Create the folder if needed. Layout, top to bottom:
+Write a single self-contained HTML file (inline CSS, no external assets) to **`docs/local/invoices/invoice-YYYY-MM.html`** (billing year-month). Create the folder if needed. Layout, top to bottom:
 
 1. Top row (flex, space-between): **`INVOICE`** - large title (~34px, letter-spaced) top left; **Issue date** and **Due date** (issue + 5 days) stacked top right, `MM/DD/YYYY`.
 2. Parties row (flex, space-between): on the left, **From** - the full name, slightly larger and semibold (~18px) - with **Subject** - `Invoice for <period start> ~ <period end>` (both `MM/DD/YYYY`) - under it; on the right, **Invoice for** - the bill-to block line by line, first line larger and semibold like the From name.
@@ -122,12 +122,12 @@ Styling rules that make it read well:
 - **Font-size hierarchy** - total > title > From name > values > table body > labels.
 - Clean and printable: white page, standard fonts, sensible margins, and a `@media print` block that drops any page background/shadow so printing to PDF looks right.
 
-Then convert it to **`local/invoices/invoice-YYYY-MM.pdf`** with headless Edge (ships with Windows - no extra dependencies) and open the PDF:
+Then convert it to **`docs/local/invoices/invoice-YYYY-MM.pdf`** with headless Edge (ships with Windows - no extra dependencies) and open the PDF:
 
 ```powershell
 $edge = (Get-Command msedge -ErrorAction SilentlyContinue).Source
 if (-not $edge) { $edge = @("$env:ProgramFiles (x86)\Microsoft\Edge\Application\msedge.exe", "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1 }
-$html = (Resolve-Path 'local/invoices/invoice-YYYY-MM.html').Path
+$html = (Resolve-Path 'docs/local/invoices/invoice-YYYY-MM.html').Path
 $pdf = [IO.Path]::ChangeExtension($html, 'pdf')
 & $edge --headless --disable-gpu --no-pdf-header-footer --print-to-pdf="$pdf" "file:///$($html -replace '\\','/')" 2>$null | Out-Null
 Start-Sleep -Seconds 2
