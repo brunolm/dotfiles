@@ -202,6 +202,11 @@
   "enableArtifact": false,
   "workflowKeywordTriggerEnabled": false,
   "effortLevel": "high",
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "high"
+    }
+  },
   "autoUpdatesChannel": "latest",
   "tui": "fullscreen",
   "voice": {
