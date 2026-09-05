@@ -6,7 +6,7 @@ function B-Backup-AiTools {
     [switch]$DryRun
   )
 
-  $files = @(BBackup-HomeFiles (BBackupAi-HomeItems))
+  $files = @(BBackup-CollectFiles (BBackupAi-HomeItems))
   BBackup-HomeBackup $files $Output $DryRun
 }
 

@@ -30,12 +30,13 @@ function BBackup-HomeBackup($files, $output, $dryRun, $textFiles = @{}) {
   }
 }
 
-# Items are paths relative to the home folder and may contain wildcards; folders are
-# taken recursively, missing items are skipped, and links are left out because the
+# Items are paths relative to the home folder or absolute, and may contain wildcards; folders
+# are taken recursively, missing items are skipped, and links are left out because the
 # dotfiles install recreates them.
-function BBackup-HomeFiles($items) {
+function BBackup-CollectFiles($items) {
   foreach ($item in $items) {
-    $found = Get-Item -Path (Join-Path $HOME $item) -Force -ErrorAction SilentlyContinue
+    $pattern = if ([System.IO.Path]::IsPathRooted($item)) { $item } else { Join-Path $HOME $item }
+    $found = Get-Item -Path $pattern -Force -ErrorAction SilentlyContinue
     foreach ($match in $found) {
       if ($match.LinkType) { continue }
       $entries = $match
@@ -43,10 +44,18 @@ function BBackup-HomeFiles($items) {
         $entries = Get-ChildItem -LiteralPath $match.FullName -Recurse -File -Force | Where-Object { !$_.LinkType }
       }
       foreach ($entry in $entries) {
-        [pscustomobject]@{ Path = $entry.FullName; Entry = "home/$(BBackup-RelativePath $HOME $entry.FullName)" }
+        [pscustomobject]@{ Path = $entry.FullName; Entry = (BBackup-EntryName $entry.FullName) }
       }
     }
   }
+}
+
+# Files under the home folder go to home/<relative>, anything else to root/<drive>/<path>.
+function BBackup-EntryName($path) {
+  if ($path.StartsWith($HOME, [System.StringComparison]::OrdinalIgnoreCase)) {
+    return "home/$(BBackup-RelativePath $HOME $path)"
+  }
+  return "root/$($path.Substring(0, 1).ToUpper())/$($path.Substring(3).Replace([char]92, [char]47))"
 }
 
 function BBackup-NewStagingDir() {
@@ -100,54 +109,70 @@ function BBackup-RestoreScript() {
   return @'
 <#
 .SYNOPSIS
-  Restores the files in this backup into the home folder and imports the GPG keys if present.
+  Restores the files in this backup and imports the GPG keys if present. home/<path> goes to
+  the home folder, root/<drive>/<path> to that drive (may need an elevated shell).
   Existing files are renamed to *.bak-<timestamp>; destinations that are links are left alone.
   Folders listed in replace-dirs.txt are swapped whole instead of merged file by file.
-  Close the apps that own the files first (browsers, Codex, Claude Code).
+  Close the apps that own the files first (browsers, Synapse, Codex, Claude Code).
 #>
 param([switch]$DryRun)
 
 $ErrorActionPreference = 'Stop'
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 
+function Resolve-Target($entry) {
+  if ($entry -like 'home/*') { return Join-Path $HOME $entry.Substring(5) }
+  if ($entry -match '^root/([A-Za-z])/(.*)$') { return "$($Matches[1]):\$($Matches[2])" }
+  return $null
+}
+
 $replaceList = Join-Path $PSScriptRoot 'replace-dirs.txt'
 if (Test-Path -LiteralPath $replaceList) {
-  foreach ($relative in (Get-Content -LiteralPath $replaceList | Where-Object { $_ })) {
-    $target = Join-Path $HOME $relative
+  foreach ($entry in (Get-Content -LiteralPath $replaceList | Where-Object { $_ })) {
+    $target = Resolve-Target $entry
     $existing = Get-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue
     if (!$existing -or $existing.LinkType) { continue }
     if ($DryRun) {
-      Write-Host "replace  $relative (whole folder)"
+      Write-Host "replace  $entry (whole folder)"
       continue
     }
     Rename-Item -LiteralPath $target -NewName "$($existing.Name).bak-$stamp"
-    Write-Host "moved    $relative -> $($existing.Name).bak-$stamp (whole folder)" -ForegroundColor Yellow
+    Write-Host "moved    $entry -> $($existing.Name).bak-$stamp (whole folder)" -ForegroundColor Yellow
   }
 }
 
 $homeDir = Join-Path $PSScriptRoot 'home'
-if (Test-Path -LiteralPath $homeDir) {
-  foreach ($file in Get-ChildItem -LiteralPath $homeDir -Recurse -File -Force) {
-    $relative = $file.FullName.Substring($homeDir.Length + 1)
-    $target = Join-Path $HOME $relative
+foreach ($tree in 'home', 'root') {
+  $treeDir = Join-Path $PSScriptRoot $tree
+  if (!(Test-Path -LiteralPath $treeDir)) { continue }
+  foreach ($file in Get-ChildItem -LiteralPath $treeDir -Recurse -File -Force) {
+    $entry = "$tree/" + $file.FullName.Substring($treeDir.Length + 1).Replace('\', '/')
+    $target = Resolve-Target $entry
     $existing = Get-Item -LiteralPath $target -Force -ErrorAction SilentlyContinue
     if ($existing -and $existing.LinkType) {
-      Write-Host "skip     $relative (destination is a link)" -ForegroundColor DarkGray
+      Write-Host "skip     $entry (destination is a link)" -ForegroundColor DarkGray
       continue
     }
     if ($DryRun) {
-      Write-Host "restore  $relative"
+      Write-Host "restore  $entry"
       continue
     }
-    if ($existing) {
-      Rename-Item -LiteralPath $target -NewName "$($existing.Name).bak-$stamp"
-      Write-Host "moved    $relative -> $($existing.Name).bak-$stamp" -ForegroundColor Yellow
+    try {
+      if ($existing) {
+        Rename-Item -LiteralPath $target -NewName "$($existing.Name).bak-$stamp"
+        Write-Host "moved    $entry -> $($existing.Name).bak-$stamp" -ForegroundColor Yellow
+      }
+      New-Item -ItemType Directory -Force -Path (Split-Path $target) | Out-Null
+      Copy-Item -LiteralPath $file.FullName -Destination $target
+      Write-Host "restored $entry" -ForegroundColor Green
     }
-    New-Item -ItemType Directory -Force -Path (Split-Path $target) | Out-Null
-    Copy-Item -LiteralPath $file.FullName -Destination $target
-    Write-Host "restored $relative" -ForegroundColor Green
+    catch {
+      Write-Warning "failed   $entry ($($_.Exception.Message)); retry from an elevated shell if this is a system folder"
+    }
   }
+}
 
+if (Test-Path -LiteralPath $homeDir) {
   if (!$DryRun -and (Test-Path -LiteralPath (Join-Path $homeDir '.ssh'))) {
     $ssh = Join-Path $HOME '.ssh'
     icacls $ssh /inheritance:r /grant:r "${env:USERNAME}:(OI)(CI)F" | Out-Null

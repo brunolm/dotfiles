@@ -9,7 +9,7 @@ function B-Backup-DevSettings {
 
   $staging = BBackup-NewStagingDir
   try {
-    $files = @(BBackup-HomeFiles (BBackupSettings-HomeItems))
+    $files = @(BBackup-CollectFiles (BBackupSettings-HomeItems))
     if (!$SkipGpg) {
       $files += @(BBackupSettings-GpgFiles $staging $DryRun)
     }

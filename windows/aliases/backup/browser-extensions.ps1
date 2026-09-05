@@ -24,9 +24,9 @@ function B-Backup-BrowserExtensions {
         if ((BBackupExt-ExcludedIds) -contains $extension.Id) { continue }
         $inventory.Add("$($browser.Name)`t$($profile.Name)`t$($extension.Id)`t$($extension.Name)")
         foreach ($store in $extension.Stores) {
-          $replaceDirs.Add((BBackup-RelativePath $HOME $store))
+          $replaceDirs.Add((BBackup-EntryName $store))
           foreach ($file in (Get-ChildItem -LiteralPath $store -Recurse -File -Force | Where-Object { $_.Name -ne 'LOCK' })) {
-            $files.Add([pscustomobject]@{ Path = $file.FullName; Entry = "home/$(BBackup-RelativePath $HOME $file.FullName)" })
+            $files.Add([pscustomobject]@{ Path = $file.FullName; Entry = (BBackup-EntryName $file.FullName) })
           }
         }
       }
