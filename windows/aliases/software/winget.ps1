@@ -39,3 +39,9 @@ function B-Software-Update-Slack() {
   if (-not (Confirm-BuildAge -BuiltAt (Get-WingetManifestDate -PackageId $id) -Label "$id manifest")) { return }
   winget install $id
 }
+
+function B-Software-Update-ProtonVPN() {
+  $id = 'Proton.ProtonVPN'
+  if (-not (Confirm-BuildAge -BuiltAt (Get-WingetManifestDate -PackageId $id) -Label "$id manifest")) { return }
+  winget install $id
+}
