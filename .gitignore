@@ -19,7 +19,7 @@ keys/bin
 
 .playwright-mcp/
 
-backup/
+/backup/
 
 # GPG key backup files — never commit these, regardless of location
 public.asc
