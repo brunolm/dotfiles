@@ -1,7 +1,9 @@
+# $global:BSoftwareMinAgeHours overrides the default minimum age for every caller; the install
+# script sets it to 0 so a fresh machine takes whatever build is current without prompting.
 function Confirm-BuildAge {
   param(
     [Parameter(Mandatory)][DateTime]$BuiltAt,
-    [double]$MinAgeHours = 6,
+    [double]$MinAgeHours = $(if ($null -ne $global:BSoftwareMinAgeHours) { $global:BSoftwareMinAgeHours } else { 6 }),
     [string]$Label = 'Build'
   )
 
