@@ -14,7 +14,7 @@ max_thoughts_width = 120
 fork_secondary_model = "grok-4.5"
 yolo = false
 compact_mode = false
-permission_mode = "auto"
+permission_mode = "always-approve"
 
 # Privacy hardening: no telemetry, no session-trace uploads, no repository-state
 # (git bundle) uploads, no workspace teleport to cloud sessions, no feedback
@@ -33,3 +33,10 @@ mixpanel_enabled = false
 [harness]
 disable_codebase_upload = true
 disable_workspace_teleport = true
+
+[privacy]
+privacy_banner_acked = "2026-08-12T15:16:09Z"
+
+[models]
+default = "grok-4.6"
+default_reasoning_effort = "high"
