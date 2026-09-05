@@ -6,8 +6,7 @@ function B-Backup-AiTools {
     [switch]$DryRun
   )
 
-  $files = @(BBackup-CollectFiles (BBackupAi-HomeItems))
-  BBackup-HomeBackup $files $Output $DryRun
+  BBackup-ItemsBackup (BBackupAi-HomeItems) $Output $DryRun
 }
 
 # Paths relative to the home folder; linked items (CLAUDE.md, settings.json, skills, hooks,

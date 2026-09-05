@@ -1,6 +1,16 @@
 # Shared by the B-Backup-* aliases. Backups that mirror the home folder store files under
 # home/<relative path> next to a restore.ps1, so one unzip + one script puts everything back.
 
+# Collects the items (see BBackup-CollectFiles) and zips them with a restore.ps1.
+function BBackup-ItemsBackup($items, $output, $dryRun) {
+  $files = @(BBackup-CollectFiles $items)
+  if (!$files) {
+    Write-Host "Nothing found to back up." -ForegroundColor Yellow
+    return
+  }
+  BBackup-HomeBackup $files $output $dryRun
+}
+
 # Lists the files to zip, adds restore.ps1 and any extra text files (name -> content) at the
 # zip root, and writes the zip unless dry run.
 function BBackup-HomeBackup($files, $output, $dryRun, $textFiles = @{}) {
