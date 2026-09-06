@@ -20,11 +20,17 @@ function Install() {
       }
     }
     New-Item -Path $Path -ItemType SymbolicLink -Value $Target | Out-Null
+    Write-Host "  $Path -> $Target" -ForegroundColor DarkGray
+  }
+
+  function Step($message) {
+    Write-Host ""
+    Write-Host "== $message" -ForegroundColor Cyan
   }
 
   $home_ = "${env:HOMEDRIVE}${env:HOMEPATH}"
 
-  # PowerShell profiles
+  Step "Linking PowerShell profiles"
   $baseProfile = Join-Path $home_ "profile.ps1"
   New-Link $baseProfile (Join-Path $PSScriptRoot "windows\profile.ps1")
   New-Link (Join-Path $home_ "env.ps1") (Join-Path $PSScriptRoot "windows\env.ps1")
@@ -35,20 +41,21 @@ function Install() {
   New-Link $powershellProfile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShell_profile.ps1")
   New-Link $powershellISEProfile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShellISE_profile.ps1")
 
-  # Link .copilot instructions folder to ~/.copilot/instructions
+  Step "Linking Copilot instructions"
   New-Link (Join-Path $home_ ".copilot\instructions") (Join-Path $PSScriptRoot "common\.copilot\instructions")
 
-  # Link ~/.claude config files/folders to dotfiles versions
+  Step "Linking Claude config"
   $claudeDir = Join-Path $home_ ".claude"
   New-Link (Join-Path $claudeDir "CLAUDE.md") (Join-Path $PSScriptRoot "common\.claude\CLAUDE.md")
   New-Link (Join-Path $claudeDir "settings.json") (Join-Path $PSScriptRoot "common\.claude\settings.json")
   New-Link (Join-Path $claudeDir "skills") (Join-Path $PSScriptRoot "common\.claude\skills")
   New-Link (Join-Path $claudeDir "hooks") (Join-Path $PSScriptRoot "common\.claude\hooks")
 
-  # Seed local config.toml from the example, then link ~/.codex config to dotfiles versions
+  Step "Linking Codex config"
   $codexConfig = Join-Path $PSScriptRoot "common\.codex\config.toml"
   $codexConfigExample = Join-Path $PSScriptRoot "common\.codex\config.example.toml"
   if (!(Test-Path $codexConfig)) {
+    Write-Host "  seeding config.toml from config.example.toml" -ForegroundColor DarkGray
     Copy-Item -Path $codexConfigExample -Destination $codexConfig
   }
 
@@ -57,42 +64,45 @@ function Install() {
   New-Link (Join-Path $codexDir "config.toml") (Join-Path $PSScriptRoot "common\.codex\config.toml")
   New-Link (Join-Path $codexDir "skills") (Join-Path $PSScriptRoot "common\.codex\skills")
 
-  # Link ~/.grok config to dotfiles version
+  Step "Linking Grok config"
   New-Link (Join-Path $home_ ".grok\config.toml") (Join-Path $PSScriptRoot "common\.grok\config.toml")
 
-  # Link ~/.config/mise/config.toml to dotfiles version
+  Step "Linking mise config"
   New-Link (Join-Path $home_ ".config\mise\config.toml") (Join-Path $PSScriptRoot "common\.config\mise\config.toml")
 
-  # Aliases and gitconfig
+  Step "Linking aliases and gitconfig"
   New-Link (Join-Path $home_ "aliases\dotfiles") (Join-Path $PSScriptRoot "windows\aliases")
   New-Link (Join-Path $home_ ".gitconfig") (Join-Path $PSScriptRoot "common\.gitconfig")
 
-  # Need to create a task to run startup.cmd in TaskScheduler as admin
+  Step "Linking startup scripts"
   New-Link "${env:HOMEDRIVE}\System\startup.cmd" (Join-Path $PSScriptRoot "windows\startup\startup.cmd")
   New-Link "${env:HOMEDRIVE}\System\startup.ps1" (Join-Path $PSScriptRoot "windows\startup\startup.ps1")
   New-Link "C:\System\Startup" (Join-Path $PSScriptRoot "windows\startup-files")
 
-  # Install and apply the custom cursor scheme
+  Step "Installing cursor scheme"
   & (Join-Path $PSScriptRoot "windows\cursors\install-cursors.ps1")
 
-  # Install or upgrade Oh My Posh to the latest version via winget
+  Step "Disabling Alt+Shift layout switch, Win+V clipboard history and Sticky Keys hotkeys"
+  . (Join-Path $PSScriptRoot "windows\aliases\reg\hotkeys.ps1")
+  B-Reg-Disable-AltShift
+  Write-Host "  Alt+Shift unassigned (takes effect after sign-out)" -ForegroundColor DarkGray
+  B-Reg-Disable-WinV
+  Write-Host "  Win+V disabled (takes effect after Explorer restart)" -ForegroundColor DarkGray
+  B-Reg-Disable-StickyKeys
+  Write-Host "  Sticky Keys off and Shift x5 hotkey removed" -ForegroundColor DarkGray
+
+  Step "Installing Oh My Posh"
   $ompPkg = "JanDeDobbeleer.OhMyPosh"
   $ompListed = winget list --id $ompPkg --exact --accept-source-agreements 2>$null | Select-String $ompPkg
   if ($ompListed) {
-    Write-Host "Upgrading $ompPkg (if newer is available)..."
+    Write-Host "  upgrading $ompPkg (if newer is available)" -ForegroundColor DarkGray
     winget upgrade --id $ompPkg --exact --silent --accept-source-agreements --accept-package-agreements
   } else {
-    Write-Host "Installing $ompPkg..."
+    Write-Host "  installing $ompPkg" -ForegroundColor DarkGray
     winget install --id $ompPkg --exact --silent --accept-source-agreements --accept-package-agreements
   }
 
   Write-Host ""
-  Write-Host "Base profile linked to $baseProfile"
-  Write-Host "Powershell profile linked to $powershellProfile"
-  Write-Host "Powershell ISE profile linked to $powershellISEProfile"
-  Write-Host "Aliases linked to ~/aliases/dotfiles"
-  Write-Host "Git config linked to ~/.gitconfig"
-
   Write-Host " ======= NEXT ======= "
   Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin"
   Write-Host " - Install nerd fonts (Oh My Posh is installed automatically)"
