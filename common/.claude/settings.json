@@ -213,7 +213,7 @@
     "enabled": true,
     "mode": "hold"
   },
-  "autoMemoryEnabled": true,
+  "autoMemoryEnabled": false,
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
   "autoMode": {
