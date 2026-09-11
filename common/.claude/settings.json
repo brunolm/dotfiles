@@ -183,7 +183,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "fable",
+  "model": "opus[1m]",
   "hooks": {
     "Stop": [
       {
@@ -214,6 +214,7 @@
     "mode": "hold"
   },
   "autoMemoryEnabled": false,
+  "theme": "dark",
   "remoteControlAtStartup": false,
   "skipAutoPermissionPrompt": true,
   "autoMode": {

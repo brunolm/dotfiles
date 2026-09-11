@@ -1,4 +1,4 @@
-function B-PC-Get-IPExternal() {
+﻿function B-PC-Get-IPExternal() {
     (Invoke-WebRequest ifconfig.me/ip).Content.Trim()
 }
 
