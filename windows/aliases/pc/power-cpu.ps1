@@ -14,11 +14,13 @@
 # Best performance power mode with a lower energy preference, "hell" is everything on.
 # "windows-balanced" is Microsoft's shipped Balanced scheme, read from the registry's
 # DefaultPowerSchemeValues; MSI's provisioning raises the AC energy preference to 45.
+# "windows-aggresive" is that same scheme as this machine actually ships it, captured from a
+# fresh install: windows-balanced with MSI's AC energy preference of 45 instead of 33.
 function B-PC-Set-CpuProfile {
   [CmdletBinding()]
   param(
     [Parameter(Position = 0)]
-    [ValidateSet('freezing', 'cool', 'balanced', 'default', 'perf', 'hell', 'windows-balanced', 'status')]
+    [ValidateSet('freezing', 'cool', 'balanced', 'default', 'perf', 'hell', 'windows-balanced', 'windows-aggresive', 'status')]
     [string]$Preset = 'status',
     [switch]$AllSchemes
   )
@@ -153,6 +155,17 @@ function PCCpu-Presets() {
       BoostMode     = @(2, 2)
       Epp           = @(33, 50)
       EppPCore      = @(33, 50)
+      MaxState      = @(100, 100)
+      MaxStatePCore = @(100, 100)
+      SchedPolicy   = @(5, 5)
+      CoolingPolicy = @(1, 0)
+      LatencyHint   = @(99, 99)
+      PowerMode     = 'balanced'
+    }
+    'windows-aggresive' = [ordered]@{
+      BoostMode     = @(2, 2)
+      Epp           = @(45, 50)
+      EppPCore      = @(45, 50)
       MaxState      = @(100, 100)
       MaxStatePCore = @(100, 100)
       SchedPolicy   = @(5, 5)
