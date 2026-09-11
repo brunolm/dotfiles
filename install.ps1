@@ -135,6 +135,9 @@
   . (Join-Path $PSScriptRoot "windows\aliases\software\fonts.ps1")
   B-Software-Install-NerdFont
 
+  Step "Installing the Caskaydia Cove font"
+  B-Software-Install-CaskaydiaCove
+
   Step "Installing PowerShell modules"
   # PowerShell 5.1 talks to the gallery over TLS 1.2 only after this, and the first
   # Install-Module otherwise stops to ask for the NuGet provider.
