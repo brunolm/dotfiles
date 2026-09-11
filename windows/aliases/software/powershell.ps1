@@ -1,4 +1,5 @@
 function B-Software-Update-Powershell() {
+  Assert-GitHubCLI
   Write-Host "Checking latest PowerShell release..." -ForegroundColor Cyan
   $release = gh release view --repo PowerShell/PowerShell --json assets,publishedAt,tagName | ConvertFrom-Json
   $version = $release.tagName -replace '^v', ''
@@ -10,7 +11,7 @@ function B-Software-Update-Powershell() {
   $file = Join-Path $env:TEMP "PowerShell-latest-win-x64.msi"
   $log = Join-Path $env:TEMP "PowerShell-install.log"
   Write-Host "Downloading PowerShell $version..." -ForegroundColor Cyan
-  Invoke-WebRequest $asset -OutFile $file
+  Invoke-WebRequest $asset -OutFile $file -UseBasicParsing
   Write-Host "Installing PowerShell $version..." -ForegroundColor Cyan
   Start-Process msiexec.exe -ArgumentList "/i", $file, "/qn", "/norestart", "/l*v", $log -Wait
   Write-Host "Done. Install log: $log" -ForegroundColor Green

@@ -5,10 +5,11 @@ function B-Software-Update-VSCode([double]$MinAgeHours = 6) {
   if (-not (Confirm-BuildAge -BuiltAt (Get-UrlLastModified $url) -MinAgeHours $MinAgeHours -Label 'VS Code Insiders')) { return }
 
   Write-Host "Downloading VS Code Insiders..." -ForegroundColor Cyan
-  Invoke-WebRequest $url -OutFile $file
+  Invoke-WebRequest $url -OutFile $file -UseBasicParsing
   Write-Host "Installing..." -ForegroundColor Cyan
   Start-Process $file -ArgumentList "/verysilent", "/mergetasks=!runcode" -Wait
   Write-Host "Done." -ForegroundColor Green
+  Sync-SessionPath
   code-insiders --version
 }
 

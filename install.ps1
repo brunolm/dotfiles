@@ -1,4 +1,4 @@
-function Install() {
+﻿function Install() {
   Set-Location $PSScriptRoot
 
   # Create or refresh a symlink at $Path pointing to $Target.
@@ -28,18 +28,41 @@ function Install() {
     Write-Host "== $message" -ForegroundColor Cyan
   }
 
+  # CurrentUser scope keeps the modules with the profile that imports them, and works whether or
+  # not this shell is elevated.
+  function Install-ProfileModule($name) {
+    if (Get-Module -ListAvailable -Name $name) {
+      Write-Host "  $name already installed" -ForegroundColor DarkGray
+      return
+    }
+    Write-Host "  installing $name" -ForegroundColor DarkGray
+    Install-Module -Name $name -Scope CurrentUser -Force -AllowClobber
+  }
+
   $home_ = "${env:HOMEDRIVE}${env:HOMEPATH}"
 
   Step "Linking PowerShell profiles"
   $baseProfile = Join-Path $home_ "profile.ps1"
   New-Link $baseProfile (Join-Path $PSScriptRoot "windows\profile.ps1")
-  New-Link (Join-Path $home_ "env.ps1") (Join-Path $PSScriptRoot "windows\env.ps1")
 
-  $docs = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "WindowsPowerShell"
+  $envScript = Join-Path $PSScriptRoot "windows\env.ps1"
+  if (!(Test-Path $envScript)) {
+    Write-Host "  seeding env.ps1 from env.example.ps1" -ForegroundColor DarkGray
+    Copy-Item -Path (Join-Path $PSScriptRoot "windows\env.example.ps1") -Destination $envScript
+  }
+  New-Link (Join-Path $home_ "env.ps1") $envScript
+
+  $myDocuments = [Environment]::GetFolderPath("MyDocuments")
+  $docs = Join-Path $myDocuments "WindowsPowerShell"
   $powershellProfile = Join-Path $docs "Microsoft.PowerShell_profile.ps1"
   $powershellISEProfile = Join-Path $docs "Microsoft.PowerShellISE_profile.ps1"
   New-Link $powershellProfile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShell_profile.ps1")
   New-Link $powershellISEProfile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShellISE_profile.ps1")
+
+  # PowerShell 7 reads Documents\PowerShell, not Documents\WindowsPowerShell. The ISE profile has
+  # no counterpart there: the ISE is 5.1 only.
+  $ps7Profile = Join-Path (Join-Path $myDocuments "PowerShell") "Microsoft.PowerShell_profile.ps1"
+  New-Link $ps7Profile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShell_profile.ps1")
 
   Step "Linking Copilot instructions"
   New-Link (Join-Path $home_ ".copilot\instructions") (Join-Path $PSScriptRoot "common\.copilot\instructions")
@@ -102,10 +125,29 @@ function Install() {
     winget install --id $ompPkg --exact --silent --accept-source-agreements --accept-package-agreements
   }
 
+  # winget puts oh-my-posh on the registry PATH, which this shell started too early to see.
+  . (Join-Path $PSScriptRoot "windows\aliases\software\common.ps1")
+  Sync-SessionPath
+
+  Step "Installing the CaskaydiaCove Nerd Font"
+  # The Windows Terminal profile asks for CaskaydiaCove NF, and the oh-my-posh prompt draws
+  # glyphs that only a patched Nerd Font carries.
+  . (Join-Path $PSScriptRoot "windows\aliases\software\fonts.ps1")
+  B-Software-Install-NerdFont
+
+  Step "Installing PowerShell modules"
+  # PowerShell 5.1 talks to the gallery over TLS 1.2 only after this, and the first
+  # Install-Module otherwise stops to ask for the NuGet provider.
+  [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+  if (!(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+    Install-PackageProvider -Name NuGet -Scope CurrentUser -Force | Out-Null
+  }
+  Install-ProfileModule 'posh-git'
+  Install-ProfileModule 'Terminal-Icons'
+
   Write-Host ""
   Write-Host " ======= NEXT ======= "
   Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin"
-  Write-Host " - Install nerd fonts (Oh My Posh is installed automatically)"
   Write-Host " ======= /NEXT ======= "
 
   Write-Host ""

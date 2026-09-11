@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Clones, builds and registers the MCP servers from the brunolm/ai repo with Claude Code.
 

@@ -1,4 +1,4 @@
-try {
+﻿try {
   Set-ExecutionPolicy RemoteSigned
 }
 catch {}
@@ -102,9 +102,12 @@ function edit-history {
 
 # $global:GitPromptSettings.WorkingForegroundColor = "Red"
 
+# install.ps1 installs both; a machine that has not been through it yet gets a plain prompt
+# instead of an import error on every shell.
 if ($IsInteractiveShell) {
-  Import-Module posh-git
-  Import-Module -Name Terminal-Icons
+  foreach ($module in 'posh-git', 'Terminal-Icons') {
+    Import-Module $module -ErrorAction SilentlyContinue
+  }
 }
 ##
 

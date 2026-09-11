@@ -9,3 +9,9 @@ trim_trailing_whitespace = true
 
 [windows/**]
 indent_size = 2
+
+# Windows PowerShell 5.1 decodes a BOM-less script as ANSI, which turns any non-ASCII
+# character into mojibake -- and smart quotes from a mis-decoded em dash or glyph terminate
+# strings, breaking the parse.
+[*.ps1]
+charset = utf-8-bom

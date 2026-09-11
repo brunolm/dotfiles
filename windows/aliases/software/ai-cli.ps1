@@ -1,5 +1,8 @@
 # The native installer is also the updater: rerunning it replaces the binary in ~\.local\bin.
+# That folder is never added to the PATH by the installer itself, which then warns about it.
 function B-Software-Update-Claude() {
+  Add-UserPath -Directory (Join-Path $HOME '.local\bin')
+
   if (Get-Command claude -ErrorAction SilentlyContinue) {
     claude update
     return
@@ -15,6 +18,8 @@ function B-Software-Update-Grok() {
   }
   Write-Host "Installing Grok CLI..." -ForegroundColor Cyan
   irm https://x.ai/cli/install.ps1 | iex
+  # The installer puts ~\.grok\bin on the user PATH, which this shell has not picked up.
+  Sync-SessionPath
 }
 
 # npm installs the package, but the launcher it puts on PATH is a .ps1 shim running under
@@ -36,7 +41,7 @@ function B-Software-Update-Codex() {
   }
 
   $dest = Join-Path $HOME '.local\bin'
-  New-Item -ItemType Directory -Force -Path $dest | Out-Null
+  Add-UserPath -Directory $dest
   foreach ($exe in Get-ChildItem -LiteralPath $vendor -Recurse -Filter *.exe -File) {
     Copy-Item -LiteralPath $exe.FullName -Destination $dest -Force
     Write-Host "  copied $($exe.Name)" -ForegroundColor DarkGray
