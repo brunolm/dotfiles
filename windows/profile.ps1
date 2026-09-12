@@ -1,7 +1,7 @@
-﻿try {
-  Set-ExecutionPolicy RemoteSigned
-}
-catch {}
+﻿# The execution policy is persisted in the registry (HKLM/HKCU ShellIds, shared by pwsh 7 and
+# Windows PowerShell 5.1), so it survives reboots and does not belong in a profile. On a new
+# machine, run this once from an elevated shell:
+#   Set-ExecutionPolicy RemoteSigned
 
 # Grok privacy: second layer over common/.grok/config.toml — remote settings can
 # override the TOML, but env vars win the precedence resolution.
@@ -37,13 +37,38 @@ $IsInteractiveShell = Test-InteractiveShell
 $profileItem = Get-Item -LiteralPath $PSCommandPath -Force
 $DotfilesWindowsDir = if ($profileItem.Target) { Split-Path (@($profileItem.Target)[0]) } else { $PSScriptRoot }
 
+# oh-my-posh init only prints a one-line loader for an init script it keeps in its own cache, so
+# remembering that script's path skips launching the binary on every shell. The file name carries a
+# config and version hash, so a missing file means oh-my-posh has to print a fresh loader.
+function Initialize-OhMyPosh($config) {
+  $pointer = Join-Path $env:LOCALAPPDATA 'dotfiles\oh-my-posh-init.txt'
+  $init = if (Test-Path -LiteralPath $pointer) { (Get-Content -LiteralPath $pointer -Raw).Trim() }
+
+  if (!$init -or !(Test-Path -LiteralPath $init)) {
+    $loader = (oh-my-posh init pwsh --config $config) -join "`n"
+    $init = [regex]::Match($loader, "& '([^']+)'").Groups[1].Value
+    if (!$init) {
+      $loader | Invoke-Expression
+      return
+    }
+    New-Item -ItemType Directory -Force -Path (Split-Path $pointer) | Out-Null
+    Set-Content -LiteralPath $pointer -Value $init
+  }
+
+  # The loader sets both; the session id keys oh-my-posh's per-shell state, so every shell needs
+  # its own.
+  $env:POSH_SESSION_ID = [guid]::NewGuid().ToString()
+  $env:POSH_CONFIG = $config
+  & $init
+}
+
 if ($IsInteractiveShell) {
   try {
     # $host.UI.RawUI.ForegroundColor = "White";
     # $host.UI.RawUI.BackgroundColor = "Black";
     # Set-Location D:\
     # Clear-Host
-    oh-my-posh --init --shell pwsh --config (Join-Path $DotfilesWindowsDir '_brunolm.omp.json') | Invoke-Expression
+    Initialize-OhMyPosh (Join-Path $DotfilesWindowsDir '_brunolm.omp.json')
   }
   catch {}
 }
@@ -106,12 +131,15 @@ function edit-history {
 
 # $global:GitPromptSettings.WorkingForegroundColor = "Red"
 
-# install.ps1 installs both; a machine that has not been through it yet gets a plain prompt
-# instead of an import error on every shell.
+# Together these cost around a second to import and neither is needed to draw the first prompt, so
+# they load on the first idle moment instead of holding up the shell. install.ps1 installs both; a
+# machine that has not been through it yet gets a plain prompt instead of an import error.
 if ($IsInteractiveShell) {
-  foreach ($module in 'posh-git', 'Terminal-Icons') {
-    Import-Module $module -ErrorAction SilentlyContinue
-  }
+  Register-EngineEvent -SourceIdentifier PowerShell.OnIdle -MaxTriggerCount 1 -Action {
+    foreach ($module in 'posh-git', 'Terminal-Icons') {
+      Import-Module $module -Global -ErrorAction SilentlyContinue
+    }
+  } | Out-Null
 }
 ##
 

@@ -41,6 +41,12 @@
 
   $home_ = "${env:HOMEDRIVE}${env:HOMEPATH}"
 
+  # Persisted in the registry, so this is the one place that needs it — the profiles no longer
+  # re-apply it on every shell. Bootstrapping with -ExecutionPolicy Bypass reaches here fine.
+  Step "Setting the execution policy"
+  Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force
+  Write-Host "  LocalMachine = $(Get-ExecutionPolicy -Scope LocalMachine)" -ForegroundColor DarkGray
+
   Step "Linking PowerShell profiles"
   $baseProfile = Join-Path $home_ "profile.ps1"
   New-Link $baseProfile (Join-Path $PSScriptRoot "windows\profile.ps1")
