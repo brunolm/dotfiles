@@ -64,6 +64,14 @@
   $ps7Profile = Join-Path (Join-Path $myDocuments "PowerShell") "Microsoft.PowerShell_profile.ps1"
   New-Link $ps7Profile (Join-Path $PSScriptRoot "windows\Microsoft.PowerShell_profile.ps1")
 
+  Step "Linking Windows Terminal settings"
+  $wtSettings = Join-Path $env:LOCALAPPDATA "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+  if (Test-Path (Split-Path -Parent $wtSettings)) {
+    New-Link $wtSettings (Join-Path $PSScriptRoot "windows\terminal\settings.json")
+  } else {
+    Write-Host "  Windows Terminal not installed; skipping" -ForegroundColor DarkGray
+  }
+
   Step "Linking Copilot instructions"
   New-Link (Join-Path $home_ ".copilot\instructions") (Join-Path $PSScriptRoot "common\.copilot\instructions")
 
