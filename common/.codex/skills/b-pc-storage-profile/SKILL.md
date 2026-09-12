@@ -38,7 +38,7 @@ B-PC-Set-StorageProfile original -AllSchemes
 From a bare `powershell -NoProfile` shell, dot-source the alias folder first:
 
 ```powershell
-Get-ChildItem C:\BrunoLM\Projects\dotfiles\windows\aliases\pc\*.ps1 | ForEach-Object { . $_.FullName }; B-PC-Set-StorageProfile status
+Get-ChildItem $HOME\aliases\dotfiles\pc\*.ps1 | ForEach-Object { . $_.FullName }; B-PC-Set-StorageProfile status
 ```
 
 ## Editing what a preset contains

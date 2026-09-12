@@ -43,7 +43,7 @@ Windows install USB on ${letter}:
   5. Boot the new machine from the USB (F11 on the GE76, pick the UEFI: entry) and install.
   6. After setup, from an elevated PowerShell (installs Chocolatey, Git and clones dotfiles):
                                powershell -ExecutionPolicy Bypass -File ${letter}:\essentials.ps1
-                               then in C:\BrunoLM\Projects\dotfiles run install.ps1 and install-software.ps1 (see README).
+                               then in B:\dotfiles run install.ps1 and install-software.ps1 (see README).
 
 "@
 }

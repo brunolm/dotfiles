@@ -1,2 +1,4 @@
-#include C:/BrunoLM/Projects/dotfiles/windows/startup-source/keymap.ahk2
+; C:/System/Startup is a symlink to this folder, so a relative include would resolve outside the
+; repo — the include has to name the repo path.
+#include B:/dotfiles/windows/startup-source/keymap.ahk2
 ; put in startup-files to auto start

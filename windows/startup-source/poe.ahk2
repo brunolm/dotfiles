@@ -52,7 +52,8 @@ F4:: {
 
 ^!+d:: {
     arg := WinGetTitle("A") = "Path of Exile" ? "poe1" : "poe2"
-    script := 'C:\BrunoLM\Projects\dotfiles\windows\startup-source\poe-get-tools.ps1'
+    ; A_ScriptDir is the C:\System\Startup symlink, so the sibling script is found through this file.
+    script := RegExReplace(A_LineFile, '[^\\/]+$') 'poe-get-tools.ps1'
     if !FileExist(script) {
         MsgBox("Script not found:`n" script, "Error", 16)
         return

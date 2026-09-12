@@ -2,7 +2,7 @@
 function B-Backup-All {
   [CmdletBinding()]
   param(
-    [string[]]$ProjectsPath = @('C:\BrunoLM\Projects'),
+    [string[]]$ProjectsPath = @('C:\BrunoLM\Projects', 'B:\dotfiles'),
     [string]$Destination,
     [ValidateSet('ProjectsLocal', 'DevSettings', 'AiTools', 'BrowserExtensions', 'Razer', 'Terminal', 'CopyQ', 'ShareX', 'OBS', 'PowerToys', 'Wifi', 'Path')]
     [string[]]$Skip = @(),

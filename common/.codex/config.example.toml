@@ -23,7 +23,7 @@ inherit = "all"
 [projects.'c:\brunolm\projects']
 trust_level = "trusted"
 
-[projects.'c:\brunolm\projects\dotfiles']
+[projects.'b:\dotfiles']
 trust_level = "trusted"
 
 [features]

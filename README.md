@@ -13,8 +13,8 @@ winget install --id Chocolatey.Chocolatey -e
 # new shell
 choco install git -y
 irm https://claude.ai/install.ps1 | iex
-git clone https://github.com/brunolm/dotfiles C:\BrunoLM\Projects\dotfiles
-cd C:\BrunoLM\Projects\dotfiles
+git clone https://github.com/brunolm/dotfiles B:\dotfiles
+cd B:\dotfiles
 Set-ExecutionPolicy RemoteSigned
 .\install.ps1
 .\install-software.ps1

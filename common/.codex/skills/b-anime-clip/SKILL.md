@@ -43,7 +43,7 @@ If the user gave a full path that exists, use it. Otherwise search for it - defa
 Call the bundled script with the resolved values. It is at `<this skill folder>/clip.ps1`.
 
 ```powershell
-& "C:\BrunoLM\Projects\dotfiles\common\.codex\skills\b-anime-clip\clip.ps1" `
+& "$HOME\.codex\skills\b-anime-clip\clip.ps1" `
   -Video "<full path to episode>" `
   -Start "15:42" -End "16:14"
 ```

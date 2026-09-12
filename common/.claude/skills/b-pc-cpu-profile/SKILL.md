@@ -46,7 +46,7 @@ B-PC-Set-CpuProfile default
 From a bare `powershell -NoProfile` shell, dot-source the alias folder first:
 
 ```powershell
-Get-ChildItem C:\BrunoLM\Projects\dotfiles\windows\aliases\pc\*.ps1 | ForEach-Object { . $_.FullName }; B-PC-Set-CpuProfile status
+Get-ChildItem $HOME\aliases\dotfiles\pc\*.ps1 | ForEach-Object { . $_.FullName }; B-PC-Set-CpuProfile status
 ```
 
 ## Editing what a preset contains

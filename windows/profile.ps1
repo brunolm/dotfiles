@@ -33,13 +33,17 @@ function Test-InteractiveShell {
 
 $IsInteractiveShell = Test-InteractiveShell
 
+# ~/profile.ps1 is a symlink into the repo; resolve it so the repo can live anywhere.
+$profileItem = Get-Item -LiteralPath $PSCommandPath -Force
+$DotfilesWindowsDir = if ($profileItem.Target) { Split-Path (@($profileItem.Target)[0]) } else { $PSScriptRoot }
+
 if ($IsInteractiveShell) {
   try {
     # $host.UI.RawUI.ForegroundColor = "White";
     # $host.UI.RawUI.BackgroundColor = "Black";
     # Set-Location D:\
     # Clear-Host
-    oh-my-posh --init --shell pwsh --config C:\BrunoLM\Projects\dotfiles\windows\_brunolm.omp.json | Invoke-Expression
+    oh-my-posh --init --shell pwsh --config (Join-Path $DotfilesWindowsDir '_brunolm.omp.json') | Invoke-Expression
   }
   catch {}
 }

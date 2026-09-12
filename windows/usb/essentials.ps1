@@ -6,7 +6,7 @@
     powershell -ExecutionPolicy Bypass -File E:\essentials.ps1
 #>
 
-$repo = 'C:\BrunoLM\Projects\dotfiles'
+$repo = 'B:\dotfiles'
 
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 if (!([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
