@@ -28,7 +28,14 @@ function B-Software-Update-VSCodeExtensions() {
     $current = $Matches[2]
     $allowPreRelease = $preReleaseMode.ContainsKey($id.ToLower())
 
-    $latest = Get-VSCodeExtensionLatest -ExtensionId $id -EditorVersion $editorVersion -AllowPreRelease:$allowPreRelease
+    try {
+      $latest = Get-VSCodeExtensionLatest -ExtensionId $id -EditorVersion $editorVersion -AllowPreRelease:$allowPreRelease
+    }
+    catch {
+      Write-Host "  $id - marketplace query failed ($($_.Exception.Message.Trim())), skipping." -ForegroundColor Red
+      continue
+    }
+
     if (-not $latest) {
       Write-Host "  $id - no compatible release found, skipping." -ForegroundColor DarkGray
       continue
@@ -84,8 +91,14 @@ function Get-VSCodeExtensionLatest {
     'Content-Type' = 'application/json'
   }
 
-  $resp = Invoke-RestMethod -Uri 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery' -Method Post -Body $body -Headers $headers
-  $ext = $resp.results[0].extensions | Select-Object -First 1
+  $resp = Invoke-RestMethodWithRetry -Request @{
+    Uri     = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery'
+    Method  = 'Post'
+    Body    = $body
+    Headers = $headers
+  }
+
+  $ext = @($resp.results)[0].extensions | Select-Object -First 1
   if (-not $ext) { return $null }
 
   # Versions are newest-first; pick the newest build the installed editor can run,

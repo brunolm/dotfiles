@@ -51,6 +51,26 @@ function Assert-GitHubCLI {
   }
 }
 
+# $Request is splatted into Invoke-RestMethod. Hosts queried in a tight loop drop connections
+# mid-request, so a single transport failure says nothing about the endpoint being reachable.
+function Invoke-RestMethodWithRetry {
+  param(
+    [Parameter(Mandatory)][hashtable]$Request,
+    [int]$MaxAttempts = 4,
+    [double]$DelaySeconds = 1
+  )
+
+  for ($attempt = 1; ; $attempt++) {
+    try {
+      return Invoke-RestMethod @Request -ErrorAction Stop
+    }
+    catch {
+      if ($attempt -ge $MaxAttempts) { throw }
+      Start-Sleep -Seconds ($DelaySeconds * $attempt)
+    }
+  }
+}
+
 function Get-UrlLastModified {
   param([Parameter(Mandatory)][string]$Url)
   $head = Invoke-WebRequest $Url -Method Head -UseBasicParsing
