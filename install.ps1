@@ -108,7 +108,17 @@
   New-Link (Join-Path $home_ ".config\mise\config.toml") (Join-Path $PSScriptRoot "common\.config\mise\config.toml")
 
   Step "Linking aliases and gitconfig"
-  New-Link (Join-Path $home_ "aliases\dotfiles") (Join-Path $PSScriptRoot "windows\aliases")
+  $aliasesDir = Join-Path $PSScriptRoot "windows\aliases"
+  New-Link (Join-Path $home_ "aliases\dotfiles") $aliasesDir
+
+  # The aliases are a module now, auto-loaded on first use instead of dot-sourced by the profile.
+  # Both engines get a link: PowerShell 7 reads Documents\PowerShell, 5.1 Documents\WindowsPowerShell.
+  . (Join-Path $aliasesDir "manifest.ps1")
+  B-Aliases-Update-Manifest
+  foreach ($modules in "PowerShell", "WindowsPowerShell") {
+    New-Link (Join-Path $myDocuments "$modules\Modules\DotfilesAliases") $aliasesDir
+  }
+
   New-Link (Join-Path $home_ ".gitconfig") (Join-Path $PSScriptRoot "common\.gitconfig")
 
   Step "Linking startup scripts"

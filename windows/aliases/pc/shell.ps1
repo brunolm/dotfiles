@@ -18,5 +18,3 @@ function B-PC-IsElevated() {
   $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
   return ([Security.Principal.WindowsPrincipal]$identity).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
-
-B-PC-Disable-Beep

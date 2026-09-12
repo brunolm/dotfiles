@@ -82,6 +82,9 @@ if ($IsInteractiveShell) {
     Set-PSReadLineOption -PredictionSource History
     Set-PSReadLineOption -PredictionViewStyle ListView
     Set-PSReadLineOption -EditMode Windows
+    # B-PC-Disable-Beep does the same thing, but it lives in a module that no longer loads at
+    # startup and the bell has to be off from the first keystroke.
+    Set-PSReadLineOption -BellStyle None
   }
   catch {}
 }
@@ -143,22 +146,9 @@ if ($IsInteractiveShell) {
 }
 ##
 
-if (Test-Path "${env:HomeDrive}${env:HomePath}") {
-  Get-ChildItem -Recurse "${env:HomeDrive}${env:HomePath}/aliases" -Include *.ps1, *.psm1 |
-  Foreach-Object {
-    $folder = $_.Directory.Name;
-    $ext = [IO.Path]::GetExtension($_.Name)
-
-    if ($ext -eq ".ps1" -and $folder -ne "commands") {
-      . $_.FullName
-    }
-
-    if ($ext -eq ".psm1" -and $folder -ne "commands") {
-      Remove-Module -ErrorAction SilentlyContinue $_.FullName
-      Import-Module $_.FullName -DisableNameChecking
-    }
-  }
-}
+# The aliases are the DotfilesAliases module, linked into the PowerShell module path by install.ps1
+# and auto-loaded the first time one of its names is typed. Adding or renaming a function means
+# running B-Aliases-Update-Manifest, since auto-loading reads the names from the manifest.
 
 try {
   mise activate pwsh | Out-String | Invoke-Expression
