@@ -27,7 +27,7 @@
 #>
 [CmdletBinding()]
 param(
-  [string]$Root = "C:\BrunoLM\Projects\ai",
+  [string]$Root = "B:\ai",
   [string[]]$Only,
   [switch]$SkipBuild,
   [switch]$SkipRegister

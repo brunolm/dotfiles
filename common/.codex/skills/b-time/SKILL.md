@@ -14,7 +14,7 @@ allowed-tools:
 
 # Time tracking (self-hosted)
 
-Drive the CLI at **`C:\BrunoLM\Projects\time-tracking\time.ps1`** - entries live in that repo as `<yyyy>/<yyyy-MM>.jsonl` (one JSON entry per line; `end: null` marks the running timer) and every mutation commits, pulling/pushing automatically when an `origin` remote exists. Never edit the JSONL by hand unless the user explicitly asks to fix an entry.
+Drive the CLI at **`B:\time-tracking\time.ps1`** - entries live in that repo as `<yyyy>/<yyyy-MM>.jsonl` (one JSON entry per line; `end: null` marks the running timer) and every mutation commits, pulling/pushing automatically when an `origin` remote exists. Never edit the JSONL by hand unless the user explicitly asks to fix an entry.
 
 ## Always run it with PowerShell 7
 
@@ -25,12 +25,12 @@ The script uses PowerShell 7 syntax (the `? :` ternary and `??`), so Windows Pow
 Map the user's intent to one of:
 
 ```powershell
-pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' start [project] [note...]
-pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' stop
-pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' status
-pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' report -Month yyyy-MM
-pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' log [project] [note...] -Start HH:mm -End HH:mm [-Date yyyy-MM-dd] [-Force]
-pwsh -NoProfile -File 'C:\BrunoLM\Projects\time-tracking\time.ps1' clear [-Date yyyy-MM-dd]
+pwsh -NoProfile -File 'B:\time-tracking\time.ps1' start [project] [note...]
+pwsh -NoProfile -File 'B:\time-tracking\time.ps1' stop
+pwsh -NoProfile -File 'B:\time-tracking\time.ps1' status
+pwsh -NoProfile -File 'B:\time-tracking\time.ps1' report -Month yyyy-MM
+pwsh -NoProfile -File 'B:\time-tracking\time.ps1' log [project] [note...] -Start HH:mm -End HH:mm [-Date yyyy-MM-dd] [-Force]
+pwsh -NoProfile -File 'B:\time-tracking\time.ps1' clear [-Date yyyy-MM-dd]
 ```
 
 - **start** - begin a timer. Pass the project and note if the user gave them (e.g. "start tracking acme, fixing the api" -> `start acme fixing the api`). The script refuses if a timer is already running - relay that message.

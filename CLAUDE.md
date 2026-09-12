@@ -17,7 +17,7 @@
 
 # Time tracking local project
 
-`C:\BrunoLM\Projects\time-tracking`
+`B:\time-tracking`
 
 # For any temporary files, screenshots, scripts, probes, etc
 

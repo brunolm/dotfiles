@@ -95,7 +95,7 @@ When an item is billed per hour (e.g. "Rate per hour" with no fixed quantity), i
 
 - **`from toggl`** - pull the tracked total from the Toggl MCP: `me` for the default workspace (fall back to `list_workspaces`), then `summary_report` for the whole billing month; sum buckets if needed. Toggl durations are in **seconds** - convert to hours.
 - **`from harvest`** - pull the tracked total from the Harvest MCP: `get_time_report` (or `list_time_entries`) for the billing month and sum the hours.
-- **`from timelog`** - pull the total from the self-hosted time log: `& 'C:\BrunoLM\Projects\time-tracking\time.ps1' report -Month <yyyy-MM>` and use the `Total:` line.
+- **`from timelog`** - pull the total from the self-hosted time log: `& 'B:\time-tracking\time.ps1' report -Month <yyyy-MM>` and use the `Total:` line.
 - **a number** - use it as-is.
 
 Round fetched totals to two decimals and state the source and the fetched total in the report.

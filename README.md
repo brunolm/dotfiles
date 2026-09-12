@@ -36,7 +36,7 @@ git remote set-url origin git@github.com:brunolm/dotfiles.git
 
 ## MCP servers
 
-Clones [brunolm/ai](https://github.com/brunolm/ai) into `C:\BrunoLM\Projects\ai` if it is not there
+Clones [brunolm/ai](https://github.com/brunolm/ai) into `B:\ai` if it is not there
 yet, builds each MCP server it contains, and registers them all with Claude Code at user scope.
 Idempotent — re-run it any time to rebuild and refresh the registrations.
 
