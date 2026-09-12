@@ -126,6 +126,10 @@
   New-Link "${env:HOMEDRIVE}\System\startup.ps1" (Join-Path $PSScriptRoot "windows\startup\startup.ps1")
   New-Link "C:\System\Startup" (Join-Path $PSScriptRoot "windows\startup-files")
 
+  Step "Associating .ahk2 files with AutoHotkey v2"
+  . (Join-Path $PSScriptRoot "windows\aliases\reg\file-associations.ps1")
+  B-Reg-Set-Ahk2-Association
+
   Step "Installing cursor scheme"
   & (Join-Path $PSScriptRoot "windows\cursors\install-cursors.ps1")
 
