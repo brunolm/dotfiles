@@ -176,6 +176,21 @@
   Install-ProfileModule 'posh-git'
   Install-ProfileModule 'Terminal-Icons'
 
+  # The audio-switch hotkeys shell out to powershell.exe, so AudioDeviceCmdlets has to land in
+  # the Windows PowerShell 5.1 user module path. Installing it from pwsh would put it under
+  # Documents\PowerShell\Modules, where 5.1 never looks, and the hotkeys would fail silently.
+  Write-Host "  installing AudioDeviceCmdlets (Windows PowerShell)" -ForegroundColor DarkGray
+  $audioModuleSetup = @'
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+if (!(Get-Module -ListAvailable -Name AudioDeviceCmdlets)) {
+  if (!(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+    Install-PackageProvider -Name NuGet -Scope CurrentUser -Force | Out-Null
+  }
+  Install-Module -Name AudioDeviceCmdlets -Scope CurrentUser -Force -AllowClobber
+}
+'@
+  powershell -NoProfile -Command $audioModuleSetup
+
   Write-Host ""
   Write-Host " ======= NEXT ======= "
   Write-Host " - Need to create a task to run startup.cmd in TaskScheduler as admin"

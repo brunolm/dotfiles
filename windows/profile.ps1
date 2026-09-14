@@ -118,9 +118,6 @@ function edit-history {
 ## Modules
 #
 
-## Audio
-# Install-Module -Name AudioDeviceCmdlets
-
 ## Update modules
 # powershell -noprofile -command "Install-Module PSReadline -Force -SkipPublisherCheck"
 # Update-Module posh-git
