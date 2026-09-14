@@ -1,30 +1,25 @@
-# Nerd Fonts v3 moved the Material Design icons out of U+F500-FD46, which blanks the glyphs
-# _brunolm.omp.json draws at U+F692, U+F74A, U+F898 and U+FA1E, so the patched fonts stay pinned to
-# the last v2 release. That pin is also why the files are fetched directly rather than through
-# `oh-my-posh font install`, which always takes the current release.
-# The Windows Compatible builds are the ones registering as CaskaydiaCove NF and NFM, the names the
-# Windows Terminal profile asks for.
+# Nerd Fonts v3 registers the patched families under the Win32 names CaskaydiaCove NF (icons may
+# span two cells) and CaskaydiaCove NFM (icons squeezed into one cell); the Windows Terminal profile
+# asks for the former. The Material Design icons live at U+F0001-F1AF0, which is where
+# _brunolm.omp.json draws them from, so anything older than v3.0.0 blanks those glyphs.
+# The files come from the GitHub release rather than `oh-my-posh font install` so the version stays
+# pinned and the fonts land in the machine store instead of the per-user one.
 function B-Software-Install-NerdFont {
   param(
-    [string]$Tag = 'v2.3.3',
+    [string]$Tag = 'v3.5.1',
     [string]$FamilyPrefix = 'CaskaydiaCove',
-    [string[]]$Variants = @(
-      'Windows Compatible Regular',
-      'Windows Compatible Italic',
-      'Mono Windows Compatible Regular',
-      'Mono Windows Compatible Italic'
+    [string[]]$Families = @('CaskaydiaCoveNerdFont', 'CaskaydiaCoveNerdFontMono'),
+    [string[]]$Styles = @(
+      'Regular', 'Italic', 'Bold', 'BoldItalic',
+      'SemiBold', 'SemiBoldItalic', 'SemiLight', 'SemiLightItalic',
+      'Light', 'LightItalic', 'ExtraLight', 'ExtraLightItalic'
     )
   )
 
-  $baseUrl = "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/$Tag/patched-fonts/CascadiaCode/Regular/complete"
-  $sources = [ordered]@{}
-  foreach ($variant in $Variants) {
-    $file = "Caskaydia Cove Nerd Font Complete $variant.otf"
-    $sources[$file] = "$baseUrl/$([uri]::EscapeDataString($file))"
-  }
+  $files = foreach ($family in $Families) { foreach ($style in $Styles) { "$family-$style.ttf" } }
 
   $current = @(Get-FontRegistration -FamilyPrefix $FamilyPrefix -Scope Machine)
-  if (!(Compare-Object @($current.Value) @($sources.Keys))) {
+  if (!(Compare-Object @($current.Value) @($files))) {
     Write-Host "$FamilyPrefix $Tag is already installed for all users." -ForegroundColor DarkGray
     return
   }
@@ -33,7 +28,7 @@ function B-Software-Install-NerdFont {
   # CaskaydiaCove NF to whichever of the two files it enumerates first.
   Uninstall-Font -FamilyPrefix $FamilyPrefix
 
-  Install-FontFromUrl -Sources $sources -Label "$FamilyPrefix $Tag"
+  Install-FontFromArchive -Url "https://github.com/ryanoasis/nerd-fonts/releases/download/$Tag/CascadiaCode.zip" -Files $files -Label "$FamilyPrefix $Tag"
 }
 
 # Caskaydia Cove is the Cascadia Code fork with the RFN removed; it carries no Nerd Font glyphs, so
@@ -123,6 +118,38 @@ function Install-FontFromUrl {
 
   Publish-FontChange
   Write-Host "Installed $($Sources.Count) $Label font files for all users." -ForegroundColor Green
+}
+
+# $Files lists the archive entries to install; the rest of the archive is ignored.
+function Install-FontFromArchive {
+  param(
+    [Parameter(Mandatory)][string]$Url,
+    [Parameter(Mandatory)][string[]]$Files,
+    [Parameter(Mandatory)][string]$Label
+  )
+
+  Initialize-FontInterop
+  $stage = Join-Path ([IO.Path]::GetTempPath()) "b-fonts-$PID"
+  New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+  try {
+    $archive = Join-Path $stage 'fonts.zip'
+    Write-Host "Downloading $Url..." -ForegroundColor Cyan
+    Invoke-WebRequest -Uri $Url -OutFile $archive -UseBasicParsing
+    Expand-Archive -LiteralPath $archive -DestinationPath $stage -Force
+
+    foreach ($file in $Files) {
+      $path = Join-Path $stage $file
+      if (!(Test-Path -LiteralPath $path)) { throw "$file is missing from $Url" }
+      Install-MachineFontFile -Path $path -Entry (Get-FontEntryName -Path $path)
+    }
+  }
+  finally {
+    Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+  }
+
+  Publish-FontChange
+  Write-Host "Installed $($Files.Count) $Label font files for all users." -ForegroundColor Green
 }
 
 # GDI keys the font store by the Win32 family plus face ("CaskaydiaCove NF Regular"), which for

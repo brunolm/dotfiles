@@ -13,7 +13,7 @@
             "home_icon": "~",
             "style": "folder"
           },
-          "template": " \uf74a {{ .Path }} ",
+          "template": " \udb80\ude4b {{ .Path }} ",
           "foreground": "#000000",
           "background": "#ffd970",
           "type": "path",
@@ -33,7 +33,7 @@
           },
           "leading_diamond": "\ue0b6",
           "trailing_diamond": "\ue0b4",
-          "template": " {{ .UpstreamIcon }}{{ .HEAD }}{{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \uf692 {{ .StashCount }}{{ end }} ",
+          "template": " {{ .UpstreamIcon }} {{ .HEAD }}{{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \udb80\udd93 {{ .StashCount }}{{ end }} ",
           "foreground": "#193549",
           "powerline_symbol": "\ue0b0",
           "background": "#11ffff",
@@ -55,7 +55,7 @@
             "duration": "1m",
             "strategy": "folder"
           },
-          "template": " \uf898 ",
+          "template": " \udb80\udf99 ",
           "foreground": "#ffffff",
           "powerline_symbol": "\ue0b0",
           "background": "#6CA35E",
@@ -170,7 +170,7 @@
             "always_enabled": true,
             "cache_duration": "none"
           },
-          "template": "<transparent>\ue0b0</> \ufa1e{{ .FormattedMs }}\u2800",
+          "template": "<transparent>\ue0b0</> \udb81\udd1f{{ .FormattedMs }}\u2800",
           "foreground": "#ffffff",
           "background": "#83769c",
           "type": "executiontime",
