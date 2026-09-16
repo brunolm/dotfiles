@@ -88,6 +88,11 @@
   New-Link (Join-Path $claudeDir "skills") (Join-Path $PSScriptRoot "common\.claude\skills")
   New-Link (Join-Path $claudeDir "hooks") (Join-Path $PSScriptRoot "common\.claude\hooks")
 
+  Step "Registering the Claude Code toast identity and focus protocol"
+  . (Join-Path $PSScriptRoot "windows\aliases\reg\claude-notify.ps1")
+  B-Reg-Register-ClaudeToastAppId
+  B-Reg-Register-ClaudeFocusProtocol
+
   Step "Linking Codex config"
   $codexConfig = Join-Path $PSScriptRoot "common\.codex\config.toml"
   $codexConfigExample = Join-Path $PSScriptRoot "common\.codex\config.example.toml"
