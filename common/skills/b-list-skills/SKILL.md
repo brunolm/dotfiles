@@ -18,7 +18,7 @@ Show every skill whose name starts with `b-` in a table: the skill name and a co
 2. Resolve every agent home directory that exists:
    - Claude: `$env:CLAUDE_CONFIG_DIR` if set, otherwise `$env:USERPROFILE\.claude`.
    - Codex: `$env:CODEX_HOME` if set, otherwise `$env:USERPROFILE\.codex`.
-3. Scan for `SKILL.md` files under each `<agentHome>\skills` (recursively). Both agents link the same shared source, so deduplicate by skill name.
+3. Scan for `SKILL.md` files under each `<agentHome>\skills`. Entries there are usually symlinks to a shared source, so resolve each top-level entry to its target before recursing, and deduplicate by skill name.
 4. For each `SKILL.md`, parse the YAML frontmatter and read `name` and `description`.
 5. Keep only skills whose `name` starts with `b-`.
 6. Present the result to the user as a Markdown table with two columns:
@@ -43,7 +43,12 @@ if (-not $existingRoots) {
     return
 }
 
+# Get-ChildItem -Recurse does not traverse directory symlinks, and installed skills
+# are symlinks to a shared source, so each top-level entry is resolved first.
 $existingRoots |
+    ForEach-Object { Get-ChildItem -LiteralPath $_ -Directory -Force -ErrorAction SilentlyContinue } |
+    ForEach-Object { if ($_.LinkTarget) { $_.LinkTarget } else { $_.FullName } } |
+    Where-Object { Test-Path -LiteralPath $_ } |
     ForEach-Object { Get-ChildItem -LiteralPath $_ -Filter 'SKILL.md' -File -Recurse -ErrorAction SilentlyContinue } |
     ForEach-Object {
         $lines = Get-Content -LiteralPath $_.FullName
