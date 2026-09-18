@@ -2,6 +2,8 @@
 name: b-pc-cpu-profile
 description: Use this skill when the user wants to view, apply, or edit the CPU power presets managed by the `B-PC-Set-CpuProfile` alias. Triggers include "/b-pc-cpu-profile", "cpu profile status", "set cpu to cool", "apply the hell profile", "my laptop is hot, switch to cool", "go back to the default cpu profile", "change the EPP in the cool preset", "add a cpu preset", or any phrasing pairing CPU turbo / energy preference / max processor state / thread scheduling / Windows power mode with a preset. Takes an optional argument — `status` (default), `freezing`, `cool`, `balanced`, `default`, `perf`, `hell`, `windows-balanced` — and runs the alias; requests to change what a preset contains are handled by editing the preset tables in the dotfiles repo.
 version: 1.0.0
+model: haiku
+effort: low
 ---
 
 # CPU Power Profile

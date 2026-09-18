@@ -2,6 +2,8 @@
 name: b-invoice-generate
 description: Use this skill when the user wants to generate an invoice for a month. Triggers include "/b-invoice-generate", "generate an invoice", "create my invoice for June", "make the invoice for last month", or any phrasing pairing an invoice with a billing period. Takes an optional month argument like "june", "2026-06", or "last month" (default is the current month) and covers that whole month. Reads private billing details (name, line items, payment info) from `docs/local/invoice-details.md`; if that file doesn't exist it asks the user for the details instead, so no personal information ever lives in the skill itself. Renders the invoice into `docs/local/invoices/` as HTML plus a PDF (via headless Edge) and opens the PDF.
 version: 1.0.0
+model: sonnet
+effort: medium
 allowed-tools:
   - Read
   - Write

@@ -2,6 +2,8 @@
 name: update-codex
 description: Use this skill when the user asks to update Codex, upgrade the OpenAI Codex CLI, or refresh the Codex binaries. Runs `npm i -g @openai/codex`, copies the bundled .exe files from the global node_modules vendor directory into `C:\Users\bruno\.local\bin`, then verifies with `codex --version`.
 version: 1.0.0
+model: haiku
+effort: low
 allowed-tools:
   - Bash(npm i -g @openai/codex:*)
   - Bash(npm config get prefix:*)

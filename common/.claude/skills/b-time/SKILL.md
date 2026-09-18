@@ -2,6 +2,8 @@
 name: b-time
 description: Use this skill when the user wants to track work hours with their self-hosted time log. Triggers include "/b-time", "start tracking", "punch in", "punch out", "stop the timer", "am I tracking time", "time status", "time report for june", "how many hours did I work this month", logging finished ranges like "10am +8h" / "10am ~ 5pm" / "10am ~ 1pm 5pm ~ 8pm", clearing a day like "reset today" / "clear yesterday" / "clear 2026-07-10", or any phrasing pairing time tracking with start/stop/status/report/log/clear — as long as Toggl or Harvest is NOT named (those have their own tools). Wraps the time.ps1 CLI in the local time-tracking repo: entries are stored as monthly JSONL files and synced via git. After a log/stop adds finished time, it also mirrors the new entries to Toggl and Harvest via their MCPs (with one confirmation before writing).
 version: 1.2.0
+model: sonnet
+effort: medium
 allowed-tools:
   - Read
   - PowerShell

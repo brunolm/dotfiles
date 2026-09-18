@@ -2,6 +2,8 @@
 name: b-code-review-post
 description: Use this skill when the user wants to publish a code review to a GitHub PR as a real PR review with inline comments. Triggers include "/b-code-review-post", "post the review", "submit the review to the PR", "publish the review on PR 123", "post the review as approve / request changes", or any phrasing that pairs an existing review (a file under `.branch-docs/` or a review produced earlier in the conversation) with posting it to GitHub. Reads the review, maps each finding to a diff line, and submits a single PR review (comment by default, or approve / request changes if told) whose body is a very short summary plus a tl;dr list, with one inline comment per finding. Supports skipping items ("skip 5", "post 1-3 and 7-9").
 version: 1.0.0
+model: sonnet
+effort: medium
 allowed-tools:
   - Bash(git rev-parse:*)
   - Bash(gh pr view:*)

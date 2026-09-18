@@ -2,6 +2,8 @@
 name: b-pc-turbo-boost
 description: Use this skill when the user wants to view or change the CPU turbo boost mode of the active Windows power plan. Triggers include "/b-pc-turbo-boost", "disable turbo", "enable turbo boost", "turn turbo off/on", "turbo status", "set boost mode to efficient", "is turbo on", or any phrasing pairing turbo/boost with the CPU or power plan. Takes one optional argument — `status` (default), `off`, `on`, `aggressive`, `efficient`, or `efficient-aggressive` — and applies it to both AC and DC of the active scheme via powercfg, then verifies the result and shows the current CPU clock and package power so the effect is visible immediately.
 version: 1.0.0
+model: haiku
+effort: low
 ---
 
 # Toggle CPU Turbo Boost

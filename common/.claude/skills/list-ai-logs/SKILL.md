@@ -2,6 +2,7 @@
 name: list-ai-logs
 description: Use this skill when the user asks Claude to list, find, inspect, inventory, or report Claude Code log files, transcript/session JSONL files, or the file size of Claude logs. Lists local Claude log-like files with exact byte counts and human-readable sizes without reading log contents unless the user explicitly asks.
 version: 1.0.0
+model: haiku
 allowed-tools:
   - PowerShell
 ---

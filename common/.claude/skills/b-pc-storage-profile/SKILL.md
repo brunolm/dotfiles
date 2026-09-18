@@ -2,6 +2,8 @@
 name: b-pc-storage-profile
 description: Use this skill when the user wants to view, apply, or edit the NVMe/PCIe storage power presets managed by the `B-PC-Set-StorageProfile` alias. Triggers include "/b-pc-storage-profile", "storage profile status", "apply nvme-safe", "set storage power to original", "why is my NVMe going to sleep", "change the disk idle timeout in the preset", "add a storage preset", or any phrasing pairing NVMe / PCIe ASPM / disk idle settings with the power plan. Takes an optional argument — `status` (default), `nvme-safe`, `power`, `original` — and runs the alias; requests to change what a preset contains are handled by editing the preset tables in the dotfiles repo.
 version: 1.0.0
+model: haiku
+effort: low
 ---
 
 # Storage Power Profile

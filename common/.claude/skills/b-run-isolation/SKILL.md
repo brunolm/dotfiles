@@ -2,6 +2,8 @@
 name: b-run-isolation
 description: Use this skill when the user wants to run a prompt through an isolated `claude -p` instance launched from a temporary folder. Triggers include "/b-run-isolation", "run this in isolation", "run this prompt isolated", "run claude on this from a temp folder", or any phrasing pairing a prompt with running it in a clean/isolated/temporary environment. Everything after the trigger is the prompt (with optional leading "model: X" / "effort: Y" overrides — defaults are model fable, effort high). Creates a fresh temp folder, runs `claude -p` there, relays the output verbatim, and reports any files the run left behind.
 version: 1.0.0
+model: haiku
+effort: low
 ---
 
 # Run a Prompt in Isolation
