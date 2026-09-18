@@ -10,6 +10,14 @@
                 "input": "\u0018\u0013"
             },
             "id": "User.sendInput.CtrlEnterSendNow"
+        },
+        {
+            "command": 
+            {
+                "action": "sendInput",
+                "input": "\n"
+            },
+            "id": "User.sendInput.DFCDAF06"
         }
     ],
     "copyFormatting": "none",
@@ -28,6 +36,10 @@
         {
             "id": "User.sendInput.CtrlEnterSendNow",
             "keys": "ctrl+enter"
+        },
+        {
+            "id": "User.sendInput.DFCDAF06",
+            "keys": "shift+enter"
         },
         {
             "id": "Terminal.DuplicatePaneAuto",
