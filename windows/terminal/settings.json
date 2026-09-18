@@ -1,7 +1,17 @@
 {
     "$help": "https://aka.ms/terminal-documentation",
     "$schema": "https://aka.ms/terminal-profiles-schema",
-    "actions": [],
+    "actions":
+    [
+        {
+            "command":
+            {
+                "action": "sendInput",
+                "input": "\u0018\u0013"
+            },
+            "id": "User.sendInput.CtrlEnterSendNow"
+        }
+    ],
     "copyFormatting": "none",
     "copyOnSelect": false,
     "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
@@ -14,6 +24,10 @@
         {
             "id": "Terminal.FindText",
             "keys": "ctrl+shift+f"
+        },
+        {
+            "id": "User.sendInput.CtrlEnterSendNow",
+            "keys": "ctrl+enter"
         },
         {
             "id": "Terminal.DuplicatePaneAuto",
