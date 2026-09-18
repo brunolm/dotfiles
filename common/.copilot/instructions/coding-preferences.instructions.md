@@ -1,1 +1,0 @@
-- Use early returns to reduce nesting depth.

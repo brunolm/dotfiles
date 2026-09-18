@@ -78,9 +78,6 @@
     Write-Host "  Windows Terminal not installed; skipping" -ForegroundColor DarkGray
   }
 
-  Step "Linking Copilot instructions"
-  New-Link (Join-Path $home_ ".copilot\instructions") (Join-Path $PSScriptRoot "common\.copilot\instructions")
-
   Step "Linking Claude config"
   $claudeDir = Join-Path $home_ ".claude"
   New-Link (Join-Path $claudeDir "CLAUDE.md") (Join-Path $PSScriptRoot "common\.claude\CLAUDE.md")
