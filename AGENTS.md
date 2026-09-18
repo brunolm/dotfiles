@@ -23,3 +23,7 @@
 
 Use the gitignored folder `.tmp`
 
+# Private instructions
+
+@AGENTS.local.md
+
