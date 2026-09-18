@@ -13,6 +13,7 @@
   2. `stealth-fetch` MCP `fetch` with `impersonate="chrome131_android"` - a mobile UA often gets server-rendered HTML where desktop returns a shell, and yields 2-3x more content on sites like X and Instagram
   3. the built-in web fetch
   4. a real browser via the `patchright` MCP
+- The skills in `~/.codex/skills` are shared with Claude Code, so they name Claude Code tools (`AskUserQuestion`, `Task`, `ExitPlanMode`). Treat those as the intent, not the tool: ask the question in plain conversation, run the work inline or in a subagent, present the plan as text.
 - Always show a summary and ask permission before:
   - sending emails
   - making changes on the calendar

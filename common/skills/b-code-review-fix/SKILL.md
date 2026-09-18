@@ -93,4 +93,4 @@ Remove the original bullet wherever it sat and append it under a `### Skipped` s
 - Stage only the files actually touched. Never `-A` or `.`.
 - Never push without explicit confirmation in step 4.
 - If a fix has to touch files beyond the finding's stated scope (e.g., a shared helper), call that out before committing so the user can veto.
-- Honor project rules in `CLAUDE.md` files when applying fixes.
+- Honor project rules in `CLAUDE.md` / `AGENTS.md` files when applying fixes.

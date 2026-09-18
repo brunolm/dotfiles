@@ -23,6 +23,30 @@
     Write-Host "  $Path -> $Target" -ForegroundColor DarkGray
   }
 
+  # Skills are shared between agents: one source directory, one link per skill into each agent's
+  # skills folder, so the agents' own scratch directories (Claude's synced/, Codex's .system/) stay
+  # outside the repo.
+  function New-SkillLinks($Path) {
+    $shared = Join-Path $PSScriptRoot "common\skills"
+
+    if (Test-Path $Path) {
+      $item = Get-Item $Path -Force
+      # A whole-directory link from an older install; replace it with a real directory.
+      if ($item.LinkType) { $item.Delete() }
+    }
+    if (!(Test-Path $Path)) {
+      New-Item -ItemType Directory -Path $Path -Force | Out-Null
+    }
+
+    # Drop links left behind by skills that no longer exist in the shared directory.
+    Get-ChildItem $Path -Force | Where-Object { $_.LinkType -and !(Test-Path $_.Target) } | ForEach-Object {
+      Write-Host "  removing stale link $($_.FullName)" -ForegroundColor DarkGray
+      $_.Delete()
+    }
+
+    Get-ChildItem $shared -Directory | ForEach-Object { New-Link (Join-Path $Path $_.Name) $_.FullName }
+  }
+
   function Step($message) {
     Write-Host ""
     Write-Host "== $message" -ForegroundColor Cyan
@@ -82,7 +106,7 @@
   $claudeDir = Join-Path $home_ ".claude"
   New-Link (Join-Path $claudeDir "CLAUDE.md") (Join-Path $PSScriptRoot "common\.claude\CLAUDE.md")
   New-Link (Join-Path $claudeDir "settings.json") (Join-Path $PSScriptRoot "common\.claude\settings.json")
-  New-Link (Join-Path $claudeDir "skills") (Join-Path $PSScriptRoot "common\.claude\skills")
+  New-SkillLinks (Join-Path $claudeDir "skills")
   New-Link (Join-Path $claudeDir "hooks") (Join-Path $PSScriptRoot "common\.claude\hooks")
 
   Step "Registering the Claude Code toast identity and focus protocol"
@@ -101,7 +125,7 @@
   $codexDir = Join-Path $home_ ".codex"
   New-Link (Join-Path $codexDir "AGENTS.md") (Join-Path $PSScriptRoot "common\.codex\AGENTS.md")
   New-Link (Join-Path $codexDir "config.toml") (Join-Path $PSScriptRoot "common\.codex\config.toml")
-  New-Link (Join-Path $codexDir "skills") (Join-Path $PSScriptRoot "common\.codex\skills")
+  New-SkillLinks (Join-Path $codexDir "skills")
 
   Step "Linking Grok config"
   New-Link (Join-Path $home_ ".grok\config.toml") (Join-Path $PSScriptRoot "common\.grok\config.toml")

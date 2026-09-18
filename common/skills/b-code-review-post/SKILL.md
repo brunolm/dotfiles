@@ -37,7 +37,7 @@ Pick the review source in this order:
 
 1. A review file path the user passed explicitly.
 2. A review produced earlier in this conversation (e.g., the user just ran `/b-code-review`) — use its findings directly.
-3. `.branch-docs/pr-<id>-claude.md`, where `<id>` is the PR number; if missing, retry with the current branch name (`git rev-parse --abbrev-ref HEAD`).
+3. `.branch-docs/pr-<id>-<agent>.md`, where `<id>` is the PR number and `<agent>` is the agent running this skill (`claude` or `codex`); if missing, retry with the current branch name (`git rev-parse --abbrev-ref HEAD`).
 4. Otherwise, `Glob` `.branch-docs/`, narrow to review-looking files (`pr-*`, `*review*`, `*-claude.md` / `*-codex.md`, first heading `## Code review`), and ask the user which to use via `AskUserQuestion`.
 
 ## 3. Parse findings and apply the item filter

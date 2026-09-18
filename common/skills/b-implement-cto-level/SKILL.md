@@ -30,7 +30,7 @@ Every decision is judged against these. When a shortcut conflicts with one of th
 - **Robust by construction** — handle the edge cases, the errors, the empty/null/zero, the concurrent and the partial. Make illegal states unrepresentable where the language allows.
 - **Honest trade-offs** — there is no "perfect"; there is the right call for this codebase, stated with its cost.
 
-Also enforce the user's coding standards from CLAUDE.md (guard clauses / early returns, truthy-falsy checks, async/await over `.then` chains, concern-boundary file splits, newspaper/call-order declaration layout, comment discipline — a comment must encode a *why*). These are non-negotiable, not stylistic preferences.
+Also enforce the user's coding standards from CLAUDE.md / AGENTS.md (guard clauses / early returns, truthy-falsy checks, async/await over `.then` chains, concern-boundary file splits, newspaper/call-order declaration layout, comment discipline — a comment must encode a *why*). These are non-negotiable, not stylistic preferences.
 
 ## Phase 0 — Intake & scoping
 
@@ -80,7 +80,7 @@ Execute the approved plan faithfully.
 
 - Build in the order that keeps the tree coherent — types/contracts first, then the units that depend on them, then the wiring.
 - Match surrounding code in every visible way: imports style, error handling, naming, file layout, comment density.
-- Honor every item in **The bar** and the CLAUDE.md standards as you write, not as a cleanup afterthought.
+- Honor every item in **The bar** and the CLAUDE.md / AGENTS.md standards as you write, not as a cleanup afterthought.
 - If implementation reveals the plan was wrong (a reuse target doesn't fit, an edge case explodes scope), stop and surface it — don't silently diverge into a worse design or silently expand scope. A small, obvious correction can proceed; a structural change goes back to the user.
 - Don't add features, config, or abstraction the plan didn't call for. Smallest correct surface.
 
@@ -88,7 +88,7 @@ Execute the approved plan faithfully.
 
 Before declaring done, sweep your own diff and prove it works.
 
-1. **Self-review the diff** against The bar and CLAUDE.md: unused code, duplicated code, comments that don't earn their place, SRP violations, naming, declaration ordering. Fix what you find.
+1. **Self-review the diff** against The bar and CLAUDE.md / AGENTS.md: unused code, duplicated code, comments that don't earn their place, SRP violations, naming, declaration ordering. Fix what you find.
 2. **Verify** with the project's own tooling discovered in Phase 1 — build, type-check, lint, and run the relevant tests. Run them; don't assume. If a command isn't obvious and can't be inferred, ask rather than skip.
 3. **Report honestly** — if something fails, say so with the output. If a step was skipped (no test setup, etc.), say that. State what's done and verified plainly, without hedging.
 4. Summarize: what was built, the key design decisions and their trade-offs, what's reused, what's new, and any follow-ups or known limitations.

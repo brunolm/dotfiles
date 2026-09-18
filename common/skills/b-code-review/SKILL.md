@@ -51,7 +51,7 @@ For each changed file, consider:
 
 - **Correctness** — logic errors, off-by-one, null/undefined handling, race conditions, wrong API usage, broken error handling, missed edge cases.
 - **Security** — injection (SQL, command, XSS), secrets in code, unsafe deserialization, missing auth checks, unsafe file/path handling, weak crypto, PII leaks.
-- **Project-specific rules** — honor any rules in `CLAUDE.md` files at the repo root or parent directories. For this dotfiles repo specifically: C# low-level Windows hooks (`LowLevelMouseProc`, `LowLevelKeyboardProc`) must never call `SendInput` synchronously.
+- **Project-specific rules** — honor any rules in `CLAUDE.md` / `AGENTS.md` files at the repo root or parent directories. For this dotfiles repo specifically: C# low-level Windows hooks (`LowLevelMouseProc`, `LowLevelKeyboardProc`) must never call `SendInput` synchronously.
 - **Consistency** — does the change match surrounding conventions (naming, error handling style, logging, file layout)? Flag only real inconsistencies, not personal preference.
 - **Dead / risky code** — unused vars, unreachable branches, swallowed exceptions, TODOs without tickets, debug prints left in, commented-out blocks.
 - **Tests** — are behavior changes covered? Are new tests actually asserting something meaningful?
@@ -188,7 +188,7 @@ Use this prompt verbatim — only the path varies. Never inline the diff, findin
 
 ## Output format
 
-Output should be saved in `.branch-docs/pr-<id>-claude.md`, if the file already exists then overwrite it. If a PR hasn't been specified use the current branch name as `<id>`.
+Output should be saved in `.branch-docs/pr-<id>-<agent>.md`, where `<agent>` names the agent running the review (`claude` or `codex`), if the file already exists then overwrite it. If a PR hasn't been specified use the current branch name as `<id>`.
 
 Chat should output a clickable link to open this file.
 

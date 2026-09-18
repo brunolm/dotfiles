@@ -13,11 +13,7 @@ keys/bin
 
 .tmp
 
-# Claude
-**/.claude/skills/synced/
-
 # Codex
-**/.codex/skills/.system/
 **/.codex/config.toml
 
 .playwright-mcp/
