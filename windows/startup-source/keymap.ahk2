@@ -4,6 +4,7 @@
 #Include ./valheim.ahk2
 #Include ./windrose.ahk2
 #Include ./norestforthewicked.ahk2
+#Include ./rsdragonwilds.ahk2
 
 ; Ctrl + Shift + Alt + R to reload the script
 ^+!r:: {

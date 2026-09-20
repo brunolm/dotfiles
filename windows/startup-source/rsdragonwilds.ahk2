@@ -1,0 +1,8 @@
+#Requires AutoHotkey v2.0
+
+#HotIf WinActive("ahk_exe RSDragonwilds-Win64-Shipping.exe")
+
+; mouse5 -> maps to scroll click
+XButton2::MButton
+
+#HotIf
