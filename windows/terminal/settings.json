@@ -15,7 +15,7 @@
             "command": 
             {
                 "action": "sendInput",
-                "input": "\n"
+                "input": "\u001b\r"
             },
             "id": "User.sendInput.DFCDAF06"
         }
