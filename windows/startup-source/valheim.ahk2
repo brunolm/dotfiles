@@ -63,15 +63,15 @@ r::
     Send("{e down}")
     Sleep(100)
     Send("{e up}")
-    Sleep(600)
+    Sleep(400)
 
     ; Calculate screen coords: window position + percentage of window size
     WinGetPos &winX, &winY, &winW, &winH, "A"
-    targetX := Round(winX + winW * 0.69)
-    targetY := Round(winY + winH * 0.30)
+    targetX := Round(winX + winW * 0.749)
+    targetY := Round(winY + winH * 0.332)
 
-    ; Click 10 times at the repair button
-    loop 10 {
+    ; Click 13 times at the repair button
+    loop 13 {
         DllCall("SetCursorPos", "int", targetX, "int", targetY)
         Send("{LButton down}")
         Sleep(40)
@@ -82,6 +82,16 @@ r::
     Send("{e down}")
     Sleep(100)
     Send("{e up}")
+}
+
++e::
+{
+    loop 10 {
+        Send("{e down}")
+        Sleep(50)
+        Send("{e up}")
+        Sleep(50)
+    }
 }
 
 ; remap middle click
