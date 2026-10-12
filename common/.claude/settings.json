@@ -68,19 +68,6 @@
       "Bash(gh pr view:*)",
       "Bash(git --no-pager diff:*)",
       "Bash(git --no-pager log:*)",
-      "Bash(git -C * branch *)",
-      "Bash(git -C * checkout *)",
-      "Bash(git -C * diff-tree *)",
-      "Bash(git -C * diff *)",
-      "Bash(git -C * grep *)",
-      "Bash(git -C * log *)",
-      "Bash(git -C * ls-files *)",
-      "Bash(git -C * merge-base *)",
-      "Bash(git -C * mv *)",
-      "Bash(git -C * rev-parse *)",
-      "Bash(git -C * show *)",
-      "Bash(git -C * status *)",
-      "Bash(git -C * view *)",
       "Bash(git branch:*)",
       "Bash(git checkout:*)",
       "Bash(git config user.email)",
@@ -208,6 +195,9 @@
     },
     "claude-sonnet-5": {
       "effortLevel": "low"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
     }
   },
   "autoUpdatesChannel": "latest",
