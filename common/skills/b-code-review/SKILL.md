@@ -1,6 +1,6 @@
 ---
 name: b-code-review
-description: Use this skill when the user asks for a code review, wants feedback on changes, or says things like "review my code", "review this branch", "review this PR", "review the diff", "what do you think of these changes", or "look over my changes". Reviews either the current branch diff, uncommitted working-tree changes, or a specified GitHub PR, and reports findings grouped by severity. Accepts optional `--grok` / `--codex` / `--claude` flags to get a second opinion on the findings from that agent's CLI (default: no secondary agent).
+description: Use this skill when the user asks for a code review, wants feedback on changes, or says things like "review my code", "review this branch", "review this PR", "review the diff", "what do you think of these changes", or "look over my changes". Reviews either the current branch diff, uncommitted working-tree changes, or a specified GitHub PR, and reports findings grouped by severity in a markdown file plus an HTML report (before/after illustrations, where to see each change, and checkboxes to track what was looked at). Accepts optional `--grok` / `--codex` / `--claude` flags to get a second opinion on the findings from that agent's CLI (default: no secondary agent).
 version: 1.0.0
 allowed-tools:
   - Bash(git diff:*)
@@ -12,6 +12,9 @@ allowed-tools:
   - Bash(gh pr view:*)
   - Bash(gh pr diff:*)
   - Bash(gh pr checks:*)
+  - Bash(gh api:*)
+  - Bash(gh repo view:*)
+  - Bash(python:*)
   - Bash(echo:*)
   - Bash(sed:*)
   - Bash(mktemp:*)
@@ -19,6 +22,7 @@ allowed-tools:
   - Bash(codex exec:*)
   - Bash(grok -p:*)
   - Read
+  - Write
   - Grep
   - Glob
   - Task
@@ -235,6 +239,64 @@ Use clickable markdown links (`[file.ts:42](../file.ts#L42)`) for every location
 Note the link path needs to consider that the output will be saved in `.branch-docs/` — adjust the relative path accordingly.
 
 End with the one-line summary. No closing paragraph, no restating what the diff does.
+
+## HTML report
+
+Every run also produces an HTML report, whether it reviews one target or several. The report lets the user tick off each target and each finding as looked at (saved in the browser's localStorage), filter by severity, and click a row's headline to open a modal with that target's full summary and findings.
+
+The bundled files live in this skill's `report/` folder: `build.py` (assembler), `style.css` (the only classes fragments may use), and `section-example.html` (structure to match).
+
+### Layout
+
+- Work folder: `.branch-docs/review-<YYYY-MM-DD>/`. If it already exists from another run, add a suffix (`-b`, `-c`, …).
+- Report: `.branch-docs/code-review-<YYYY-MM-DD>[-suffix].html`, matching the work folder's suffix.
+- Per target, write two files into the work folder, named by `<slug>`: `pr-<number>` for a PR, `branch-<branch name with / replaced by ->` otherwise.
+
+### `<slug>.html`
+
+One `<section class="pr" id="<slug>">…</section>`. Leave out `<html>`, `<style>` and `<script>`, use only classes from `style.css`, and follow the structure of `section-example.html`:
+
+- `<h2>`: link to the PR (or the branch name), the title, a verdict pill (`pill ok|warn|bad`), and `<span class="stat">N files, +A/-D</span>`.
+- `<div class="meta">`: author, branch vs base, the reviewed head SHA linked to the remote tree when there is one, and a link to the markdown review.
+- `<details class="part"><summary>What this PR changes</summary><div class="overview">` containing:
+  - `<p class="lede">`: a plain-language summary of what was true before and what is true after.
+  - `<h3>Before → after</h3>` and a `<table class="ba">` with Scenario | Before | After rows.
+  - **Illustrations** (required, at least two figures). Put before and after side by side with `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">`. Pick the form that fits the change:
+    - UI changes: HTML mockups (`figure.mock` with `.mock-card`, `.mock-row`, `.mock-title`, `.mock-btn`, `.mock-chip`) built from the component's real labels and copy.
+    - Logic, backend, CI or refactors: the before vs after shape (call graph, job graph, decision path) as an `ol.flow` in `figure.seq` or an inline SVG, plus a `figure.code` with `<pre><code>` diff excerpts using `<span class="del">` / `<span class="add">` lines.
+    - Inline SVG must be self-contained and use `currentColor` or the CSS variables (`var(--ok)`, `var(--bad)`, `var(--line)`, `var(--muted)`) so it works in light and dark mode. Give every figure a `<figcaption>`.
+  - Optionally a `<table class="files">` of key files.
+- `<details class="part"><summary>Findings (N)</summary>`, then one `<div class="finding <sev>" data-sev="<sev>">` per finding. Each has `<input type="checkbox" class="track" data-key="<slug>-<number>">`, the number, the severity, `confidence X`, a `<p>` with the finding text (code links point at the reviewed head SHA, never a branch name), and the two `.tldr` lines. With no findings, write `<p class="empty">No findings.</p>`.
+- `<p class="summary">`: the one-line verdict.
+
+Never add the `open` attribute to `<details class="part">`. Escape `<`, `>` and `&` in text, and keep the copy plain and concise.
+
+### `<slug>.json`
+
+```json
+{"id":"123","order":0,"title":"","author":"login","authorName":"","branch":"","base":"","headSha":"",
+ "files":0,"additions":0,"deletions":0,"blocker":0,"major":0,"minor":0,"nit":0,
+ "verdict":"short verdict","tone":"ok|warn|bad",
+ "headline":"one sentence: the most important thing the reader should know",
+ "where":[["Label","html"]]}
+```
+
+- `id` is the PR number as a string, or the branch name. `order` sets the table order, so use the order the user listed the targets in.
+- `where` lists where a reader can see the change, one `[label, html]` row per surface the project has: each app, site, CLI or service, plus a deployed preview when the PR has one. Give concrete locations (URLs, navigation paths using the real UI labels, or routes). Say "No visible change" where it applies, and for internal-only changes add a `Run it` row with the exact command, test or workflow that exercises it. The build inserts this table right after the lede, so don't write it in the HTML.
+
+### Build
+
+```bash
+python <skill dir>/report/build.py <work folder> <report.html> --title "Code review — <targets>"
+```
+
+The build reads the repo and the user's login from `gh` to count reviews the user already posted on each PR. Pass `--repo OWNER/NAME` to override the repo, or `--no-gh` to skip the lookups (always skip them when there is no GitHub remote).
+
+Open the report when it's built, and give a clickable link to it in chat next to the markdown link.
+
+### Several targets
+
+When the user passes several PRs or branches, review them in parallel with one subagent per target. Each subagent writes its markdown review plus its `<slug>.html` and `<slug>.json`, then replies with only its severity counts, its verdict, and one line per Blocker or Major finding. Spot-check any Blocker or Major yourself before reporting it, then run the build once after every subagent has finished.
 
 ## Rules for the review itself
 

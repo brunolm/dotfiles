@@ -1,0 +1,49 @@
+<section class="pr" id="pr-123">
+<h2><a href="https://github.com/OWNER/REPO/pull/123" target="_blank">#123</a> feat(settings): let users export their preferences <span class="pill warn">Ready after minor</span> <span class="stat">6 files, +240/-18</span></h2>
+<div class="meta">Author <code>octocat</code> · Branch <code>feat/export-prefs</code> (vs <code>main</code>) · reviewed at <a class="mono" href="https://github.com/OWNER/REPO/tree/HEAD_SHA" target="_blank">abc1234def</a> · <a href="pr-123-claude.md">markdown</a></div>
+
+<details class="part"><summary>What this PR changes</summary><div class="overview">
+  <p class="lede">Before, preferences could only be changed one at a time on the Settings page. After, a new <b>Export</b> button downloads them all as a JSON file, built in the browser.</p>
+
+  <h3>Before → after</h3>
+  <table class="ba"><thead><tr><th>Scenario</th><th>Before</th><th>After</th></tr></thead><tbody>
+    <tr><td>User wants a copy of their settings</td><td>No way to get one.</td><td><b>Settings → Export</b> downloads <code>preferences.json</code>.</td></tr>
+    <tr><td>Export with no saved preferences</td><td>—</td><td>Downloads <code>{}</code> and shows "Nothing saved yet".</td></tr>
+  </tbody></table>
+
+  <h3>Settings page header</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <figure class="mock">
+    <div class="mock-card"><div class="mock-row"><span class="mock-title">Settings</span><span class="mock-btn">Reset</span></div></div>
+    <figcaption>Before: only Reset</figcaption>
+  </figure>
+  <figure class="mock">
+    <div class="mock-card"><div class="mock-row"><span class="mock-title">Settings</span><span class="mock-btn">Reset</span><span class="mock-btn primary">Export</span></div></div>
+    <figcaption>After: Export next to Reset</figcaption>
+  </figure>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+  <figure class="seq">
+    <ol class="flow"><li>Click a preference</li><li>Change it</li><li>Repeat for each one</li></ol>
+    <figcaption>Before: no bulk path</figcaption>
+  </figure>
+  <figure class="code">
+    <figcaption>After: the new handler</figcaption>
+    <pre><code><span class="del">-  return &lt;Header actions={[reset]} /&gt;;</span>
+<span class="add">+  return &lt;Header actions={[reset, exportPrefs]} /&gt;;</span></code></pre>
+  </figure>
+  </div>
+</div></details>
+
+<details class="part"><summary>Findings (1)</summary>
+  <div class="finding minor" data-sev="minor">
+    <header><input type="checkbox" class="track" data-key="pr-123-1" aria-label="Done 1"><span class="idx">1.</span><span class="sev minor">Minor</span><span class="conf">confidence S</span></header>
+    <p><a href="https://github.com/OWNER/REPO/blob/HEAD_SHA/src/settings/export.ts#L42" target="_blank">src/settings/export.ts:42</a>: <code>URL.createObjectURL(blob)</code> is never revoked, so each export keeps the blob alive until the tab closes. Call <code>URL.revokeObjectURL</code> after the click.</p>
+    <p class="tldr"><span class="tag">Problem</span>the export blob URL is never released.</p>
+    <p class="tldr fix"><span class="tag">Fix</span>revoke the object URL after triggering the download.</p>
+  </div>
+</details>
+
+<p class="summary">0 blockers, 0 major, 1 minor: ready after the minor.</p>
+</section>
