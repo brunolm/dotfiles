@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+# The mise and Claude Code installers put their binaries in ~/.local/bin.
+export PATH="$HOME/.local/bin:$PATH"
+
 install_software() {
   sudo apt update
 
@@ -11,6 +14,11 @@ install_software() {
   sudo apt install -y gnupg
   sudo apt install -y ffmpeg
   sudo apt install -y imagemagick
+  # C toolchain: rust (from mise) needs a linker, as do native npm modules.
+  sudo apt install -y build-essential
+
+  install_mise
+  install_claude
 
   # GUI / productivity apps. On WSL these run via WSLg; usually you'd
   # install them on the Windows host instead. Uncomment to install on
@@ -32,6 +40,26 @@ install_software() {
 
   # Windows-only on the original list, no Linux port:
   #   powertoys, autohotkey, sharex
+}
+
+# Installing mise is only half the job: the toolchains in ~/.config/mise/config.toml (linked by
+# install.sh) are what put node/npm/bun on the PATH.
+install_mise() {
+  if command -v mise >/dev/null 2>&1; then
+    mise self-update -y
+  else
+    curl -fsSL https://mise.run | sh
+  fi
+  mise install
+}
+
+# The native installer is also the updater: rerunning it replaces the binary in ~/.local/bin.
+install_claude() {
+  if command -v claude >/dev/null 2>&1; then
+    claude update
+    return
+  fi
+  curl -fsSL https://claude.ai/install.sh | bash
 }
 
 install_software

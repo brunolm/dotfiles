@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # install.sh — set up WSL: install zsh, port custom env from ~/.bashrc to ~/.zshrc,
-# and optionally sync SSH / Claude / Codex / Grok settings from Windows.
+# link the mise config, and optionally sync SSH / Claude / Codex / Grok settings from Windows.
 # Idempotent: marker-delimited block in ~/.zshrc is refreshed in place; copies overwrite.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ALIASES_DIR="$SCRIPT_DIR/wsl/aliases"
+
+# Tools installed into ~/.local/bin must be found here, or reruns reinstall them.
+export PATH="$HOME/.local/bin:$PATH"
 
 log() { printf '==> %s\n' "$*"; }
 
@@ -29,7 +32,8 @@ resolve_win_home() {
     return 1
   fi
   local raw
-  raw=$(cmd.exe /C 'echo %USERPROFILE%' 2>/dev/null | tr -d '\r\n' || true)
+  # cmd.exe drains stdin, which would swallow answers to later prompts.
+  raw=$(cmd.exe /C 'echo %USERPROFILE%' </dev/null 2>/dev/null | tr -d '\r\n' || true)
   if [[ -z "$raw" ]]; then
     log "could not resolve Windows %USERPROFILE% via cmd.exe"
     return 1
@@ -218,7 +222,25 @@ if [[ -n "$zoxide_arch" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 6) optional: sync SSH from Windows
+# 6) mise config (the toolchains install-software.sh installs with `mise install`)
+# ---------------------------------------------------------------------------
+mise_config_src="$SCRIPT_DIR/common/.config/mise/config.toml"
+mise_config_dst="$HOME/.config/mise/config.toml"
+if [[ "$(readlink "$mise_config_dst" 2>/dev/null)" == "$mise_config_src" ]]; then
+  log "mise config already linked"
+else
+  if [[ -e "$mise_config_dst" ]]; then
+    backup="$mise_config_dst.bak.$(date +%Y%m%d%H%M%S)"
+    log "backing up existing $mise_config_dst -> $backup"
+    mv "$mise_config_dst" "$backup"
+  fi
+  mkdir -p "$(dirname "$mise_config_dst")"
+  ln -sfn "$mise_config_src" "$mise_config_dst"
+  log "linked $mise_config_dst -> $mise_config_src"
+fi
+
+# ---------------------------------------------------------------------------
+# 7) optional: sync SSH from Windows
 # ---------------------------------------------------------------------------
 if prompt_yn "Sync SSH settings from Windows ~/.ssh into WSL?"; then
   if win_home=$(resolve_win_home); then
@@ -241,7 +263,7 @@ if prompt_yn "Sync SSH settings from Windows ~/.ssh into WSL?"; then
 
       log "testing GitHub SSH (ssh -T git@github.com)"
       set +e
-      ssh -T -o StrictHostKeyChecking=accept-new git@github.com
+      ssh -T -o StrictHostKeyChecking=accept-new git@github.com </dev/null
       rc=$?
       set -e
       log "ssh -T exited with $rc (GitHub returns 1 on success — look for 'Hi <user>!' above)"
@@ -252,7 +274,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 7) optional: sync Claude settings from Windows
+# 8) optional: sync Claude settings from Windows
 # ---------------------------------------------------------------------------
 if prompt_yn "Sync Claude settings from Windows ~/.claude into WSL?"; then
   if win_home=$(resolve_win_home); then
@@ -274,7 +296,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 8) optional: sync Codex settings from Windows
+# 9) optional: sync Codex settings from Windows
 # ---------------------------------------------------------------------------
 if prompt_yn "Sync Codex settings from Windows ~/.codex into WSL?"; then
   if win_home=$(resolve_win_home); then
@@ -296,7 +318,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 9) optional: sync Grok settings from Windows
+# 10) optional: sync Grok settings from Windows
 # ---------------------------------------------------------------------------
 if prompt_yn "Sync Grok settings from Windows ~/.grok into WSL?"; then
   if win_home=$(resolve_win_home); then
@@ -316,7 +338,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 10) optional: copy ~/.gitconfig from repo (translate Windows paths to /mnt/<drive>/)
+# 11) optional: copy ~/.gitconfig from repo (translate Windows paths to /mnt/<drive>/)
 # ---------------------------------------------------------------------------
 if prompt_yn "Copy $SCRIPT_DIR/common/.gitconfig to ~/.gitconfig (translating Windows paths)?"; then
   gitconfig_src="$SCRIPT_DIR/common/.gitconfig"

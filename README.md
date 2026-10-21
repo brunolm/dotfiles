@@ -34,6 +34,20 @@ backups are restored, switch the remote back to SSH:
 git remote set-url origin git@github.com:brunolm/dotfiles.git
 ```
 
+## Install on WSL
+
+After the Windows setup: `install.sh` copies SSH keys and the Claude / Codex / Grok settings from
+the Windows home, asking before each one.
+
+```bash
+cd /mnt/b/dotfiles
+bash install.sh
+bash install-software.sh
+```
+
+`install.sh` links the mise config that `install-software.sh` then installs toolchains from (node,
+bun, python, rust, go, gh), alongside the apt packages and Claude Code.
+
 ## MCP servers
 
 Clones [brunolm/ai](https://github.com/brunolm/ai) into `B:\ai` if it is not there
