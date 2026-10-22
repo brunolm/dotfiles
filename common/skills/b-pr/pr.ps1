@@ -1,8 +1,9 @@
 param(
-  [ValidateSet('list', 'info')]
+  [ValidateSet('list', 'review', 'info')]
   [string]$Command = 'list',
   [string]$Target,
-  [int]$Count = 10
+  [int]$Count = 10,
+  [switch]$All
 )
 
 $ErrorActionPreference = 'Stop'
@@ -23,19 +24,18 @@ $MaxBodyLength = 800
 $prFields = 'number,title,url,isDraft,mergeable,statusCheckRollup,reviews,comments,author'
 
 function Main {
-  if ($Command -eq 'info') {
-    if (!$Target) { throw 'Usage: pr.ps1 info <PR number>' }
-    Show-PrInfo $Target
-    return
+  switch ($Command) {
+    'list' { Show-PrList ($Target ? $Target : '@me') }
+    'review' { Show-ReviewRequests ($Target ? $Target : '@me') }
+    'info' {
+      if (!$Target) { throw 'Usage: pr.ps1 info <PR number>' }
+      Show-PrInfo $Target
+    }
   }
-
-  $author = if ($Target) { $Target } else { '@me' }
-  Show-PrList $author
 }
 
 function Show-PrList($author) {
-  $prs = gh pr list --author $author --state open --limit 100 --json $prFields | ConvertFrom-Json
-  if ($LASTEXITCODE) { exit $LASTEXITCODE }
+  $prs = Get-OpenPrs --author $author
   if (!$prs) {
     "No open PRs by $author."
     return
@@ -45,6 +45,40 @@ function Show-PrList($author) {
   Format-PrTable $prs $reviewers
   ''
   $Legend
+}
+
+# `user-review-requested` matches only requests addressed to the user personally; the broader
+# `review-requested` qualifier also matches requests to any team the user belongs to.
+function Show-ReviewRequests($user) {
+  $ready = [System.Collections.Generic.List[object]]::new()
+  $hidden = [System.Collections.Generic.List[string]]::new()
+  foreach ($pr in Get-OpenPrs --search "user-review-requested:$user") {
+    $blocker = if (!$All) { Get-ReviewBlocker $pr }
+    if ($blocker) { $hidden.Add($blocker) } else { $ready.Add($pr) }
+  }
+
+  if ($ready.Count) {
+    $reviewers = $ready | ForEach-Object { (Get-ReviewerStates $_).Keys } | Sort-Object -Unique
+    Format-PrTable $ready $reviewers -WithAuthor
+    ''
+    $Legend
+  } else {
+    "No PRs ready for review by $user."
+  }
+
+  if ($hidden.Count) {
+    $counts = $hidden | Group-Object | Sort-Object Count -Descending | ForEach-Object { "$($_.Count) $($_.Name)" }
+    ''
+    "Hidden: $($counts -join ', '). Use ``/b-pr review --all`` to include them."
+  }
+}
+
+function Get-ReviewBlocker($pr) {
+  if ($pr.isDraft) { return 'draft' }
+  if ($pr.mergeable -eq 'CONFLICTING') { return 'conflicting' }
+  $results = @(Get-Checks $pr).Result
+  if ($results -contains 'fail') { return 'failing CI' }
+  if ($results -contains 'pending') { return 'pending CI' }
 }
 
 function Show-PrInfo($id) {
@@ -84,8 +118,20 @@ function Show-PrInfo($id) {
   }
 }
 
-function Format-PrTable($prs, $reviewers) {
-  $header = @('#', 'Title', 'Draft', 'CI', 'Conflicts') + $reviewers
+function Get-OpenPrs {
+  $prs = gh pr list @args --state open --limit 100 --json $prFields | ConvertFrom-Json
+  if ($LASTEXITCODE) { exit $LASTEXITCODE }
+  $prs
+}
+
+function Format-PrTable($prs, $reviewers, [switch]$WithAuthor) {
+  $header = @(
+    '#'
+    'Title'
+    $(if ($WithAuthor) { 'Author' })
+    'Draft', 'CI', 'Conflicts'
+    $reviewers
+  )
   '| ' + ($header -join ' | ') + ' |'
   '|' + (($header | ForEach-Object { '---' }) -join '|') + '|'
 
@@ -94,6 +140,7 @@ function Format-PrTable($prs, $reviewers) {
     $cells = @(
       "[#$($pr.number)]($($pr.url))"
       $pr.title -replace '\|', '\|'
+      $(if ($WithAuthor) { $pr.author.login })
       $(if ($pr.isDraft) { 'draft' } else { '' })
       Format-Ci $pr
       Format-Conflicts $pr.mergeable
