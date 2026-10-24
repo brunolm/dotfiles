@@ -16,6 +16,10 @@
 # DefaultPowerSchemeValues; MSI's provisioning raises the AC energy preference to 45.
 # "windows-aggresive" is that same scheme as this machine actually ships it, captured from a
 # fresh install: windows-balanced with MSI's AC energy preference of 45 instead of 33.
+#
+# "perf" and "hell" also turn memory integrity (HVCI) off, trading a kernel exploit
+# protection for speed; every other preset turns it back on. Windows reads it at boot, so
+# that part only applies after a restart.
 function B-PC-Set-CpuProfile {
   [CmdletBinding()]
   param(
@@ -27,19 +31,22 @@ function B-PC-Set-CpuProfile {
 
   $settings = PCCpu-Settings
   if ($Preset -eq 'status') {
-    PCPower-Status $settings (PCCpu-PowerModeRow)
+    PCPower-Status $settings (PCCpu-StatusRows)
     return
   }
 
   $values = [ordered]@{} + (PCCpu-Presets)[$Preset]
   $powerMode = $values['PowerMode']
+  $hvci = $values['Hvci']
   $values.Remove('PowerMode')
+  $values.Remove('Hvci')
 
   $applied = PCPower-ApplyPreset $Preset $settings $values $AllSchemes
   if (!$applied) { return }
 
   powercfg /overlaysetactive (PCCpu-PowerModes)[$powerMode] | Out-Null
-  PCPower-Status $settings (PCCpu-PowerModeRow)
+  PCCpu-SetHvci $hvci
+  PCPower-Status $settings (PCCpu-StatusRows)
 }
 
 # Prints every preset side by side. A cell shows one value when AC and DC agree,
@@ -60,9 +67,13 @@ function B-PC-Show-CpuProfiles {
   }
 
   $modeRow = [ordered]@{ Setting = 'Power mode (overlay)' }
-  foreach ($preset in $presets.Keys) { $modeRow[$preset] = $presets[$preset].PowerMode }
+  $integrityRow = [ordered]@{ Setting = 'Memory integrity (HVCI)' }
+  foreach ($preset in $presets.Keys) {
+    $modeRow[$preset] = $presets[$preset].PowerMode
+    $integrityRow[$preset] = PCCpu-OnOff $presets[$preset].Hvci
+  }
 
-  @($rows) + [pscustomobject]$modeRow | Format-Table -AutoSize
+  @($rows) + [pscustomobject]$modeRow + [pscustomobject]$integrityRow | Format-Table -AutoSize
 }
 
 # All under SUB_PROCESSOR. EPP: higher = favor efficiency (0-100). Latency hint: the clock
@@ -82,7 +93,8 @@ function PCCpu-Settings() {
   }
 }
 
-# Each entry is @(AC, DC), except PowerMode which is a key of PCCpu-PowerModes.
+# Each entry is @(AC, DC), except PowerMode which is a key of PCCpu-PowerModes and Hvci
+# which is the global memory integrity on/off.
 function PCCpu-Presets() {
   return [ordered]@{
     'freezing' = [ordered]@{
@@ -95,6 +107,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(0, 0)
       LatencyHint   = @(50, 50)
       PowerMode     = 'best-efficiency'
+      Hvci          = $true
     }
     'cool'     = [ordered]@{
       BoostMode     = @(0, 0)
@@ -106,6 +119,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(0, 0)
       LatencyHint   = @(50, 50)
       PowerMode     = 'best-efficiency'
+      Hvci          = $true
     }
     'balanced' = [ordered]@{
       BoostMode     = @(0, 0)
@@ -117,6 +131,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(1, 0)
       LatencyHint   = @(99, 99)
       PowerMode     = 'balanced'
+      Hvci          = $true
     }
     'default'  = [ordered]@{
       BoostMode     = @(3, 3)
@@ -128,6 +143,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(1, 0)
       LatencyHint   = @(99, 99)
       PowerMode     = 'balanced'
+      Hvci          = $true
     }
     'perf'     = [ordered]@{
       BoostMode     = @(3, 3)
@@ -139,6 +155,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(1, 1)
       LatencyHint   = @(99, 99)
       PowerMode     = 'best-performance'
+      Hvci          = $false
     }
     'hell'     = [ordered]@{
       BoostMode     = @(2, 2)
@@ -150,6 +167,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(1, 1)
       LatencyHint   = @(99, 99)
       PowerMode     = 'best-performance'
+      Hvci          = $false
     }
     'windows-balanced' = [ordered]@{
       BoostMode     = @(2, 2)
@@ -161,6 +179,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(1, 0)
       LatencyHint   = @(99, 99)
       PowerMode     = 'balanced'
+      Hvci          = $true
     }
     'windows-aggresive' = [ordered]@{
       BoostMode     = @(2, 2)
@@ -172,6 +191,7 @@ function PCCpu-Presets() {
       CoolingPolicy = @(1, 0)
       LatencyHint   = @(99, 99)
       PowerMode     = 'balanced'
+      Hvci          = $true
     }
   }
 }
@@ -184,9 +204,43 @@ function PCCpu-PowerModes() {
   }
 }
 
+function PCCpu-SetHvci([bool]$enabled) {
+  Set-ItemProperty -Path (PCCpu-HvciKey) -Name Enabled -Type DWord -Value ([int]$enabled)
+  if ($enabled -ne (PCCpu-HvciRunning)) {
+    Write-Warning "Memory integrity turns $((PCCpu-OnOff $enabled).ToLower()) after a restart."
+  }
+}
+
+function PCCpu-StatusRows() {
+  return @((PCCpu-PowerModeRow), (PCCpu-HvciRow))
+}
+
 function PCCpu-PowerModeRow() {
   $active = (Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\User\PowerSchemes').ActiveOverlayAcPowerScheme
   $name = (PCCpu-PowerModes).GetEnumerator() | Where-Object { $_.Value -eq $active } | ForEach-Object { $_.Key }
 
   return [pscustomobject]@{ Setting = 'Power mode (overlay)'; AC = $(if ($name) { $name } else { $active }); DC = ''; Source = 'global' }
+}
+
+function PCCpu-HvciRow() {
+  $configured = (Get-ItemProperty (PCCpu-HvciKey) -ErrorAction SilentlyContinue).Enabled -eq 1
+  $running = PCCpu-HvciRunning
+  $state = PCCpu-OnOff $running
+  if ($configured -ne $running) { $state += " ($(PCCpu-OnOff $configured) after restart)" }
+
+  return [pscustomobject]@{ Setting = 'Memory integrity (HVCI)'; AC = $state; DC = ''; Source = 'global' }
+}
+
+# SecurityServicesRunning lists the VBS services active this boot; 2 is HVCI.
+function PCCpu-HvciRunning() {
+  $guard = Get-CimInstance -Namespace root\Microsoft\Windows\DeviceGuard -ClassName Win32_DeviceGuard
+  return $guard.SecurityServicesRunning -contains 2
+}
+
+function PCCpu-HvciKey() {
+  return 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'
+}
+
+function PCCpu-OnOff([bool]$value) {
+  return PCPower-Format @{ Unit = 'bool' } ([int]$value)
 }
