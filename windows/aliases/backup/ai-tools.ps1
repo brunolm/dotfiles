@@ -17,7 +17,6 @@ function BBackupAi-HomeItems() {
     '.claude.json',
     '.claude/projects/*/memory',
     '.claude/history.jsonl',
-    '.claude/statusline-command.ps1',
     '.claude/plugins/known_marketplaces.json',
     '.codex/auth.json',
     '.codex/memories',
