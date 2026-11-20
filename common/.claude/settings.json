@@ -180,6 +180,10 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "pwsh -NoProfile -File C:/Users/bruno/.claude/statusline.ps1"
+  },
   "worktree": {
     "bgIsolation": "none"
   },

@@ -108,6 +108,7 @@
   New-Link (Join-Path $claudeDir "settings.json") (Join-Path $PSScriptRoot "common\.claude\settings.json")
   New-SkillLinks (Join-Path $claudeDir "skills")
   New-Link (Join-Path $claudeDir "hooks") (Join-Path $PSScriptRoot "common\.claude\hooks")
+  New-Link (Join-Path $claudeDir "statusline.ps1") (Join-Path $PSScriptRoot "common\.claude\statusline.ps1")
 
   Step "Registering the Claude Code toast identity and focus protocol"
   . (Join-Path $PSScriptRoot "windows\aliases\reg\claude-notify.ps1")
