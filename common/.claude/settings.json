@@ -220,5 +220,8 @@
       "Calling any mcp__input__ tool that sends input (click, move, drag, scroll, type, press keys). These drive the real mouse and keyboard. Only proceed when the user asked for that action; never on your own initiative, and never to unblock yourself or work around a failed tool."
     ]
   },
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true
+  }
 }
