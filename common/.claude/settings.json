@@ -180,15 +180,27 @@
       }
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "pwsh -NoProfile -File C:/Users/bruno/.claude/statusline.ps1"
-  },
   "worktree": {
     "bgIsolation": "none"
   },
   "enableArtifact": false,
   "workflowKeywordTriggerEnabled": false,
+  "statusLine": {
+    "type": "command",
+    "command": "pwsh -NoProfile -File C:/Users/bruno/.claude/statusline.ps1"
+  },
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "fast-paste@brunolm-ai": true
+  },
+  "extraKnownMarketplaces": {
+    "brunolm-ai": {
+      "source": {
+        "source": "github",
+        "repo": "brunolm/ai"
+      }
+    }
+  },
   "effortLevel": "high",
   "modelSettings": {
     "claude-fable-5-1": {
@@ -220,8 +232,5 @@
       "Calling any mcp__input__ tool that sends input (click, move, drag, scroll, type, press keys). These drive the real mouse and keyboard. Only proceed when the user asked for that action; never on your own initiative, and never to unblock yourself or work around a failed tool."
     ]
   },
-  "voiceEnabled": true,
-  "enabledPlugins": {
-    "rust-analyzer-lsp@claude-plugins-official": true
-  }
+  "voiceEnabled": true
 }

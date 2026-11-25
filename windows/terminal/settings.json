@@ -18,6 +18,14 @@
                 "input": "\u001b\r"
             },
             "id": "User.sendInput.DFCDAF06"
+        },
+        {
+            "command":
+            {
+                "action": "sendInput",
+                "input": "⧉"
+            },
+            "id": "User.sendInput.ClaudeFastPaste"
         }
     ],
     "copyFormatting": "none",
@@ -52,6 +60,10 @@
         {
             "id": "Terminal.ClearBuffer",
             "keys": "ctrl+shift+l"
+        },
+        {
+            "id": "User.sendInput.ClaudeFastPaste",
+            "keys": "alt+shift+v"
         }
     ],
     "newTabMenu": 
