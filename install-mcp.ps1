@@ -7,6 +7,11 @@
   left alone; dependencies are installed with the package manager's own idempotent commands; and
   each server is re-registered at user scope so a changed path is picked up rather than duplicated.
 
+  Servers are registered as HTTP servers on fixed localhost ports, so every Claude Code session
+  shares one process per server. Nothing starts them up front: each registration's headersHelper
+  (common\.claude\mcp\ensure-mcp.ps1) starts its server on the first connect that finds it down.
+  A running server is stopped before its rebuild, and the next connect starts the new build.
+
   A server whose toolchain is missing is skipped with a warning instead of failing the whole run.
 
 .PARAMETER Root
@@ -40,8 +45,17 @@ $PSNativeCommandUseErrorActionPreference = $false
 
 $RepoUrl = "git@github.com:brunolm/ai.git"
 
+# Claude Code runs this before connecting to each server; install.ps1 links it in from common\.claude.
+$HeadersHelperScript = Join-Path $HOME ".claude\mcp\ensure-mcp.ps1"
+
+# Machine-local launch commands read by ensure-mcp.ps1; kept out of the repo since they hold
+# absolute paths.
+$LaunchSpecPath = Join-Path $HOME ".claude\mcp-servers.json"
+
 # One entry per server. Name is what it registers as in Claude Code — keep it stable, or a rename
-# leaves the old registration orphaned. Command and Args receive the server's folder.
+# leaves the old registration orphaned. Each server runs over HTTP on its own fixed localhost Port,
+# shared by every session; Command and Args (which receive the server's folder and that port) are
+# how ensure-mcp.ps1 starts it when nothing is listening yet.
 $Servers = @(
   @{
     Name     = "mal-mcp"
@@ -49,8 +63,9 @@ $Servers = @(
     Requires = @("bun")
     SeedEnv  = $true
     Build    = { param($Dir) Invoke-Step $Dir "bun" @("install") }
+    Port     = 47801
     Command  = { "bun" }
-    Args     = { param($Dir) @("$Dir/src/index.ts") }
+    Args     = { param($Dir, $Port) @("$Dir/src/index.ts", "--port", $Port) }
   },
   @{
     Name     = "toggl"
@@ -58,19 +73,25 @@ $Servers = @(
     Requires = @("bun")
     SeedEnv  = $true
     Build    = { param($Dir) Invoke-Step $Dir "bun" @("install") }
+    Port     = 47802
     Command  = { "bun" }
-    Args     = { param($Dir) @("run", "$Dir/src/index.ts") }
+    Args     = { param($Dir, $Port) @("run", "$Dir/src/index.ts", "--port", $Port) }
   },
   @{
     Name     = "patchright"
     Folder   = "patchright-mcp"
     Requires = @("node", "npm")
     Build    = { param($Dir) Invoke-Step $Dir "npm" @("install") }
+    Port     = 47803
     Command  = { "node" }
     Args     = {
-      param($Dir)
+      param($Dir, $Port)
       $profileDir = Join-Path $env:LOCALAPPDATA "Google\Chrome\User Data MCP"
-      @("$Dir/cli.js", "--cdp-endpoint=http://localhost:9222", "--auto-launch-chrome=$($profileDir -replace '\\', '/')")
+      @(
+        "$Dir/cli.js", "--cdp-endpoint=http://localhost:9222", "--auto-launch-chrome=$($profileDir -replace '\\', '/')",
+        # Without an explicit host it binds "localhost", which can resolve to ::1 only.
+        "--port", $Port, "--host", "127.0.0.1"
+      )
     }
   },
   @{
@@ -79,8 +100,9 @@ $Servers = @(
     Requires = @("mise")
     # server.py declares its dependencies inline (PEP 723); mise only has to supply python and uv.
     Build    = { param($Dir) Invoke-Step $Dir "mise" @("install") }
+    Port     = 47804
     Command  = { "mise" }
-    Args     = { param($Dir) @("x", "-C", $Dir, "--", "uv", "run", "--script", "$Dir/server.py") }
+    Args     = { param($Dir, $Port) @("x", "-C", $Dir, "--", "uv", "run", "--script", "$Dir/server.py", "--port", $Port) }
   },
   @{
     Name     = "input"
@@ -90,8 +112,9 @@ $Servers = @(
       param($Dir)
       Invoke-Step $Dir "dotnet" @("publish", "src/InputMcp", "-c", "Release", "-o", "publish", "--nologo")
     }
+    Port     = 47805
     Command  = { param($Dir) "$Dir/publish/input-mcp.exe" }
-    Args     = { @() }
+    Args     = { param($Dir, $Port) @("--port", $Port) }
   },
   @{
     Name     = "screenshot"
@@ -101,8 +124,9 @@ $Servers = @(
       param($Dir)
       Invoke-Step $Dir "dotnet" @("publish", "src/ScreenshotMcp", "-c", "Release", "-o", "publish", "--nologo")
     }
+    Port     = 47806
     Command  = { param($Dir) "$Dir/publish/screenshot-mcp.exe" }
-    Args     = { @() }
+    Args     = { param($Dir, $Port) @("--port", $Port) }
   }
 )
 
@@ -189,6 +213,8 @@ function Install-Server($Server) {
     $result.EnvPath = Join-Path $dir ".env"
   }
 
+  Stop-RunningServer $Server
+
   if (!$SkipBuild) {
     $result.Build = Invoke-Build $Server $dir
     if ($result.Build -eq "failed") {
@@ -216,6 +242,19 @@ function Copy-EnvExample($Dir) {
   return $true
 }
 
+# A running server keeps its old code and arguments and locks its .exe against a rebuild. Stopping
+# it is safe: the next connect from any session starts it again through ensure-mcp.ps1.
+function Stop-RunningServer($Server) {
+  $listener = Get-NetTCPConnection -LocalPort $Server.Port -State Listen -ErrorAction SilentlyContinue |
+    Select-Object -First 1
+  if (!$listener) {
+    return
+  }
+
+  Stop-Process -Id $listener.OwningProcess -Force
+  Write-Host "  Stopped the running server (pid $($listener.OwningProcess))."
+}
+
 function Invoke-Build($Server, $Dir) {
   Write-Host "  Building..."
 
@@ -234,26 +273,54 @@ function Register-Server($Server, $Dir) {
     return "skipped"
   }
 
+  if (!(Test-Path $HeadersHelperScript)) {
+    Write-Warning "  Skipping registration — $HeadersHelperScript is missing; run install.ps1 first."
+    return "failed"
+  }
+
   $normalized = $Dir -replace "\\", "/"
   $command = & $Server.Command $normalized
-  $arguments = @(& $Server.Args $normalized)
+  $arguments = @(& $Server.Args $normalized $Server.Port | ForEach-Object { "$_" })
 
   if (!(Test-Path $command) -and !(Test-Tool $command)) {
     Write-Warning "  Skipping registration — $command does not exist."
     return "failed"
   }
 
+  # ensure-mcp.ps1 runs outside this shell's PATH (mise only activates in interactive shells), so
+  # it gets the absolute path.
+  $commandPath = if (Test-Path $command) { $command } else { (Get-Command $command).Source }
+  Save-LaunchSpec $Server.Name @{
+    port    = $Server.Port
+    cwd     = $normalized
+    command = $commandPath -replace "\\", "/"
+    args    = $arguments
+  }
+
+  $url = "http://127.0.0.1:$($Server.Port)/mcp"
+  $entry = @{
+    type          = "http"
+    url           = $url
+    headersHelper = "pwsh -NoProfile -NonInteractive -File `"$($HeadersHelperScript -replace '\\', '/')`""
+  } | ConvertTo-Json -Compress
+
   # Remove first so a changed path replaces the old entry rather than colliding with it.
   & claude mcp remove $Server.Name --scope user 2>&1 | Out-Null
 
-  & claude mcp add $Server.Name --scope user -- $command @arguments | Out-Null
+  & claude mcp add-json $Server.Name $entry --scope user | Out-Null
   if ($LASTEXITCODE -ne 0) {
     Write-Warning "  Registration failed (exit $LASTEXITCODE)."
     return "failed"
   }
 
-  Write-Host "  Registered: $command $($arguments -join ' ')"
+  Write-Host "  Registered: $url, started on demand as $command $($arguments -join ' ')"
   return "ok"
+}
+
+function Save-LaunchSpec($Name, $Spec) {
+  $specs = if (Test-Path $LaunchSpecPath) { Get-Content $LaunchSpecPath -Raw | ConvertFrom-Json -AsHashtable } else { @{} }
+  $specs[$Name] = $Spec
+  $specs | ConvertTo-Json -Depth 5 | Set-Content $LaunchSpecPath
 }
 
 function Invoke-Step($Dir, $Command, $Arguments) {

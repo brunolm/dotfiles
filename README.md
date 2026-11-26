@@ -61,6 +61,12 @@ Idempotent — re-run it any time to rebuild and refresh the registrations.
 Servers needing credentials get a `.env` seeded from their example, which you then fill in. Useful
 switches: `-Only <name>`, `-SkipBuild`, `-SkipRegister`, `-Root <path>`.
 
+Each server is registered over HTTP on a fixed localhost port (47801–47806), so all Claude Code
+sessions share one process per server instead of spawning their own. Nothing has to run at logon:
+the registration's `headersHelper`, `~/.claude/mcp/ensure-mcp.ps1`, starts a server detached the
+first time a session connects and finds it down. Launch commands live in
+`~/.claude/mcp-servers.json` and logs in `~/.claude/mcp-logs/<name>.log`.
+
 ## Info
 
 Custom Startup folder
